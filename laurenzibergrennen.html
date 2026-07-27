@@ -244,6 +244,21 @@
     }
   });
   new EleControl().addTo(map);
+
+  // Schwarzer Infobalken unten
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:absolute;bottom:0;left:0;right:0;z-index:1000;background:#0A0A0A;color:#fff;display:flex;justify-content:center;gap:48px;padding:10px 20px;pointer-events:none;';
+  bar.innerHTML = `
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;display:flex;align-items:center;gap:8px;">
+      <span style="color:#4CAF50;font-size:1rem;">↔</span> <strong>10.4 km</strong>
+    </span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;display:flex;align-items:center;gap:8px;">
+      <span style="color:#4CAF50;font-size:1rem;">↑</span> <strong>343 hm</strong>
+    </span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;display:flex;align-items:center;gap:8px;">
+      <span style="color:#4CAF50;font-size:1rem;">⛰</span> <strong>574 – 917 m</strong>
+    </span>`;
+  document.getElementById('map').appendChild(bar);
 </script>
 </body>
 </html>
