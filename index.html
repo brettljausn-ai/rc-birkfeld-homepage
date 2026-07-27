@@ -316,6 +316,54 @@
 
   .fade-in{opacity:0;transform:translateY(18px);transition:opacity .6s ease, transform .6s ease;}
   .fade-in.visible{opacity:1;transform:translateY(0);}
+
+  /* ---------- GALERIE ---------- */
+  .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:900px){.gallery-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:580px){.gallery-grid{grid-template-columns:1fr;}}
+  .gallery-item{
+    position:relative;border-radius:3px;overflow:hidden;aspect-ratio:4/3;
+    background:var(--moss-dark);cursor:pointer;
+  }
+  .gallery-item.tall{aspect-ratio:3/4;}
+  .gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease;}
+  .gallery-item:hover img{transform:scale(1.04);}
+  .gallery-ph{
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+    background:var(--moss-dark);transition:background .3s ease;
+  }
+  .gallery-item:hover .gallery-ph{background:var(--moss);}
+  .gallery-ph svg{opacity:0.35;}
+  .gallery-caption{
+    position:absolute;bottom:0;left:0;right:0;padding:20px 16px 16px;
+    background:linear-gradient(transparent, rgba(10,10,10,0.78));
+    color:var(--chalk);font-size:0.88rem;font-weight:600;
+    opacity:0;transition:opacity .3s ease;
+  }
+  .gallery-item:hover .gallery-caption{opacity:1;}
+  .gallery-hint{margin-top:24px;font-family:'IBM Plex Mono';font-size:0.8rem;color:#7A7A7A;}
+
+  /* ---------- BERICHTE ---------- */
+  .news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  @media (max-width:900px){.news-grid{grid-template-columns:1fr;}}
+  .news-card{
+    border:1px solid var(--line);border-radius:3px;overflow:hidden;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .news-card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(10,10,10,0.1);}
+  .news-card-img{height:180px;background:var(--moss-dark);overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .news-card-img img{width:100%;height:100%;object-fit:cover;}
+  .news-card-img svg{opacity:0.4;}
+  .news-card-body{padding:22px;}
+  .news-date{font-family:'IBM Plex Mono';font-size:0.75rem;color:var(--rust);margin-bottom:10px;display:block;}
+  .news-card h4{font-size:1.1rem;font-weight:700;margin:0 0 10px;font-family:'Public Sans';}
+  .news-card p{font-size:0.92rem;color:#3B4A3D;line-height:1.55;margin:0;}
+  .news-read-more{
+    display:inline-flex;align-items:center;gap:6px;margin-top:16px;
+    font-size:0.88rem;font-weight:700;color:var(--rust);text-decoration:none;border-bottom:1px solid var(--rust);
+    padding-bottom:1px;
+  }
+  .news-read-more:hover{opacity:0.75;}
 </style>
 </head>
 <body>
@@ -335,7 +383,9 @@
       <ul class="navlinks" id="navlinks">
         <li><a href="#verein">Verein</a></li>
         <li><a href="#angebote">Angebote</a></li>
+        <li><a href="#galerie">Galerie</a></li>
         <li><a href="#termine">Termine</a></li>
+        <li><a href="#berichte">Berichte</a></li>
         <li><a href="#ergebnisse">Ergebnisse</a></li>
         <li><a href="#strava">Strava</a></li>
         <li><a href="#kontakt">Kontakt</a></li>
@@ -488,8 +538,59 @@
     </div>
   </section>
 
+  <!-- GALERIE -->
+  <section id="galerie" style="background:var(--gravel-dark);">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">Eindrücke</span>
+        <h2>Unterwegs im Joglland.</h2>
+        <p>Bilder aus Ausfahrten, Rennen und dem Vereinsleben – hier entsteht die Galerie.</p>
+      </div>
+      <div class="gallery-grid">
+        <div class="gallery-item tall">
+          <div class="gallery-ph">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="18" cy="44" r="14" stroke="white" stroke-width="3"/><circle cx="46" cy="44" r="14" stroke="white" stroke-width="3"/><path d="M18,44 L30,18 L46,44 M30,18 L38,18 M22,31 L38,31" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="34" cy="10" r="6" fill="white"/></svg>
+          </div>
+          <span class="gallery-caption">Clubausfahrt – Joglland</span>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-ph" style="background:#1a3d22;">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><path d="M4,52 L20,24 L34,38 L44,20 L60,52 Z" fill="white" opacity="0.35"/><path d="M4,52 L20,24 L34,38 L44,20 L60,52" stroke="white" stroke-width="2.5" stroke-linejoin="round" fill="none"/><circle cx="44" cy="12" r="8" fill="white" opacity="0.6"/></svg>
+          </div>
+          <span class="gallery-caption">Höhenprofil Laurentiberg</span>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-ph" style="background:#0d2e18;">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="22" y="8" width="20" height="4" rx="2" fill="white" opacity="0.7"/><rect x="18" y="14" width="28" height="3" rx="1.5" fill="white" opacity="0.5"/><path d="M16,44 L48,44 M32,44 L32,17" stroke="white" stroke-width="2.5" stroke-linecap="round"/><circle cx="32" cy="44" r="12" stroke="white" stroke-width="2.5" fill="none"/><circle cx="48" cy="44" r="12" stroke="white" stroke-width="2.5" fill="none"/></svg>
+          </div>
+          <span class="gallery-caption">Startaufstellung Rennen</span>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-ph" style="background:#163525;">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><path d="M8,48 C 16,32 24,40 32,28 C 40,16 48,24 56,16" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="32" cy="28" r="4" fill="white"/><path d="M8,56 L56,56" stroke="white" stroke-width="1.5" stroke-dasharray="3 4" stroke-linecap="round"/></svg>
+          </div>
+          <span class="gallery-caption">MTB-Trail Joglland</span>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-ph" style="background:#1e4a2e;">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><path d="M32,8 L36,20 L50,20 L39,28 L43,40 L32,32 L21,40 L25,28 L14,20 L28,20 Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" fill="none"/></svg>
+          </div>
+          <span class="gallery-caption">Podest Laurentibergrennen 2022</span>
+        </div>
+        <div class="gallery-item tall">
+          <div class="gallery-ph" style="background:#112b1d;">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="20" r="10" stroke="white" stroke-width="2.5" fill="none"/><path d="M20,56 C 20,40 44,40 44,56" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M8,34 C 12,28 20,26 24,30" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/><path d="M56,34 C 52,28 44,26 40,30" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/></svg>
+          </div>
+          <span class="gallery-caption">Trainingslager Porec – April 2026</span>
+        </div>
+      </div>
+      <p class="gallery-hint">→ Fotos können per Mail an rcbirkfeld@gmail.com eingereicht werden.</p>
+    </div>
+  </section>
+
   <!-- ANGEBOTE -->
   <section id="angebote" style="background:var(--gravel-dark);">
+
     <div class="wrap">
       <div class="section-head fade-in">
         <span class="kicker">Angebote</span>
@@ -624,6 +725,52 @@
     </div>
   </section>
 
+  <!-- BERICHTE -->
+  <section id="berichte">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">News &amp; Berichte</span>
+        <h2>Was zuletzt passiert ist.</h2>
+        <p>Rennberichte, Vereinsnachrichten und Rückblicke aus dem Vereinsleben.</p>
+      </div>
+      <div class="news-grid">
+        <div class="news-card">
+          <div class="news-card-img">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none"><path d="M10,60 L28,30 L44,48 L56,24 L70,60 Z" fill="white" opacity="0.25"/><path d="M10,60 L28,30 L44,48 L56,24 L70,60" stroke="white" stroke-width="3" stroke-linejoin="round" fill="none"/><circle cx="56" cy="16" r="10" fill="white" opacity="0.5"/></svg>
+          </div>
+          <div class="news-card-body">
+            <span class="news-date">April 2026</span>
+            <h4>Trainingslager Porec 2026 – Rückblick</h4>
+            <p>Vier Tage, über 600 km, Temperaturen um die 20 Grad und ein Team das jeden Kilometer gemeinsam gefahren ist. Der Bericht vom diesjährigen Frühjahrslager in Kroatien.</p>
+            <a href="#" class="news-read-more">Bericht lesen →</a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-card-img">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="26" r="13" stroke="white" stroke-width="3" fill="none"/><path d="M24,70 C 24,50 56,50 56,70" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M10,44 C 14,36 24,34 30,38" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.6"/><path d="M70,44 C 66,36 56,34 50,38" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.6"/></svg>
+          </div>
+          <div class="news-card-body">
+            <span class="news-date">Jänner 2026</span>
+            <h4>Saison 2026 – Neue Mitglieder, neues Programm</h4>
+            <p>Mit dem neuen Jahr startet auch eine neue Saison beim RC ASVÖ Birkfeld. Was euch 2026 erwartet: erweiterte Jugendgruppe, mehr Termine und ein frischer Vereinsdress.</p>
+            <a href="#" class="news-read-more">Mehr lesen →</a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-card-img">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none"><path d="M40,10 L45,26 L62,26 L49,35 L54,52 L40,42 L26,52 L31,35 L18,26 L35,26 Z" stroke="white" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>
+          </div>
+          <div class="news-card-body">
+            <span class="news-date">September 2022</span>
+            <h4>Laurentibergrennen 2022 – Christoph Spreitzhofer Platz 2</h4>
+            <p>Christoph Spreitzhofer fuhr als bestes RC-Mitglied auf Platz 2 in 23:33 Minuten. Ein starkes Ergebnis beim Hausrennen – der vollständige Bericht mit Ergebnisliste.</p>
+            <a href="#" class="news-read-more">Bericht lesen →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- STRAVA CLUB -->
   <section id="strava">
     <div class="wrap">
@@ -645,12 +792,12 @@
         </div>
 
         <div class="strava-stats">
-          <div class="strava-stat"><span class="num">30</span><span class="lbl">Mitglieder auf Strava</span></div>
-          <div class="strava-stat"><span class="num">6</span><span class="lbl">Disziplinen im Club</span></div>
+          <div class="strava-stat"><span class="num" data-strava="members">30</span><span class="lbl">Mitglieder auf Strava</span></div>
+          <div class="strava-stat"><span class="num" data-strava="sport_count">8</span><span class="lbl">Disziplinen im Club</span></div>
         </div>
 
-        <div class="strava-tags">
-          <span>Rennrad</span><span>Gravel</span><span>Mountainbike</span><span>E-Bike</span><span>Handbike</span><span>Rolle / Virtual</span>
+        <div class="strava-tags" data-strava="sports">
+          <span>Rennrad</span><span>Gravel</span><span>Mountainbike</span><span>E-Bike</span><span>E-MTB</span><span>Handbike</span><span>Velomobil</span><span>Rolle / Virtual</span>
         </div>
 
         <a href="https://www.strava.com/clubs/300701" target="_blank" rel="noopener" class="btn btn-outline-dark">Club auf Strava ansehen →</a>
