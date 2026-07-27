@@ -6,6 +6,8 @@
 <title>Laurenzibergrennen 2026 – RC ASVÖ Birkfeld</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;900&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root{
     --ink:#0A0A0A;
@@ -64,6 +66,11 @@
   .sidebar-card ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
   .sidebar-card li{font-size:0.92rem;display:flex;align-items:flex-start;gap:8px;}
   .sidebar-card li::before{content:"→";color:var(--rust);font-weight:700;flex-shrink:0;}
+
+  /* MAP */
+  .map-section{padding:0 0 80px;}
+  .map-label{font-family:'IBM Plex Mono';font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--rust);margin-bottom:12px;display:block;}
+  #map{height:420px;border-radius:3px;border:1px solid var(--line);}
 
   /* BACK BUTTON */
   .back-section{padding:40px 0 80px;}
@@ -151,6 +158,13 @@
     </div>
   </section>
 
+  <section class="map-section">
+    <div class="wrap">
+      <span class="map-label">Streckengebiet</span>
+      <div id="map"></div>
+    </div>
+  </section>
+
   <div class="back-section">
     <div class="wrap">
       <a href="index.html" class="btn btn-primary">← Zurück zur Startseite</a>
@@ -159,5 +173,29 @@
 
 </main>
 
+<script>
+  const map = L.map('map', { zoomControl: true, scrollWheelZoom: false });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 17
+  }).addTo(map);
+
+  const startIcon = L.divIcon({
+    className: '',
+    html: '<div style="background:#1F7A34;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+
+  // Start/Ziel: Friesi's Bikery, Edelseestraße 27, Birkfeld
+  const start = [47.3672, 15.4308];
+  L.marker(start, { icon: startIcon })
+    .addTo(map)
+    .bindPopup('<strong>Start / Ziel</strong><br>Friesi\'s Bikery<br>Edelseestraße 27, Birkfeld')
+    .openPopup();
+
+  map.setView(start, 13);
+</script>
 </body>
 </html>
