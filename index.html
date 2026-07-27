@@ -206,6 +206,11 @@
     font-family:'IBM Plex Mono';font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;
     background:var(--gravel-dark);padding:6px 12px;border-radius:2px;white-space:nowrap;
   }
+  .event-more{
+    display:inline-block;margin-top:8px;font-size:0.85rem;font-weight:700;
+    color:var(--rust);text-decoration:none;border-bottom:1px solid var(--rust);padding-bottom:1px;
+  }
+  .event-more:hover{opacity:0.7;}
   @media (max-width:640px){
     .event-row{grid-template-columns:1fr;gap:8px;}
     .event-tag{justify-self:flex-start;}
@@ -666,7 +671,11 @@
       <div class="events">
         <div class="event-row">
           <div class="event-date">AUG<br><small>22.</small></div>
-          <div class="event-info"><h4>Laurenzibergrennen</h4><span>Start bei Friesi's Bikery, Edelseestraße 27, Birkfeld</span></div>
+          <div class="event-info">
+            <h4>Laurenzibergrennen</h4>
+            <span>Start bei Friesi's Bikery, Edelseestraße 27, Birkfeld</span>
+            <a href="laurenzibergrennen.html" class="event-more">Mehr Infos →</a>
+          </div>
           <div class="event-tag">Vereinsrennen</div>
         </div>
       </div>

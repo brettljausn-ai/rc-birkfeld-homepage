@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laurenzibergrennen 2026 – RC ASVÖ Birkfeld</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;900&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0A0A;
+    --gravel:#FFFFFF;
+    --gravel-dark:#EDEDED;
+    --moss:#1F5C33;
+    --moss-dark:#123D22;
+    --rust:#1F7A34;
+    --rust-bright:#145C27;
+    --chalk:#FFFFFF;
+    --gold:#4CAF50;
+    --line:rgba(10,10,10,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--gravel);color:var(--ink);font-family:'Public Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:0.01em;margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  /* NAV */
+  header{position:sticky;top:0;z-index:50;background:rgba(10,10,10,0.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.12);}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Big Shoulders Display';font-weight:900;font-size:1.3rem;letter-spacing:0.02em;text-decoration:none;color:var(--chalk);}
+  .back-link{font-family:'IBM Plex Mono';font-size:0.82rem;color:var(--chalk);text-decoration:none;opacity:0.7;}
+  .back-link:hover{opacity:1;}
+
+  /* HERO */
+  .event-hero{background:var(--ink);color:var(--chalk);padding:80px 0 64px;}
+  .kicker{font-family:'IBM Plex Mono';font-size:0.78rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+  .kicker::before{content:"";width:22px;height:2px;background:var(--gold);}
+  .event-hero h1{font-size:clamp(2.4rem,6vw,4.8rem);line-height:0.95;font-weight:900;}
+  .event-meta{display:flex;gap:32px;margin-top:32px;flex-wrap:wrap;}
+  .meta-item{display:flex;flex-direction:column;gap:4px;}
+  .meta-label{font-family:'IBM Plex Mono';font-size:0.72rem;color:#999;text-transform:uppercase;letter-spacing:0.08em;}
+  .meta-value{font-size:1rem;font-weight:600;color:var(--chalk);}
+
+  /* CONTENT */
+  .event-content{padding:80px 0;}
+  .event-grid{display:grid;grid-template-columns:1fr 340px;gap:56px;align-items:start;}
+  @media(max-width:860px){.event-grid{grid-template-columns:1fr;}}
+  .event-body h2{font-size:1.8rem;margin-bottom:16px;}
+  .event-body p{font-size:1.05rem;line-height:1.7;color:#2A2A2A;margin:0 0 20px;}
+  .coming-soon{
+    background:var(--gravel-dark);border-radius:3px;padding:48px 36px;text-align:center;
+  }
+  .coming-soon .icon{font-size:2.4rem;margin-bottom:16px;}
+  .coming-soon h3{font-size:1.4rem;margin-bottom:12px;}
+  .coming-soon p{font-size:0.95rem;color:#5A5A5A;line-height:1.6;margin:0;}
+
+  /* SIDEBAR */
+  .event-sidebar{display:flex;flex-direction:column;gap:20px;}
+  .sidebar-card{background:var(--gravel-dark);border-radius:3px;padding:24px;}
+  .sidebar-card h4{font-family:'IBM Plex Mono';font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--rust);margin:0 0 14px;}
+  .sidebar-card ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+  .sidebar-card li{font-size:0.92rem;display:flex;align-items:flex-start;gap:8px;}
+  .sidebar-card li::before{content:"→";color:var(--rust);font-weight:700;flex-shrink:0;}
+
+  /* BACK BUTTON */
+  .back-section{padding:40px 0 80px;}
+  .btn{padding:14px 26px;border-radius:2px;font-weight:700;font-size:0.92rem;text-decoration:none;letter-spacing:0.02em;display:inline-block;border:1px solid transparent;}
+  .btn-primary{background:var(--rust);color:var(--chalk);}
+  .btn-primary:hover{background:var(--rust-bright);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="index.html" class="logo">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+          <circle cx="17" cy="17" r="16" stroke="var(--gold)" stroke-width="1.5"/>
+          <circle cx="11" cy="21" r="5.5" stroke="var(--chalk)" stroke-width="1.6"/>
+          <circle cx="23" cy="21" r="5.5" stroke="var(--chalk)" stroke-width="1.6"/>
+          <path d="M11,21 L16,10 L23,21 M16,10 L20,10 M13,15 L20,15" stroke="var(--chalk)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>RC BIRKFELD</span>
+      </a>
+      <a href="index.html#termine" class="back-link">← Zurück zu den Terminen</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <div class="event-hero">
+    <div class="wrap">
+      <div class="kicker">Vereinsrennen · 2026</div>
+      <h1>Laurenziberg&shy;rennen</h1>
+      <div class="event-meta">
+        <div class="meta-item">
+          <span class="meta-label">Datum</span>
+          <span class="meta-value">Samstag, 22. August 2026</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Startort</span>
+          <span class="meta-value">Friesi's Bikery, Edelseestraße 27, Birkfeld</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Kategorie</span>
+          <span class="meta-value">Vereinsrennen</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="event-content">
+    <div class="wrap">
+      <div class="event-grid">
+        <div class="event-body">
+          <div class="coming-soon">
+            <div class="icon">🚵</div>
+            <h3>Beschreibung folgt</h3>
+            <p>Die detaillierte Eventbeschreibung mit Streckeninformationen, Anmeldung und Zeitplan wird in Kürze hier veröffentlicht.<br><br>Bei Fragen: <a href="mailto:rcbirkfeld@gmail.com" style="color:var(--rust);">rcbirkfeld@gmail.com</a></p>
+          </div>
+        </div>
+
+        <div class="event-sidebar">
+          <div class="sidebar-card">
+            <h4>Infos</h4>
+            <ul>
+              <li>Datum: 22. August 2026</li>
+              <li>Start: Friesi's Bikery, Birkfeld</li>
+              <li>Strecke: folgt</li>
+              <li>Anmeldung: folgt</li>
+            </ul>
+          </div>
+          <div class="sidebar-card">
+            <h4>Kontakt</h4>
+            <ul>
+              <li><a href="mailto:rcbirkfeld@gmail.com">rcbirkfeld@gmail.com</a></li>
+              <li><a href="tel:+436642517920">+43 664 251 79 20</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="back-section">
+    <div class="wrap">
+      <a href="index.html" class="btn btn-primary">← Zurück zur Startseite</a>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>
