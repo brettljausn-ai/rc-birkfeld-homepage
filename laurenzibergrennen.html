@@ -201,6 +201,49 @@
     .bindPopup('<strong>Ziel / Gipfel</strong><br>Laurenzieberg Kirche<br>~917 m');
 
   map.fitBounds(L.polyline(route).getBounds(), { padding: [30, 30] });
+
+  // Höhenprofil
+  const elevations = [574,575,575,575,575,576,576,576,578,579,579,579,580,581,582,583,585,586,586,587,589,589,590,591,595,600,602,607,609,610,613,614,615,616,621,625,627,628,628,629,629,629,630,634,637,641,649,653,661,661,664,677,684,684,685,685,686,686,687,687,688,691,692,693,694,694,694,694,692,692,692,693,693,692,692,691,689,688,682,681,679,677,676,674,673,672,670,667,665,663,660,656,653,649,644,642,640,637,636,632,632,632,631,630,628,627,626,625,617,614,612,611,610,610,611,613,615,619,620,621,630,633,634,635,635,636,638,639,638,638,638,638,638,638,638,636,633,632,631,628,624,625,630,634,635,633,631,631,632,633,634,634,633,631,630,629,629,629,630,631,632,633,634,636,638,640,641,641,641,641,642,642,644,645,647,649,649,652,655,657,659,662,664,665,667,669,678,681,689,692,701,707,710,723,724,726,726,726,726,727,728,730,735,750,755,756,765,768,772,780,782,785,791,793,794,795,796,798,800,803,806,809,812,812,812,808,802,802,805,809,814,820,822,825,827,835,842,851,854,857,859,863,868,879,889,892,905,910,914,915,915,917,917,917,913,912,910,909,909];
+  const distances = [0,44,69,95,137,149,163,176,224,252,285,293,315,341,361,386,424,461,477,546,572,582,591,605,675,755,788,850,882,923,955,968,979,986,1031,1069,1095,1112,1124,1134,1139,1144,1157,1250,1294,1347,1428,1469,1565,1574,1606,1764,1844,1856,1863,1884,1918,1934,1949,1971,1986,2079,2119,2138,2173,2194,2214,2243,2463,2485,2503,2531,2549,2661,2692,2708,2744,2762,2829,2846,2883,2935,3009,3055,3093,3114,3145,3235,3291,3326,3357,3391,3416,3449,3498,3516,3535,3577,3600,3735,3766,3792,3809,3873,3918,3975,3987,4030,4161,4201,4239,4255,4298,4358,4400,4426,4453,4573,4612,4621,4760,4827,4851,4914,4953,4984,5067,5130,5191,5223,5255,5279,5298,5349,5384,5437,5475,5495,5512,5560,5654,5718,5799,5858,5929,5975,6024,6042,6060,6084,6125,6144,6175,6241,6282,6329,6333,6348,6370,6413,6438,6463,6494,6585,6660,6745,6846,6860,6870,6876,6917,6994,7092,7130,7190,7226,7240,7281,7346,7379,7411,7460,7486,7497,7510,7530,7587,7610,7665,7689,7749,7784,7808,7931,7949,7997,8014,8035,8065,8088,8108,8138,8173,8293,8336,8355,8451,8487,8523,8596,8628,8684,8807,8842,8855,8880,8893,8917,8936,8955,8968,8990,9015,9020,9033,9100,9188,9193,9242,9278,9319,9382,9403,9435,9463,9558,9615,9678,9692,9712,9729,9751,9782,9853,9912,9929,10010,10040,10065,10070,10075,10095,10116,10132,10214,10326,10404,10426,10437];
+
+  const EleControl = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd() {
+      const W = 240, H = 72, pad = 2;
+      const minE = Math.min(...elevations), maxE = Math.max(...elevations);
+      const maxD = distances[distances.length - 1];
+
+      const pts = elevations.map((e, i) => {
+        const x = pad + (distances[i] / maxD) * (W - pad * 2);
+        const y = H - pad - ((e - minE) / (maxE - minE)) * (H - pad * 2 - 14);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      const fill = `${pad},${H - pad} ` + pts.join(' ') + ` ${W - pad},${H - pad}`;
+
+      const div = L.DomUtil.create('div');
+      div.style.cssText = 'background:rgba(10,10,10,0.88);border-radius:3px;padding:10px 12px 8px;backdrop-filter:blur(4px);pointer-events:none;';
+      div.innerHTML = `
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#4CAF50;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Höhenprofil</div>
+        <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;">
+          <defs>
+            <linearGradient id="eg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1F7A34" stop-opacity=".55"/>
+              <stop offset="100%" stop-color="#1F7A34" stop-opacity=".05"/>
+            </linearGradient>
+          </defs>
+          <polygon points="${fill}" fill="url(#eg)"/>
+          <polyline points="${pts.join(' ')}" fill="none" stroke="#4CAF50" stroke-width="1.8" stroke-linejoin="round"/>
+          <text x="${pad}" y="${H - pad + 0}" font-family="IBM Plex Mono,monospace" font-size="9" fill="#888">${minE} m</text>
+          <text x="${W / 2}" y="${H - pad + 0}" font-family="IBM Plex Mono,monospace" font-size="9" fill="#888" text-anchor="middle">5.2 km</text>
+          <text x="${W - pad}" y="${H - pad + 0}" font-family="IBM Plex Mono,monospace" font-size="9" fill="#888" text-anchor="end">${maxE} m</text>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#666;margin-top:3px;">
+          <span>0 km</span><span style="color:#fff;">+343 hm · 10.4 km</span><span>10.4 km</span>
+        </div>`;
+      return div;
+    }
+  });
+  new EleControl().addTo(map);
 </script>
 </body>
 </html>
