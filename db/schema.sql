@@ -43,6 +43,18 @@ CREATE TABLE IF NOT EXISTS strava_cache (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS site_content (
+  `key`      VARCHAR(100) PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT IGNORE INTO site_content (`key`, value) VALUES
+  ('hero_eyebrow',     'Joglland · Oststeiermark · seit 1993'),
+  ('hero_title_line1', 'Der Anstieg'),
+  ('hero_title_line2', 'gehört uns.'),
+  ('hero_lead',        'Rennrad, MTB und Gravel zwischen Birkfeld und dem Joglland – für Kinder, die ihr erstes Rennen fahren, für Familien am Samstagnachmittag und für alle, die den Ötztaler im Kalender stehen haben.');
+
 -- Seed: Termine
 DELETE FROM termine WHERE id NOT IN (
   SELECT min_id FROM (SELECT MIN(id) AS min_id FROM termine GROUP BY title, date) AS dedup

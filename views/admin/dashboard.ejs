@@ -48,18 +48,69 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showPanel('news',this)">Berichte</button>
-  <button class="tab" onclick="showPanel('termine',this)">Termine</button>
-  <button class="tab" onclick="showPanel('gallery',this)">Galerie</button>
-  <button class="tab" onclick="showPanel('members',this)">Beitritte</button>
+  <button class="tab <%= activeTab==='page' ? 'active' : '' %>" onclick="showPanel('page',this)">Hauptseite</button>
+  <button class="tab <%= activeTab==='news' ? 'active' : '' %>" onclick="showPanel('news',this)">Berichte</button>
+  <button class="tab <%= activeTab==='termine' ? 'active' : '' %>" onclick="showPanel('termine',this)">Termine</button>
+  <button class="tab <%= activeTab==='gallery' ? 'active' : '' %>" onclick="showPanel('gallery',this)">Galerie</button>
+  <button class="tab <%= activeTab==='members' ? 'active' : '' %>" onclick="showPanel('members',this)">Beitritte</button>
 </div>
 
 <% if (flash) { %>
 <div style="padding:0 28px;max-width:1100px;margin:16px auto 0;"><div class="flash"><%= flash %></div></div>
 <% } %>
 
+<!-- HAUPTSEITE -->
+<div id="panel-page" class="panel <%= activeTab==='page' ? 'active' : '' %>">
+
+  <!-- Hero Texte -->
+  <div class="card">
+    <h2>Hero – Texte</h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="field">
+        <label>Eyebrow (kleiner Text über dem Titel)</label>
+        <input type="text" name="hero_eyebrow" value="<%= content.hero_eyebrow || 'Joglland · Oststeiermark · seit 1993' %>">
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Titel Zeile 1</label>
+          <input type="text" name="hero_title_line1" value="<%= content.hero_title_line1 || 'Der Anstieg' %>">
+        </div>
+        <div class="field">
+          <label>Titel Zeile 2 <span style="font-weight:400;color:#999;">(„uns." wird grün hervorgehoben)</span></label>
+          <input type="text" name="hero_title_line2" value="<%= content.hero_title_line2 || 'gehört uns.' %>">
+        </div>
+      </div>
+      <div class="field">
+        <label>Lead-Text (Beschreibung unter dem Titel)</label>
+        <textarea name="hero_lead" style="min-height:90px;"><%= content.hero_lead || '' %></textarea>
+      </div>
+      <button type="submit" class="btn-save">Texte speichern</button>
+    </form>
+  </div>
+
+  <!-- Galerie Reihenfolge -->
+  <div class="card">
+    <h2>Galerie – Reihenfolge per Drag &amp; Drop</h2>
+    <p style="font-size:0.85rem;color:#666;margin-bottom:16px;">Bilder verschieben, dann „Reihenfolge speichern" klicken.</p>
+    <div id="sortable-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px;">
+      <% gallery.forEach(g => { %>
+      <div class="gallery-tile" data-id="<%= g.id %>" draggable="true"
+           style="background:#fff;border:2px solid #eee;border-radius:6px;cursor:grab;user-select:none;overflow:hidden;transition:border-color .15s,opacity .15s;">
+        <img src="/images/galerie/<%= g.filename %>" alt="" style="width:100%;height:110px;object-fit:cover;display:block;pointer-events:none;">
+        <div style="padding:8px 10px;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:1rem;color:#bbb;">☰</span>
+          <span style="font-size:0.78rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= g.caption || g.filename %></span>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+    <button class="btn-save" id="btn-save-order">Reihenfolge speichern</button>
+    <span id="order-status" style="margin-left:12px;font-size:0.85rem;color:#1F7A34;display:none;">✓ Gespeichert</span>
+  </div>
+</div>
+
 <!-- BERICHTE -->
-<div id="panel-news" class="panel active">
+<div id="panel-news" class="panel <%= activeTab==='news'||activeTab===''?'active':'' %>">
   <div class="card">
     <h2>Neuer Bericht</h2>
     <form method="POST" action="/admin/news">
@@ -89,7 +140,7 @@
 </div>
 
 <!-- TERMINE -->
-<div id="panel-termine" class="panel">
+<div id="panel-termine" class="panel <%= activeTab==='termine' ? 'active' : '' %>">
   <div class="card">
     <h2>Neuer Termin</h2>
     <form method="POST" action="/admin/termine">
@@ -126,7 +177,7 @@
 </div>
 
 <!-- GALERIE -->
-<div id="panel-gallery" class="panel">
+<div id="panel-gallery" class="panel <%= activeTab==='gallery' ? 'active' : '' %>">
   <div class="card">
     <h2>Foto hochladen</h2>
     <form method="POST" action="/admin/gallery" enctype="multipart/form-data">
@@ -156,7 +207,7 @@
 </div>
 
 <!-- BEITRITTE -->
-<div id="panel-members" class="panel">
+<div id="panel-members" class="panel <%= activeTab==='members' ? 'active' : '' %>">
   <table>
     <thead><tr><th>Datum</th><th>Name</th><th>E-Mail</th><th>Interesse</th><th>Status</th></tr></thead>
     <tbody>
@@ -181,6 +232,44 @@ function showPanel(id, btn) {
   document.getElementById('panel-' + id).classList.add('active');
   btn.classList.add('active');
 }
+
+/* ── Drag & Drop Galerie ── */
+(function() {
+  const grid = document.getElementById('sortable-gallery');
+  if (!grid) return;
+  let dragged = null;
+
+  grid.addEventListener('dragstart', e => {
+    dragged = e.target.closest('.gallery-tile');
+    if (dragged) { dragged.style.opacity = '0.4'; dragged.style.borderColor = '#4CAF50'; }
+  });
+  grid.addEventListener('dragend', e => {
+    if (dragged) { dragged.style.opacity = ''; dragged.style.borderColor = ''; dragged = null; }
+  });
+  grid.addEventListener('dragover', e => {
+    e.preventDefault();
+    const target = e.target.closest('.gallery-tile');
+    if (target && target !== dragged) {
+      const tiles = [...grid.querySelectorAll('.gallery-tile')];
+      const iAfter = tiles.indexOf(target) > tiles.indexOf(dragged);
+      grid.insertBefore(dragged, iAfter ? target.nextSibling : target);
+    }
+  });
+
+  document.getElementById('btn-save-order').addEventListener('click', async () => {
+    const order = [...grid.querySelectorAll('.gallery-tile')].map(t => parseInt(t.dataset.id));
+    const res = await fetch('/admin/gallery/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order }),
+    });
+    if (res.ok) {
+      const s = document.getElementById('order-status');
+      s.style.display = 'inline';
+      setTimeout(() => s.style.display = 'none', 2500);
+    }
+  });
+})();
 </script>
 </body>
 </html>

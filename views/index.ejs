@@ -44,9 +44,9 @@
     </div>
     <div class="hero-overlay" aria-hidden="true"></div>
     <div class="wrap hero-inner">
-      <span class="eyebrow">Joglland · Oststeiermark · seit 1993</span>
-      <h1>Der Anstieg<br>gehört <span>uns.</span></h1>
-      <p class="lead">Rennrad, MTB und Gravel zwischen Birkfeld und dem Joglland – für Kinder, die ihr erstes Rennen fahren, für Familien am Samstagnachmittag und für alle, die den Ötztaler im Kalender stehen haben.</p>
+      <span class="eyebrow"><%= content.hero_eyebrow || 'Joglland · Oststeiermark · seit 1993' %></span>
+      <h1><%= content.hero_title_line1 || 'Der Anstieg' %><br><%- (content.hero_title_line2 || 'gehört uns.').replace('uns.', '<span>uns.</span>') %></h1>
+      <p class="lead"><%= content.hero_lead || '' %></p>
       <div class="hero-ctas">
         <a href="#mitglied" class="btn btn-primary">Join the Club</a>
         <a href="#angebote" class="btn btn-outline">Angebote ansehen</a>

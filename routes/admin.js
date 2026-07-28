@@ -37,15 +37,18 @@ router.get('/logout', (req, res) => {
 
 router.get('/', requireAuth, async (req, res, next) => {
   try {
-    const [[news], [termine], [gallery], [members]] = await Promise.all([
+    const [[news], [termine], [gallery], [members], [contentRows]] = await Promise.all([
       pool.query('SELECT * FROM news ORDER BY published_at DESC'),
       pool.query('SELECT * FROM termine ORDER BY date ASC'),
       pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
       pool.query('SELECT * FROM members ORDER BY created_at DESC LIMIT 50'),
+      pool.query('SELECT `key`, value FROM site_content'),
     ]);
+    const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
     res.render('admin/dashboard', {
-      news, termine, gallery, members,
+      news, termine, gallery, members, content,
       flash: req.query.msg || null,
+      activeTab: req.query.tab || 'news',
     });
   } catch (err) { next(err); }
 });
@@ -112,6 +115,34 @@ router.post('/gallery/:id/delete', requireAuth, async (req, res, next) => {
     }
     await pool.query('DELETE FROM gallery WHERE id = ?', [req.params.id]);
     res.redirect('/admin?msg=Foto+gelöscht');
+  } catch (err) { next(err); }
+});
+
+/* ── HAUPTSEITE TEXTE ── */
+router.post('/page/content', requireAuth, async (req, res, next) => {
+  const keys = ['hero_eyebrow', 'hero_title_line1', 'hero_title_line2', 'hero_lead'];
+  try {
+    for (const key of keys) {
+      if (req.body[key] !== undefined) {
+        await pool.query(
+          'INSERT INTO site_content (`key`, value) VALUES (?,?) ON DUPLICATE KEY UPDATE value=?',
+          [key, req.body[key], req.body[key]]
+        );
+      }
+    }
+    res.redirect('/admin?msg=Hauptseite+gespeichert&tab=page');
+  } catch (err) { next(err); }
+});
+
+/* ── GALERIE REIHENFOLGE ── */
+router.post('/gallery/reorder', requireAuth, async (req, res, next) => {
+  try {
+    const order = req.body.order;
+    if (!Array.isArray(order)) return res.status(400).json({ error: 'invalid' });
+    for (let i = 0; i < order.length; i++) {
+      await pool.query('UPDATE gallery SET sort_order=? WHERE id=?', [i, order[i]]);
+    }
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 
