@@ -12,7 +12,7 @@ router.post('/beitritt', async (req, res) => {
 
   try {
     await pool.query(
-      'INSERT INTO members (name, email, interesse) VALUES ($1, $2, $3)',
+      'INSERT INTO members (name, email, interesse) VALUES (?, ?, ?)',
       [name.trim(), email.trim().toLowerCase(), interesse || 'hobby']
     );
 

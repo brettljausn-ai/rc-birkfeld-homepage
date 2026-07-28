@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const PgSession = require('connect-pg-simple')(session);
+const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
 const { pool } = require('./lib/db');
 const { migrate } = require('./lib/migrate');
@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(session({
-  store: new PgSession({ pool, tableName: 'session' }),
+  store: new MySQLStore({}, pool),
   secret: process.env.SESSION_SECRET || 'rc-birkfeld-dev-secret',
   resave: false,
   saveUninitialized: false,

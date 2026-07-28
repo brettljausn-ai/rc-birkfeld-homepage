@@ -5,19 +5,14 @@ const { getClubData } = require('../lib/strava');
 
 router.get('/', async (req, res, next) => {
   try {
-    const [galleryRes, newsRes, termineRes, strava] = await Promise.all([
+    const [[gallery], [news], [termine], strava] = await Promise.all([
       pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
       pool.query('SELECT * FROM news ORDER BY published_at DESC LIMIT 3'),
-      pool.query('SELECT * FROM termine WHERE date >= CURRENT_DATE ORDER BY date ASC'),
+      pool.query('SELECT * FROM termine WHERE date >= CURDATE() ORDER BY date ASC'),
       getClubData(),
     ]);
 
-    res.render('index', {
-      gallery: galleryRes.rows,
-      news: newsRes.rows,
-      termine: termineRes.rows,
-      strava,
-    });
+    res.render('index', { gallery, news, termine, strava });
   } catch (err) {
     next(err);
   }
