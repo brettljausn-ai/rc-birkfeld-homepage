@@ -1,6 +1,9 @@
 {
   "name": "rc-birkfeld-homepage",
   "version": "2.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"

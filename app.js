@@ -4,6 +4,7 @@ const session = require('express-session');
 const PgSession = require('connect-pg-simple')(session);
 const path = require('path');
 const { pool } = require('./lib/db');
+const { migrate } = require('./lib/migrate');
 
 const app = express();
 
@@ -33,4 +34,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`RC Birkfeld läuft auf http://localhost:${PORT}`));
+
+migrate()
+  .then(() => app.listen(PORT, () => console.log(`RC Birkfeld läuft auf http://localhost:${PORT}`)))
+  .catch(err => { console.error('Migration fehlgeschlagen:', err); process.exit(1); });
