@@ -3,7 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
-const { pool } = require('./lib/db');
+const { pool, callbackPool } = require('./lib/db');
 const { migrate } = require('./lib/migrate');
 
 const app = express();
@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(session({
-  store: new MySQLStore({}, pool),
+  store: new MySQLStore({}, callbackPool),
   secret: process.env.SESSION_SECRET || 'rc-birkfeld-dev-secret',
   resave: false,
   saveUninitialized: false,
