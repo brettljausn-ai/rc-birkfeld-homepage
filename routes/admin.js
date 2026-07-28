@@ -14,6 +14,15 @@ const upload = multer({
   },
 });
 
+const uploadSponsor = multer({
+  dest: path.join(__dirname, '..', 'images', 'sponsoren'),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/image\/(jpeg|png|webp|svg\+xml)/.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Nur JPG, PNG, WebP oder SVG erlaubt'));
+  },
+});
+
 function requireAuth(req, res, next) {
   if (req.session.adminLoggedIn) return next();
   res.redirect('/admin/login');
@@ -37,16 +46,17 @@ router.get('/logout', (req, res) => {
 
 router.get('/', requireAuth, async (req, res, next) => {
   try {
-    const [[news], [termine], [gallery], [members], [contentRows]] = await Promise.all([
+    const [[news], [termine], [gallery], [members], [contentRows], [sponsors]] = await Promise.all([
       pool.query('SELECT * FROM news ORDER BY published_at DESC'),
       pool.query('SELECT * FROM termine ORDER BY date ASC'),
       pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
       pool.query('SELECT * FROM members ORDER BY created_at DESC LIMIT 50'),
       pool.query('SELECT `key`, value FROM site_content'),
+      pool.query('SELECT * FROM sponsors ORDER BY sort_order ASC'),
     ]);
     const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
     res.render('admin/dashboard', {
-      news, termine, gallery, members, content,
+      news, termine, gallery, members, content, sponsors,
       flash: req.query.msg || null,
       activeTab: req.query.tab || 'news',
     });
@@ -115,6 +125,33 @@ router.post('/gallery/:id/delete', requireAuth, async (req, res, next) => {
     }
     await pool.query('DELETE FROM gallery WHERE id = ?', [req.params.id]);
     res.redirect('/admin?msg=Foto+gelöscht');
+  } catch (err) { next(err); }
+});
+
+/* ── SPONSOREN ── */
+router.post('/sponsors', requireAuth, uploadSponsor.single('logo'), async (req, res, next) => {
+  try {
+    const { name, website_url, sort_order } = req.body;
+    const ext = path.extname(req.file.originalname) || '.png';
+    const filename = req.file.filename + ext;
+    fs.renameSync(req.file.path, path.join(path.dirname(req.file.path), filename));
+    await pool.query(
+      'INSERT INTO sponsors (name, logo, website_url, sort_order) VALUES (?,?,?,?)',
+      [name, filename, website_url || null, parseInt(sort_order) || 0]
+    );
+    res.redirect('/admin?msg=Sponsor+gespeichert&tab=sponsors');
+  } catch (err) { next(err); }
+});
+
+router.post('/sponsors/:id/delete', requireAuth, async (req, res, next) => {
+  try {
+    const [[row]] = await pool.query('SELECT logo FROM sponsors WHERE id=?', [req.params.id]);
+    if (row) {
+      const fp = path.join(__dirname, '..', 'images', 'sponsoren', row.logo);
+      if (fs.existsSync(fp)) fs.unlinkSync(fp);
+    }
+    await pool.query('DELETE FROM sponsors WHERE id=?', [req.params.id]);
+    res.redirect('/admin?msg=Sponsor+gelöscht&tab=sponsors');
   } catch (err) { next(err); }
 });
 

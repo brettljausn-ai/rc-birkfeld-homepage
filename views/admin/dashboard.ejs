@@ -53,6 +53,7 @@
   <button class="tab <%= activeTab==='termine' ? 'active' : '' %>" onclick="showPanel('termine',this)">Termine</button>
   <button class="tab <%= activeTab==='gallery' ? 'active' : '' %>" onclick="showPanel('gallery',this)">Galerie</button>
   <button class="tab <%= activeTab==='members' ? 'active' : '' %>" onclick="showPanel('members',this)">Beitritte</button>
+  <button class="tab <%= activeTab==='sponsors' ? 'active' : '' %>" onclick="showPanel('sponsors',this)">Sponsoren</button>
 </div>
 
 <% if (flash) { %>
@@ -223,6 +224,43 @@
     <% if (members.length === 0) { %><tr><td colspan="5" style="color:#999;text-align:center;padding:20px;">Noch keine Beitrittsanfragen.</td></tr><% } %>
     </tbody>
   </table>
+</div>
+
+<!-- SPONSOREN -->
+<div id="panel-sponsors" class="panel <%= activeTab==='sponsors' ? 'active' : '' %>">
+  <div class="card">
+    <h2>Sponsor hinzufügen</h2>
+    <form method="POST" action="/admin/sponsors" enctype="multipart/form-data">
+      <div class="form-row">
+        <div class="field"><label>Name</label><input type="text" name="name" required></div>
+        <div class="field"><label>Website (optional)</label><input type="url" name="website_url" placeholder="https://..."></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Logo (PNG/SVG/WebP – am besten weißes Logo auf transparentem Hintergrund)</label><input type="file" name="logo" accept="image/*" required></div>
+        <div class="field" style="max-width:160px;"><label>Reihenfolge</label><input type="number" name="sort_order" value="0" min="0"></div>
+      </div>
+      <button type="submit" class="btn-save">Sponsor speichern</button>
+    </form>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+    <% sponsors.forEach(s => { %>
+    <div style="background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,0.1);overflow:hidden;">
+      <div style="background:#0A0A0A;padding:20px;display:flex;align-items:center;justify-content:center;min-height:100px;">
+        <img src="/images/sponsoren/<%= s.logo %>" alt="<%= s.name %>" style="max-width:140px;max-height:72px;object-fit:contain;">
+      </div>
+      <div style="padding:12px 14px;">
+        <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;"><%= s.name %></div>
+        <% if (s.website_url) { %><div style="font-size:0.78rem;color:#888;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= s.website_url %></div><% } %>
+        <form method="POST" action="/admin/sponsors/<%= s.id %>/delete" onsubmit="return confirm('Sponsor löschen?')">
+          <button class="btn-del">Löschen</button>
+        </form>
+      </div>
+    </div>
+    <% }); %>
+    <% if (sponsors.length === 0) { %>
+    <p style="color:#999;font-size:0.9rem;grid-column:1/-1;">Noch keine Sponsoren eingetragen.</p>
+    <% } %>
+  </div>
 </div>
 
 <script>

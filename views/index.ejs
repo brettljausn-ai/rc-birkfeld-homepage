@@ -278,6 +278,29 @@
     </div>
   </section>
 
+  <!-- SPONSOREN -->
+  <% if (sponsors && sponsors.length > 0) { %>
+  <section id="sponsoren" class="section sponsors-section">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">Unsere Partner</span>
+        <h2>Sponsoren.</h2>
+      </div>
+      <div class="sponsors-grid fade-in">
+        <% sponsors.forEach(s => { %>
+        <% if (s.website_url) { %>
+        <a href="<%= s.website_url %>" target="_blank" rel="noopener" class="sponsor-tile" title="<%= s.name %>">
+        <% } else { %>
+        <div class="sponsor-tile" title="<%= s.name %>">
+        <% } %>
+          <img src="/images/sponsoren/<%= s.logo %>" alt="<%= s.name %>">
+        <% if (s.website_url) { %></a><% } else { %></div><% } %>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
   <!-- JOIN -->
   <section id="mitglied" class="join">
     <div class="wrap">
