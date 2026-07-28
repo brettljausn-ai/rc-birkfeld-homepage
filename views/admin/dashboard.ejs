@@ -42,6 +42,8 @@
 <div class="admin-header">
   <h1>RC Birkfeld · Admin</h1>
   <div style="display:flex;gap:20px;align-items:center;">
+    <button id="testEmailBtn" style="background:none;border:1px solid #4CAF50;color:#4CAF50;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:0.82rem;">E-Mail testen</button>
+    <span id="testEmailResult" style="font-size:0.82rem;display:none;"></span>
     <a href="/" target="_blank">Website ansehen ↗</a>
     <a href="/admin/logout">Abmelden</a>
   </div>
@@ -270,6 +272,19 @@ function showPanel(id, btn) {
   document.getElementById('panel-' + id).classList.add('active');
   btn.classList.add('active');
 }
+
+/* ── E-Mail Test ── */
+document.getElementById('testEmailBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('testEmailBtn');
+  const result = document.getElementById('testEmailResult');
+  btn.textContent = '…';
+  const res = await fetch('/admin/test-email', { method: 'POST' });
+  const data = await res.json();
+  result.textContent = data.msg;
+  result.style.color = data.ok ? '#4CAF50' : '#e53935';
+  result.style.display = 'inline';
+  btn.textContent = 'E-Mail testen';
+});
 
 /* ── Drag & Drop Galerie ── */
 (function() {

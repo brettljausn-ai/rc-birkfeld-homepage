@@ -148,6 +148,17 @@ router.post('/sponsors/:id/delete', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── E-MAIL TEST ── */
+router.post('/test-email', requireAuth, async (req, res) => {
+  const { sendMembershipRequest } = require('../lib/mailer');
+  try {
+    await sendMembershipRequest({ name: 'Testperson', email: process.env.CONTACT_EMAIL, interesse: 'hobby' });
+    res.json({ ok: true, msg: 'E-Mail erfolgreich gesendet an ' + process.env.CONTACT_EMAIL });
+  } catch (err) {
+    res.json({ ok: false, msg: err.message });
+  }
+});
+
 /* ── HAUPTSEITE TEXTE ── */
 router.post('/page/content', requireAuth, async (req, res, next) => {
   const keys = ['hero_eyebrow', 'hero_title_line1', 'hero_title_line2', 'hero_lead'];
