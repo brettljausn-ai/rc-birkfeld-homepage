@@ -202,12 +202,20 @@ router.post('/sponsors/:id/delete', requireAuth, async (req, res, next) => {
 /* ── STRAVA TEST ── */
 router.post('/test-strava', requireAuth, async (req, res) => {
   const { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN } = process.env;
-  if (!STRAVA_CLIENT_ID) return res.json({ ok: false, msg: 'STRAVA_CLIENT_ID fehlt in Umgebungsvariablen' });
+  if (!STRAVA_CLIENT_ID) return res.json({ ok: false, msg: 'STRAVA_CLIENT_ID fehlt' });
+  if (!STRAVA_CLIENT_SECRET) return res.json({ ok: false, msg: 'STRAVA_CLIENT_SECRET fehlt' });
+  if (!STRAVA_REFRESH_TOKEN) return res.json({ ok: false, msg: 'STRAVA_REFRESH_TOKEN fehlt' });
   try {
-    const { getStravaData } = require('../lib/strava');
-    const data = await getStravaData();
-    if (!data.club) return res.json({ ok: false, msg: 'Strava-API-Fehler: kein Club zurückgegeben (Token ungültig?)' });
-    res.json({ ok: true, msg: `✓ Verbunden: ${data.club.name}, ${data.club.member_count} Mitglieder, ${data.events.length} Events` });
+    const https = require('https');
+    const tokenRes = await new Promise((resolve, reject) => {
+      const body = new URLSearchParams({ client_id: STRAVA_CLIENT_ID, client_secret: STRAVA_CLIENT_SECRET, refresh_token: STRAVA_REFRESH_TOKEN, grant_type: 'refresh_token' }).toString();
+      const req2 = https.request({ hostname: 'www.strava.com', path: '/api/v3/oauth/token', method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(body) } }, (r) => {
+        let buf = ''; r.on('data', c => buf += c); r.on('end', () => resolve(JSON.parse(buf)));
+      });
+      req2.on('error', reject); req2.write(body); req2.end();
+    });
+    if (!tokenRes.access_token) return res.json({ ok: false, msg: 'Token-Refresh fehlgeschlagen: ' + JSON.stringify(tokenRes) });
+    res.json({ ok: true, msg: `✓ Token OK (${tokenRes.token_type}), läuft ab: ${new Date(tokenRes.expires_at * 1000).toLocaleString('de-AT')}` });
   } catch (err) {
     res.json({ ok: false, msg: err.message });
   }
