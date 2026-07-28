@@ -272,9 +272,8 @@ footer a:hover{color:var(--chalk);}
 
 /* SPONSOREN */
 .sponsors-section{background:var(--ink);padding:80px 0;}
-.sponsors-grid{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;align-items:stretch;margin-top:48px;}
-.sponsor-tile{display:flex;align-items:center;justify-content:center;width:180px;height:100px;background:rgba(255,255,255,0.07);border-radius:6px;border:1px solid rgba(255,255,255,0.08);transition:background .2s,border-color .2s;text-decoration:none;flex-shrink:0;}
+.sponsors-grid{display:flex;flex-wrap:nowrap;gap:16px;justify-content:center;align-items:center;margin-top:48px;overflow-x:auto;padding-bottom:8px;}
+.sponsor-tile{display:flex;align-items:center;justify-content:center;flex:0 0 180px;height:100px;background:rgba(255,255,255,0.07);border-radius:6px;border:1px solid rgba(255,255,255,0.08);transition:background .2s,border-color .2s;text-decoration:none;}
 a.sponsor-tile:hover{background:rgba(255,255,255,0.13);border-color:rgba(255,255,255,0.18);}
 .sponsor-tile img{width:140px;height:64px;object-fit:contain;filter:brightness(0) invert(1);opacity:.7;transition:opacity .2s;}
 a.sponsor-tile:hover img{opacity:1;}
-@media(max-width:600px){.sponsor-tile{width:140px;height:80px;}.sponsor-tile img{width:110px;height:52px;}}
