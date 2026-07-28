@@ -692,7 +692,8 @@
     let idx = 0, timer, paused = false;
     function next(){
       idx = (idx + 1) % items.length;
-      items[idx].scrollIntoView({behavior:'smooth', block:'nearest', inline:'start'});
+      const itemWidth = items[0].offsetWidth + 16;
+      grid.scrollTo({left: idx * itemWidth, behavior:'smooth'});
     }
     function start(){ timer = setInterval(next, 3500); }
     function stop(){ clearInterval(timer); }
