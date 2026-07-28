@@ -293,7 +293,7 @@
         <% } else { %>
         <div class="sponsor-tile" title="<%= s.name %>">
         <% } %>
-          <img src="/images/sponsoren/<%= s.logo %>" alt="<%= s.name %>">
+          <img src="<%= s.logo %>" alt="<%= s.name %>">
         <% if (s.website_url) { %></a><% } else { %></div><% } %>
         <% }); %>
       </div>
