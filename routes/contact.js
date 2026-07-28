@@ -15,14 +15,15 @@ router.post('/beitritt', async (req, res) => {
       'INSERT INTO members (name, email, interesse) VALUES (?, ?, ?)',
       [name.trim(), email.trim().toLowerCase(), interesse || 'hobby']
     );
-
-    await sendMembershipRequest({ name: name.trim(), email: email.trim(), interesse });
-
-    res.json({ ok: true, message: `Danke, ${name.trim()}! Wir melden uns bald.` });
   } catch (err) {
-    console.error('Beitrittsanfrage-Fehler:', err);
-    res.status(500).json({ error: 'Anfrage konnte nicht gesendet werden. Bitte versuche es später erneut.' });
+    console.error('Beitrittsanfrage-Fehler (DB):', err);
+    return res.status(500).json({ error: 'Anfrage konnte nicht gespeichert werden. Bitte versuche es später erneut.' });
   }
+
+  sendMembershipRequest({ name: name.trim(), email: email.trim(), interesse })
+    .catch(err => console.error('E-Mail-Versand fehlgeschlagen:', err));
+
+  res.json({ ok: true, message: `Danke, ${name.trim()}! Wir melden uns bald.` });
 });
 
 module.exports = router;
