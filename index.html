@@ -52,7 +52,7 @@
   }
   nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
   .logo{display:flex;align-items:center;gap:10px;font-family:'Big Shoulders Display';font-weight:900;font-size:1.3rem;letter-spacing:0.02em;text-decoration:none;color:var(--chalk);}
-  .logo .dot{width:12px;height:12px;background:var(--chalk);border-radius:50%;display:inline-block;}
+  .logo img{border-radius:4px;}
   .navlinks{display:flex;gap:28px;list-style:none;margin:0;padding:0;}
   .navlinks a{
     text-decoration:none;font-size:0.92rem;font-weight:600;color:var(--chalk);
@@ -474,12 +474,7 @@
   <div class="wrap">
     <nav>
       <a href="#top" class="logo">
-        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-          <circle cx="17" cy="17" r="16" stroke="var(--gold)" stroke-width="1.5"/>
-          <circle cx="11" cy="21" r="5.5" stroke="var(--chalk)" stroke-width="1.6"/>
-          <circle cx="23" cy="21" r="5.5" stroke="var(--chalk)" stroke-width="1.6"/>
-          <path d="M11,21 L16,10 L23,21 M16,10 L20,10 M13,15 L20,15" stroke="var(--chalk)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <img src="images/rcbirkfeld-logo.png" alt="RC Birkfeld Logo" width="36" height="36" style="width:36px;height:36px;object-fit:contain;">
         <span>RC BIRKFELD</span>
       </a>
       <ul class="navlinks" id="navlinks">
