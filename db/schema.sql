@@ -43,9 +43,10 @@ CREATE TABLE IF NOT EXISTS strava_cache (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Seed: Termine (explicit id so INSERT IGNORE skips on re-deploy; remove dupes from earlier runs)
-DELETE t1 FROM termine t1
-  INNER JOIN termine t2 ON t1.title = t2.title AND t1.date = t2.date AND t1.id > t2.id;
+-- Seed: Termine
+DELETE FROM termine WHERE id NOT IN (
+  SELECT min_id FROM (SELECT MIN(id) AS min_id FROM termine GROUP BY title, date) AS dedup
+);
 
 INSERT INTO termine (id, title, date, location, detail_url, tag)
 VALUES (1, 'Trainingsausfahrt Laurentiberg', '2026-08-22', 'Friesis Bikery, Edelseestraße 27, Birkfeld', '/laurenzibergrennen', 'Vereinsrennen')
