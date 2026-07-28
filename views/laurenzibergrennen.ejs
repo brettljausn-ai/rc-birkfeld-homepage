@@ -1,0 +1,72 @@
+<%- include('partials/head', { title: 'Laurentibergrennen – RC ASVÖ Birkfeld', description: 'Das traditionelle Vereinsrennen am Laurentiberg – Trainingsausfahrt und Bergwertung für alle Mitglieder.' }) %>
+<%- include('partials/nav') %>
+
+<main style="padding-top:64px;">
+
+  <section class="hero" style="min-height:420px;">
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0A0A0A"/><stop offset="50%" stop-color="#1C1C1C"/><stop offset="100%" stop-color="#2A2A2A"/>
+          </linearGradient>
+        </defs>
+        <rect width="1440" height="420" fill="url(#sky2)"/>
+        <path fill="#1C1C1C" d="M0,280 L200,240 L420,270 L620,210 L860,260 L1100,200 L1300,240 L1440,210 L1440,420 L0,420 Z"/>
+        <path fill="#0A0A0A" d="M0,340 L180,300 L380,330 L580,280 L800,320 L1060,270 L1260,310 L1440,290 L1440,420 L0,420 Z"/>
+      </svg>
+    </div>
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="wrap hero-inner" style="padding-bottom:60px;">
+      <span class="eyebrow">Vereinsrennen · 22. August 2026</span>
+      <h1>Trainingsausfahrt<br><span>Laurentiberg</span></h1>
+      <p class="lead">Der Hausberg des Vereins. Wer Birkfeld kennt, kennt den Laurentiberg – und wer ihn einmal gefahren ist, will ihn wieder fahren.</p>
+    </div>
+  </section>
+
+  <section class="section" style="background:#111;">
+    <div class="wrap" style="max-width:800px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;margin-bottom:48px;">
+        <div style="background:#1C1C1C;border-radius:12px;padding:24px;">
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:8px;">Datum</div>
+          <div style="font-size:1.2rem;font-weight:600;">22. August 2026</div>
+        </div>
+        <div style="background:#1C1C1C;border-radius:12px;padding:24px;">
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:8px;">Startort</div>
+          <div style="font-size:1.2rem;font-weight:600;">Friesis Bikery</div>
+          <div style="font-size:0.88rem;color:#aaa;margin-top:4px;">Edelseestraße 27, Birkfeld</div>
+        </div>
+        <div style="background:#1C1C1C;border-radius:12px;padding:24px;">
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:8px;">Kategorie</div>
+          <div style="font-size:1.2rem;font-weight:600;">Vereinsrennen</div>
+          <div style="font-size:0.88rem;color:#aaa;margin-top:4px;">Alle Mitglieder willkommen</div>
+        </div>
+      </div>
+
+      <div class="card" style="background:#1C1C1C;border-radius:16px;padding:40px;">
+        <h2 style="font-size:1.5rem;margin-bottom:20px;">Über das Rennen</h2>
+        <p style="line-height:1.8;color:#ccc;margin-bottom:16px;">
+          Der Laurentiberg ist eine der beliebtesten Bergwertungen im Vereinsleben des RC ASVÖ Birkfeld.
+          Die Trainingsausfahrt führt von der Friesis Bikery in Birkfeld hinauf zum Gipfel –
+          ein Kurs, der Ausdauer, Technik und Willen gleichermaßen fordert.
+        </p>
+        <p style="line-height:1.8;color:#ccc;margin-bottom:16px;">
+          Gefahren wird in gemischten Gruppen, aufgeteilt nach Leistungsniveau.
+          Anfänger und erfahrene Fahrer starten gemeinsam – der Berg kennt keine Ausreden.
+        </p>
+        <p style="line-height:1.8;color:#ccc;">
+          Im Anschluss gibt es gemeinsame Einkehr und Ergebnispräsentation.
+          Details und Anmeldung erfolgen über den Vereins-WhatsApp-Kanal.
+        </p>
+      </div>
+
+      <div style="margin-top:40px;text-align:center;">
+        <a href="/#termine" class="btn btn-outline" style="margin-right:16px;">← Alle Termine</a>
+        <a href="/#mitglied" class="btn btn-primary">Mitglied werden</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<%- include('partials/footer') %>
