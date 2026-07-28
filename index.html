@@ -684,6 +684,29 @@
       <p class="gallery-hint">→ Fotos hochladen: github.com/simonfriesi/rc-birkfeld-homepage → images/galerie → „Add file"</p>
     </div>
   </section>
+  <script>
+  (function(){
+    const grid = document.querySelector('.gallery-grid');
+    if(!grid) return;
+    const items = grid.querySelectorAll('.gallery-item');
+    let idx = 0, timer, paused = false;
+    function next(){
+      idx = (idx + 1) % items.length;
+      items[idx].scrollIntoView({behavior:'smooth', block:'nearest', inline:'start'});
+    }
+    function start(){ timer = setInterval(next, 3500); }
+    function stop(){ clearInterval(timer); }
+    start();
+    grid.addEventListener('mouseenter', stop);
+    grid.addEventListener('mouseleave', start);
+    grid.addEventListener('touchstart', () => { stop(); paused = true; }, {passive:true});
+    grid.addEventListener('touchend', () => { paused = false; start(); }, {passive:true});
+    grid.addEventListener('scroll', () => {
+      const w = items[0].offsetWidth + 16;
+      idx = Math.round(grid.scrollLeft / w) % items.length;
+    }, {passive:true});
+  })();
+  </script>
 
   <!-- ANGEBOTE -->
   <section id="angebote" style="background:var(--gravel-dark);">
