@@ -73,11 +73,11 @@ INSERT INTO termine (id, title, date, location, detail_url, tag)
 VALUES (1, 'Trainingsausfahrt Laurentiberg', '2026-08-22', 'Friesis Bikery, Edelseestraße 27, Birkfeld', '/laurenzibergrennen', 'Vereinsrennen')
 ON DUPLICATE KEY UPDATE title=VALUES(title), date=VALUES(date), location=VALUES(location), detail_url=VALUES(detail_url), tag=VALUES(tag);
 
--- Seed: Galerie
+-- Seed: Galerie (nur Bilder die als Dateien existieren)
 INSERT IGNORE INTO gallery (id, filename, caption, sort_order) VALUES
-  (1, 'foto-1.jpg', 'Trainingslager Porec',      1),
-  (2, 'foto-2.jpg', 'Königskogler Koglkönig',    2),
-  (3, 'foto-3.jpg', 'Startaufstellung Rennen',   3),
-  (4, 'foto-4.jpg', 'MTB-Trail Joglland',        4),
-  (5, 'foto-5.jpg', 'Laurentibergrennen 2022',   5),
-  (6, 'foto-6.jpg', 'Trainingslager Porec 2026', 6);
+  (1, 'foto-1.jpg', 'Trainingslager Porec',    1),
+  (2, 'foto-2.jpg', 'Königskogler Koglkönig',  2),
+  (3, 'foto-3.jpg', 'Startaufstellung Rennen', 3),
+  (4, 'foto-4.jpg', 'MTB-Trail Joglland',      4);
+
+DELETE FROM gallery WHERE filename IN ('foto-5.jpg', 'foto-6.jpg');

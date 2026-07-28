@@ -101,7 +101,7 @@
       <div class="gallery-grid">
         <% gallery.forEach(item => { %>
         <div class="gallery-item">
-          <img src="/images/galerie/<%= item.filename %>" alt="<%= item.caption || '' %>" loading="lazy">
+          <img src="/images/galerie/<%= item.filename %>" alt="<%= item.caption || '' %>">
           <% if (item.caption) { %><span class="gallery-caption"><%= item.caption %></span><% } %>
         </div>
         <% }); %>
