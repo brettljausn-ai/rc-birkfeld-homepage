@@ -1,72 +1,237 @@
-<%- include('partials/head', { title: 'Laurentibergrennen – RC ASVÖ Birkfeld', description: 'Das traditionelle Vereinsrennen am Laurentiberg – Trainingsausfahrt und Bergwertung für alle Mitglieder.' }) %>
-<%- include('partials/nav') %>
+<%- include('partials/head', {
+  title: 'Trainingsausfahrt Laurentiberg 2026 – RC ASVÖ Birkfeld',
+  description: '10,5 km · 440 hm · 22. August 2026 · Start: Friesis Bikery, Birkfeld',
+  extraHead: `<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root{
+    --ink:#0A0A0A;
+    --gravel:#FFFFFF;
+    --gravel-dark:#EDEDED;
+    --moss:#1F5C33;
+    --moss-dark:#123D22;
+    --rust:#1F7A34;
+    --rust-bright:#145C27;
+    --chalk:#FFFFFF;
+    --gold:#4CAF50;
+    --line:rgba(10,10,10,0.14);
+  }
+  body{background:var(--gravel);color:var(--ink);}
+  .event-hero{background:var(--ink);color:var(--chalk);padding:80px 0 64px;}
+  .kicker{font-family:'IBM Plex Mono';font-size:0.78rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+  .kicker::before{content:"";width:22px;height:2px;background:var(--gold);}
+  .event-hero h1{font-size:clamp(2.4rem,6vw,4.8rem);line-height:0.95;font-weight:900;}
+  .event-meta{display:flex;gap:32px;margin-top:32px;flex-wrap:wrap;}
+  .meta-item{display:flex;flex-direction:column;gap:4px;}
+  .meta-label{font-family:'IBM Plex Mono';font-size:0.72rem;color:#999;text-transform:uppercase;letter-spacing:0.08em;}
+  .meta-value{font-size:1rem;font-weight:600;color:var(--chalk);}
+  .event-content{padding:80px 0;}
+  .event-grid{display:grid;grid-template-columns:1fr 340px;gap:56px;align-items:start;}
+  @media(max-width:860px){.event-grid{grid-template-columns:1fr;}}
+  .event-body h2{font-size:1.8rem;margin-bottom:16px;}
+  .event-body p{font-size:1.05rem;line-height:1.7;color:#2A2A2A;margin:0 0 20px;}
+  .sidebar-card{background:var(--gravel-dark);border-radius:3px;padding:24px;margin-bottom:20px;}
+  .sidebar-card h4{font-family:'IBM Plex Mono';font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--rust);margin:0 0 14px;}
+  .sidebar-card ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+  .sidebar-card li{font-size:0.92rem;display:flex;align-items:flex-start;gap:8px;}
+  .sidebar-card li::before{content:"→";color:var(--rust);font-weight:700;flex-shrink:0;}
+  .map-section{padding:0 0 80px;}
+  .map-label{font-family:'IBM Plex Mono';font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--rust);margin-bottom:12px;display:block;}
+  #map{height:420px;border-radius:3px;border:1px solid var(--line);}
+  .back-section{padding:40px 0 80px;}
+  .btn-primary-green{background:var(--rust);color:var(--chalk);padding:14px 26px;border-radius:2px;font-weight:700;font-size:0.92rem;text-decoration:none;letter-spacing:0.02em;display:inline-block;}
+  .btn-primary-green:hover{background:var(--rust-bright);}
+</style>`
+}) %>
 
-<main style="padding-top:64px;">
+<main>
 
-  <section class="hero" style="min-height:420px;">
-    <div class="hero-art" aria-hidden="true">
-      <svg viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0A0A0A"/><stop offset="50%" stop-color="#1C1C1C"/><stop offset="100%" stop-color="#2A2A2A"/>
-          </linearGradient>
-        </defs>
-        <rect width="1440" height="420" fill="url(#sky2)"/>
-        <path fill="#1C1C1C" d="M0,280 L200,240 L420,270 L620,210 L860,260 L1100,200 L1300,240 L1440,210 L1440,420 L0,420 Z"/>
-        <path fill="#0A0A0A" d="M0,340 L180,300 L380,330 L580,280 L800,320 L1060,270 L1260,310 L1440,290 L1440,420 L0,420 Z"/>
-      </svg>
+  <div class="event-hero" style="padding-top:80px;">
+    <div class="wrap">
+      <div class="kicker">Trainingsausfahrt · 2026</div>
+      <h1>Trainings&shy;ausfahrt Laurentiberg</h1>
+      <div class="event-meta">
+        <div class="meta-item">
+          <span class="meta-label">Datum</span>
+          <span class="meta-value">Samstag, 22. August 2026</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Startort</span>
+          <span class="meta-value">Friesi's Bikery, Edelseestraße 27, Birkfeld</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Kategorie</span>
+          <span class="meta-value">Trainingsausfahrt</span>
+        </div>
+      </div>
     </div>
-    <div class="hero-overlay" aria-hidden="true"></div>
-    <div class="wrap hero-inner" style="padding-bottom:60px;">
-      <span class="eyebrow">Vereinsrennen · 22. August 2026</span>
-      <h1>Trainingsausfahrt<br><span>Laurentiberg</span></h1>
-      <p class="lead">Der Hausberg des Vereins. Wer Birkfeld kennt, kennt den Laurentiberg – und wer ihn einmal gefahren ist, will ihn wieder fahren.</p>
+  </div>
+
+  <section class="event-content">
+    <div class="wrap">
+      <div class="event-grid">
+        <div class="event-body">
+          <p style="font-size:1.15rem;line-height:1.65;color:#1a1a1a;margin:0 0 32px;font-weight:500;">10,5 Kilometer. 440 Höhenmeter. Einer Kirche entgegen. Die Trainingsausfahrt Laurentiberg ist kein Rennen gegen die anderen – es ist eines gegen den Anstieg.</p>
+
+          <h2 style="font-size:1.5rem;margin-bottom:20px;">Strecke</h2>
+          <div style="display:flex;flex-direction:column;gap:0;margin-bottom:32px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:0.95rem;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--rust);min-width:48px;">START</span>
+              <span>Remise Friesenbichler, neben Friesi's Bikery, Birkfeld</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:0.95rem;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#aaa;min-width:48px;">→</span>
+              <span>Hauptplatz · Kaiserfeldgasse · Haslau · Piregg</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:0.95rem;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--rust);min-width:48px;">ZIEL</span>
+              <span style="font-weight:700;">Laurentiberg Kirche</span>
+            </div>
+          </div>
+
+          <h2 style="font-size:1.5rem;margin-bottom:20px;">Details</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;">
+            <div style="background:var(--gravel-dark);padding:18px 20px;border-radius:3px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--rust);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Datum</div>
+              <div style="font-weight:700;">Sa, 22. August 2026</div>
+            </div>
+            <div style="background:var(--gravel-dark);padding:18px 20px;border-radius:3px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--rust);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Startzeit</div>
+              <div style="font-weight:700;">14:00 Uhr</div>
+            </div>
+            <div style="background:var(--gravel-dark);padding:18px 20px;border-radius:3px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--rust);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Streckenlänge</div>
+              <div style="font-weight:700;">~10,5 km · 440 hm</div>
+            </div>
+            <div style="background:var(--gravel-dark);padding:18px 20px;border-radius:3px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--rust);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Startgeld</div>
+              <div style="font-weight:700;">€ 15,–</div>
+            </div>
+          </div>
+
+          <h2 style="font-size:1.5rem;margin-bottom:16px;">Trainingsgruppen</h2>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;padding:8px 16px;border:1px solid var(--line);border-radius:2px;">U30</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;padding:8px 16px;border:1px solid var(--line);border-radius:2px;">30–50</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;padding:8px 16px;border:1px solid var(--line);border-radius:2px;">50–60</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;padding:8px 16px;border:1px solid var(--line);border-radius:2px;">Ü60</span>
+          </div>
+
+          <div style="background:var(--ink);color:var(--chalk);padding:24px 28px;border-radius:3px;margin-bottom:28px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">Nach der Ausfahrt</div>
+            <p style="margin:0;line-height:1.65;color:#D8D8D8;">Oben angekommen wird nicht sofort wieder abgefahren. Gemütliches Zusammensitzen bei der Kirche am Laurentiberg – mit Ausblick, der den Anstieg vergessen lässt.</p>
+          </div>
+
+          <a href="https://www.strava.com/clubs/300701/group_events/3516907383371592132/occurrences/FQIWiMf_3LeoyM5hHBTUHxQQFCwUHBQAFAAAHBaAyLyVhWgAAA==" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#FC4C02;color:#fff;padding:12px 22px;border-radius:2px;font-weight:700;font-size:0.92rem;text-decoration:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13.5 2L6 15h4.5L9 22l7.5-13H12l1.5-7z" fill="white"/></svg>
+            Zur Strava-Veranstaltung
+          </a>
+        </div>
+
+        <div>
+          <div class="sidebar-card">
+            <h4>Infos</h4>
+            <ul>
+              <li>Sa, 22. August 2026 · 14:00 Uhr</li>
+              <li>Start: Remise Friesenbichler, Birkfeld</li>
+              <li>~10,5 km · 440 hm</li>
+              <li>Startgeld: € 15,–</li>
+              <li>Anmeldung: folgt</li>
+            </ul>
+          </div>
+          <div class="sidebar-card">
+            <h4>Kontakt</h4>
+            <ul>
+              <li><a href="mailto:rcbirkfeld@gmail.com">rcbirkfeld@gmail.com</a></li>
+              <li><a href="tel:+436642517920">+43 664 251 79 20</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="section" style="background:#111;">
-    <div class="wrap" style="max-width:800px;">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;margin-bottom:48px;">
-        <div style="background:#1C1C1C;border-radius:12px;padding:24px;">
-          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:8px;">Datum</div>
-          <div style="font-size:1.2rem;font-weight:600;">22. August 2026</div>
-        </div>
-        <div style="background:#1C1C1C;border-radius:12px;padding:24px;">
-          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:8px;">Startort</div>
-          <div style="font-size:1.2rem;font-weight:600;">Friesis Bikery</div>
-          <div style="font-size:0.88rem;color:#aaa;margin-top:4px;">Edelseestraße 27, Birkfeld</div>
-        </div>
-        <div style="background:#1C1C1C;border-radius:12px;padding:24px;">
-          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:8px;">Kategorie</div>
-          <div style="font-size:1.2rem;font-weight:600;">Vereinsrennen</div>
-          <div style="font-size:0.88rem;color:#aaa;margin-top:4px;">Alle Mitglieder willkommen</div>
-        </div>
-      </div>
-
-      <div class="card" style="background:#1C1C1C;border-radius:16px;padding:40px;">
-        <h2 style="font-size:1.5rem;margin-bottom:20px;">Über das Rennen</h2>
-        <p style="line-height:1.8;color:#ccc;margin-bottom:16px;">
-          Der Laurentiberg ist eine der beliebtesten Bergwertungen im Vereinsleben des RC ASVÖ Birkfeld.
-          Die Trainingsausfahrt führt von der Friesis Bikery in Birkfeld hinauf zum Gipfel –
-          ein Kurs, der Ausdauer, Technik und Willen gleichermaßen fordert.
-        </p>
-        <p style="line-height:1.8;color:#ccc;margin-bottom:16px;">
-          Gefahren wird in gemischten Gruppen, aufgeteilt nach Leistungsniveau.
-          Anfänger und erfahrene Fahrer starten gemeinsam – der Berg kennt keine Ausreden.
-        </p>
-        <p style="line-height:1.8;color:#ccc;">
-          Im Anschluss gibt es gemeinsame Einkehr und Ergebnispräsentation.
-          Details und Anmeldung erfolgen über den Vereins-WhatsApp-Kanal.
-        </p>
-      </div>
-
-      <div style="margin-top:40px;text-align:center;">
-        <a href="/#termine" class="btn btn-outline" style="margin-right:16px;">← Alle Termine</a>
-        <a href="/#mitglied" class="btn btn-primary">Mitglied werden</a>
-      </div>
+  <section class="map-section">
+    <div class="wrap">
+      <span class="map-label">Streckengebiet</span>
+      <div id="map" style="position:relative;"></div>
     </div>
   </section>
+
+  <div class="back-section">
+    <div class="wrap">
+      <a href="/" class="btn-primary-green">← Zurück zur Startseite</a>
+    </div>
+  </div>
 
 </main>
 
-<%- include('partials/footer') %>
+<script>
+  const map = L.map('map', { zoomControl: true, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 17
+  }).addTo(map);
+
+  const route = [[47.357127,15.69708],[47.357285,15.696546],[47.357346,15.696222],[47.35737,15.695887],[47.357317,15.695338],[47.3573,15.695169],[47.357374,15.695027],[47.357489,15.694971],[47.357402,15.694356],[47.357415,15.693982],[47.35743,15.693543],[47.357423,15.693441],[47.357401,15.693153],[47.357394,15.692811],[47.357452,15.692549],[47.357567,15.692272],[47.357785,15.691886],[47.358002,15.691509],[47.358096,15.691349],[47.358526,15.690699],[47.358641,15.690392],[47.358635,15.690266],[47.358575,15.690181],[47.358444,15.690203],[47.357911,15.690672],[47.357268,15.69115],[47.356992,15.691334],[47.356468,15.691612],[47.356248,15.691878],[47.356003,15.692283],[47.355768,15.692519],[47.355649,15.692552],[47.355552,15.692574],[47.355485,15.692571],[47.355088,15.692606],[47.35475,15.692724],[47.354536,15.692863],[47.354432,15.693028],[47.354397,15.693174],[47.354408,15.693307],[47.354376,15.693348],[47.354372,15.693411],[47.354253,15.693458],[47.353422,15.693401],[47.353031,15.693403],[47.352555,15.693333],[47.351827,15.693368],[47.351465,15.693264],[47.350611,15.693078],[47.350536,15.69305],[47.350253,15.692953],[47.34891,15.692289],[47.348238,15.691913],[47.348173,15.691774],[47.348165,15.691683],[47.348281,15.691476],[47.348531,15.691216],[47.348579,15.691007],[47.348709,15.691001],[47.348884,15.690858],[47.348999,15.690745],[47.349682,15.690042],[47.349985,15.689751],[47.350104,15.689578],[47.350285,15.68919],[47.350362,15.688936],[47.350407,15.688686],[47.350437,15.688306],[47.350383,15.685382],[47.350401,15.685097],[47.350444,15.684864],[47.350551,15.684531],[47.350643,15.684341],[47.351398,15.683348],[47.351596,15.683064],[47.351683,15.682894],[47.35182,15.682463],[47.351854,15.682225],[47.351845,15.681339],[47.351864,15.681123],[47.351968,15.680655],[47.352188,15.68004],[47.352615,15.679284],[47.352802,15.67874],[47.352999,15.678332],[47.353131,15.678133],[47.353369,15.677927],[47.354135,15.677527],[47.354583,15.677209],[47.354838,15.676935],[47.355033,15.676632],[47.355212,15.676271],[47.355303,15.675967],[47.35539,15.675554],[47.355588,15.674974],[47.355628,15.674732],[47.355633,15.674489],[47.355563,15.673934],[47.355573,15.673631],[47.355771,15.671864],[47.35591,15.671507],[47.356048,15.671228],[47.356107,15.671025],[47.35624,15.6702],[47.356369,15.669641],[47.356634,15.668985],[47.356701,15.668858],[47.356922,15.668399],[47.357712,15.667112],[47.357974,15.666734],[47.358248,15.666443],[47.358344,15.666278],[47.358483,15.665751],[47.358604,15.664974],[47.358659,15.664422],[47.35873,15.664093],[47.358844,15.663785],[47.359458,15.662469],[47.359653,15.662048],[47.359702,15.661955],[47.360319,15.660345],[47.360657,15.659619],[47.360747,15.659328],[47.360847,15.658498],[47.360938,15.658001],[47.361105,15.657671],[47.361509,15.656744],[47.361764,15.656003],[47.361931,15.655237],[47.361976,15.65481],[47.362052,15.654397],[47.362157,15.654133],[47.362283,15.653957],[47.362671,15.653584],[47.362967,15.653441],[47.363432,15.65333],[47.363772,15.653243],[47.363954,15.653228],[47.364106,15.653257],[47.364505,15.65349],[47.365312,15.653844],[47.365873,15.654013],[47.366603,15.654083],[47.36713,15.654037],[47.367766,15.654079],[47.368186,15.654032],[47.368613,15.654126],[47.368782,15.654114],[47.368936,15.654042],[47.369105,15.653856],[47.369357,15.653447],[47.369493,15.653301],[47.369741,15.65312],[47.370308,15.652867],[47.370675,15.65284],[47.371083,15.653009],[47.371118,15.65303],[47.371239,15.653101],[47.371427,15.653181],[47.371811,15.653274],[47.372035,15.65326],[47.372257,15.653209],[47.372528,15.653092],[47.373241,15.652514],[47.373801,15.651953],[47.374401,15.651257],[47.375178,15.650577],[47.375286,15.650461],[47.375352,15.650381],[47.375392,15.650325],[47.375631,15.649907],[47.37597,15.649019],[47.376503,15.64798],[47.376661,15.647534],[47.376831,15.646779],[47.377102,15.647031],[47.377161,15.647194],[47.377174,15.647737],[47.377148,15.6486],[47.377099,15.649028],[47.377013,15.649438],[47.376765,15.649968],[47.376652,15.650275],[47.376641,15.650422],[47.376698,15.650576],[47.376855,15.650708],[47.377353,15.650875],[47.377556,15.650897],[47.377972,15.650514],[47.378116,15.650272],[47.37841,15.649604],[47.378619,15.649263],[47.378816,15.649119],[47.379922,15.649083],[47.380081,15.649137],[47.380502,15.649063],[47.38066,15.649096],[47.380799,15.649275],[47.380975,15.649582],[47.381152,15.649732],[47.38133,15.649751],[47.381586,15.649622],[47.381824,15.649318],[47.382688,15.64837],[47.383033,15.6481],[47.383192,15.648008],[47.38404,15.647811],[47.384347,15.647645],[47.384639,15.647438],[47.385267,15.647191],[47.385553,15.647149],[47.386062,15.647172],[47.387157,15.647307],[47.387435,15.647544],[47.38748,15.647692],[47.387488,15.648033],[47.387524,15.648195],[47.387713,15.648347],[47.387881,15.648362],[47.388042,15.648283],[47.38813,15.648161],[47.388225,15.647908],[47.388426,15.647746],[47.388471,15.647756],[47.38853,15.647903],[47.388523,15.64879],[47.388207,15.649858],[47.388249,15.649891],[47.388502,15.649368],[47.388723,15.649014],[47.389029,15.648706],[47.389592,15.64865],[47.389777,15.648578],[47.390034,15.648397],[47.390238,15.648183],[47.390827,15.647272],[47.391114,15.646643],[47.39124,15.645827],[47.391235,15.645637],[47.391172,15.645388],[47.391038,15.645303],[47.390948,15.645032],[47.390936,15.644624],[47.391107,15.643724],[47.391328,15.643008],[47.391348,15.642783],[47.391124,15.641756],[47.391128,15.641364],[47.391201,15.641046],[47.391179,15.640988],[47.391143,15.640969],[47.390978,15.64108],[47.390845,15.641278],[47.390743,15.64143],[47.390322,15.642324],[47.389578,15.643323],[47.388996,15.643901],[47.388799,15.643879],[47.388698,15.64386]];
+
+  L.polyline(route, { color: '#1F7A34', weight: 4, opacity: 0.9 }).addTo(map);
+
+  const dotIcon = (color) => L.divIcon({
+    className: '',
+    html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>`,
+    iconSize: [14, 14], iconAnchor: [7, 7]
+  });
+
+  L.marker(route[0], { icon: dotIcon('#1F7A34') }).addTo(map).bindPopup('<strong>Start</strong><br>Friesi\'s Bikery');
+  L.marker([47.388695, 15.643898], { icon: dotIcon('#4CAF50') }).addTo(map).bindPopup('<strong>Ziel / Gipfel</strong><br>Laurenzieberg Kirche<br>~917 m');
+  map.fitBounds(L.polyline(route).getBounds(), { padding: [30, 30] });
+
+  const elevations = [574,575,575,575,575,576,576,576,578,579,579,579,580,581,582,583,585,586,586,587,589,589,590,591,595,600,602,607,609,610,613,614,615,616,621,625,627,628,628,629,629,629,630,634,637,641,649,653,661,661,664,677,684,684,685,685,686,686,687,687,688,691,692,693,694,694,694,694,692,692,692,693,693,692,692,691,689,688,682,681,679,677,676,674,673,672,670,667,665,663,660,656,653,649,644,642,640,637,636,632,632,632,631,630,628,627,626,625,617,614,612,611,610,610,611,613,615,619,620,621,630,633,634,635,635,636,638,639,638,638,638,638,638,638,638,636,633,632,631,628,624,625,630,634,635,633,631,631,632,633,634,634,633,631,630,629,629,629,630,631,632,633,634,636,638,640,641,641,641,641,642,642,644,645,647,649,649,652,655,657,659,662,664,665,667,669,678,681,689,692,701,707,710,723,724,726,726,726,726,727,728,730,735,750,755,756,765,768,772,780,782,785,791,793,794,795,796,798,800,803,806,809,812,812,812,808,802,802,805,809,814,820,822,825,827,835,842,851,854,857,859,863,868,879,889,892,905,910,914,915,915,917,917,917,913,912,910,909,909];
+  const distances = [0,44,69,95,137,149,163,176,224,252,285,293,315,341,361,386,424,461,477,546,572,582,591,605,675,755,788,850,882,923,955,968,979,986,1031,1069,1095,1112,1124,1134,1139,1144,1157,1250,1294,1347,1428,1469,1565,1574,1606,1764,1844,1856,1863,1884,1918,1934,1949,1971,1986,2079,2119,2138,2173,2194,2214,2243,2463,2485,2503,2531,2549,2661,2692,2708,2744,2762,2829,2846,2883,2935,3009,3055,3093,3114,3145,3235,3291,3326,3357,3391,3416,3449,3498,3516,3535,3577,3600,3735,3766,3792,3809,3873,3918,3975,3987,4030,4161,4201,4239,4255,4298,4358,4400,4426,4453,4573,4612,4621,4760,4827,4851,4914,4953,4984,5067,5130,5191,5223,5255,5279,5298,5349,5384,5437,5475,5495,5512,5560,5654,5718,5799,5858,5929,5975,6024,6042,6060,6084,6125,6144,6175,6241,6282,6329,6333,6348,6370,6413,6438,6463,6494,6585,6660,6745,6846,6860,6870,6876,6917,6994,7092,7130,7190,7226,7240,7281,7346,7379,7411,7460,7486,7497,7510,7530,7587,7610,7665,7689,7749,7784,7808,7931,7949,7997,8014,8035,8065,8088,8108,8138,8173,8293,8336,8355,8451,8487,8523,8596,8628,8684,8807,8842,8855,8880,8893,8917,8936,8955,8968,8990,9015,9020,9033,9100,9188,9193,9242,9278,9319,9382,9403,9435,9463,9558,9615,9678,9692,9712,9729,9751,9782,9853,9912,9929,10010,10040,10065,10070,10075,10095,10116,10132,10214,10326,10404,10426,10437];
+
+  const EleControl = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd() {
+      const W = 240, H = 72, pad = 2;
+      const minE = Math.min(...elevations), maxE = Math.max(...elevations);
+      const maxD = distances[distances.length - 1];
+      const pts = elevations.map((e, i) => {
+        const x = pad + (distances[i] / maxD) * (W - pad * 2);
+        const y = H - pad - ((e - minE) / (maxE - minE)) * (H - pad * 2 - 14);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      const fill = `${pad},${H - pad} ` + pts.join(' ') + ` ${W - pad},${H - pad}`;
+      const div = L.DomUtil.create('div');
+      div.style.cssText = 'background:rgba(10,10,10,0.88);border-radius:3px;padding:10px 12px 8px;backdrop-filter:blur(4px);pointer-events:none;';
+      div.innerHTML = `
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#4CAF50;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Höhenprofil</div>
+        <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;">
+          <defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1F7A34" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="#1F7A34" stop-opacity=".05"/>
+          </linearGradient></defs>
+          <polygon points="${fill}" fill="url(#eg)"/>
+          <polyline points="${pts.join(' ')}" fill="none" stroke="#4CAF50" stroke-width="1.8" stroke-linejoin="round"/>
+          <text x="${pad}" y="${H-pad}" font-family="IBM Plex Mono,monospace" font-size="9" fill="#888">${minE} m</text>
+          <text x="${W/2}" y="${H-pad}" font-family="IBM Plex Mono,monospace" font-size="9" fill="#888" text-anchor="middle">5.2 km</text>
+          <text x="${W-pad}" y="${H-pad}" font-family="IBM Plex Mono,monospace" font-size="9" fill="#888" text-anchor="end">${maxE} m</text>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#666;margin-top:3px;">
+          <span>0 km</span><span style="color:#fff;">+343 hm · 10.4 km</span><span>10.4 km</span>
+        </div>`;
+      return div;
+    }
+  });
+  new EleControl().addTo(map);
+
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:absolute;bottom:0;left:0;right:0;z-index:1000;background:#0A0A0A;color:#fff;display:flex;justify-content:center;gap:48px;padding:10px 20px;pointer-events:none;';
+  bar.innerHTML = `
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;display:flex;align-items:center;gap:8px;"><span style="color:#4CAF50;font-size:1rem;">↔</span> <strong>10.4 km</strong></span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;display:flex;align-items:center;gap:8px;"><span style="color:#4CAF50;font-size:1rem;">↑</span> <strong>343 hm</strong></span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.82rem;display:flex;align-items:center;gap:8px;"><span style="color:#4CAF50;font-size:1rem;">⛰</span> <strong>574 – 917 m</strong></span>`;
+  document.getElementById('map').appendChild(bar);
+</script>
+</body>
+</html>
