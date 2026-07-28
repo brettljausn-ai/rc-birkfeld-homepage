@@ -1,0 +1,82 @@
+<footer id="kontakt">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a href="/" class="logo" style="margin-bottom:20px;display:inline-flex;">
+          <img src="/images/rcbirkfeld-logo.png" alt="" width="28" height="28">
+          <span style="font-size:1.1rem;">RC BIRKFELD</span>
+        </a>
+        <p style="font-size:0.88rem;line-height:1.6;margin-top:16px;max-width:28ch;">Radsportverein im Joglland.<br>Gegründet 1993 in Birkfeld, Steiermark.</p>
+      </div>
+      <div>
+        <h5>Kontakt</h5>
+        <ul>
+          <li><a href="mailto:rcbirkfeld@gmail.com">rcbirkfeld@gmail.com</a></li>
+          <li>Birkfeld, 8190 Steiermark</li>
+        </ul>
+      </div>
+      <div>
+        <h5>Links</h5>
+        <ul>
+          <li><a href="https://www.strava.com/clubs/300701" target="_blank" rel="noopener">Strava-Club</a></li>
+          <li><a href="/#mitglied">Mitglied werden</a></li>
+          <li><a href="/impressum">Impressum</a></li>
+          <li><a href="/datenschutz">Datenschutz</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <%= new Date().getFullYear() %> RC ASVÖ Birkfeld</span>
+      <span>Mit ♥ gebaut im Joglland</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const burger = document.getElementById('burgerBtn');
+const navlinks = document.getElementById('navlinks');
+if (burger) {
+  burger.addEventListener('click', () => {
+    const open = navlinks.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open);
+  });
+  navlinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    navlinks.classList.remove('open');
+    burger.setAttribute('aria-expanded', false);
+  }));
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected','true');
+    document.querySelector(`.tab-panel[data-panel="${btn.dataset.tab}"]`).classList.add('active');
+  });
+});
+
+const fadeEls = document.querySelectorAll('.fade-in');
+if (fadeEls.length) {
+  const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1 });
+  fadeEls.forEach(el => obs.observe(el));
+}
+
+(function(){
+  const grid = document.querySelector('.gallery-grid');
+  if(!grid) return;
+  const items = grid.querySelectorAll('.gallery-item');
+  let idx = 0, timer;
+  function next(){ idx=(idx+1)%items.length; grid.scrollTo({left:idx*(items[0].offsetWidth+16),behavior:'smooth'}); }
+  function start(){ timer=setInterval(next,3500); }
+  function stop(){ clearInterval(timer); }
+  start();
+  grid.addEventListener('mouseenter',stop);
+  grid.addEventListener('mouseleave',start);
+  grid.addEventListener('touchstart',()=>stop(),{passive:true});
+  grid.addEventListener('touchend',()=>start(),{passive:true});
+  grid.addEventListener('scroll',()=>{ idx=Math.round(grid.scrollLeft/(items[0].offsetWidth+16))%items.length; },{passive:true});
+})();
+</script>
+</body>
+</html>

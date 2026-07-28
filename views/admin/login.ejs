@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – RC Birkfeld</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0A0A0A;color:#fff;font-family:'system-ui',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;}
+  .box{background:#1A1A1A;border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:40px;width:100%;max-width:380px;}
+  h1{font-size:1.4rem;margin-bottom:8px;}
+  p{font-size:0.88rem;color:#888;margin-bottom:28px;}
+  label{display:block;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:#aaa;margin-bottom:6px;}
+  input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:12px 14px;border-radius:4px;font-size:0.95rem;}
+  input:focus{outline:2px solid #4CAF50;outline-offset:2px;}
+  button{margin-top:16px;width:100%;background:#1F7A34;color:#fff;border:none;padding:13px;border-radius:4px;font-size:0.95rem;font-weight:700;cursor:pointer;}
+  button:hover{background:#145C27;}
+  .error{margin-top:12px;font-size:0.85rem;color:#e55;}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>RC Birkfeld Admin</h1>
+  <p>Nur für autorisierte Vereinsmitglieder.</p>
+  <form method="POST" action="/admin/login">
+    <label for="password">Passwort</label>
+    <input type="password" id="password" name="password" autofocus required>
+    <button type="submit">Anmelden</button>
+    <% if (error) { %><p class="error"><%= error %></p><% } %>
+  </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – RC Birkfeld</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#f5f5f5;font-family:system-ui,sans-serif;color:#111;}
+  .admin-header{background:#0A0A0A;color:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+  .admin-header h1{font-size:1.1rem;font-weight:700;}
+  .admin-header a{color:#4CAF50;text-decoration:none;font-size:0.85rem;}
+  .tabs{display:flex;gap:0;background:#1A1A1A;padding:0 28px;}
+  .tab{color:#aaa;padding:12px 20px;cursor:pointer;border-bottom:3px solid transparent;font-size:0.9rem;font-weight:600;background:none;border-top:none;border-left:none;border-right:none;}
+  .tab.active{color:#4CAF50;border-bottom-color:#4CAF50;}
+  .panel{display:none;padding:28px;max-width:1100px;margin:0 auto;}
+  .panel.active{display:block;}
+  .flash{background:#e8f5e9;border:1px solid #4CAF50;color:#1F7A34;padding:10px 16px;border-radius:4px;margin-bottom:20px;font-size:0.9rem;}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+  th{background:#0A0A0A;color:#fff;padding:10px 14px;text-align:left;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.06em;}
+  td{padding:10px 14px;border-bottom:1px solid #eee;font-size:0.9rem;vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .btn-del{background:#e53935;color:#fff;border:none;padding:5px 12px;border-radius:3px;cursor:pointer;font-size:0.8rem;}
+  .btn-del:hover{background:#c62828;}
+  .card{background:#fff;border-radius:6px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.1);margin-bottom:28px;}
+  .card h2{font-size:1rem;font-weight:700;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.06em;color:#555;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+  label{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:#666;}
+  input,select,textarea{border:1px solid #ddd;padding:9px 12px;border-radius:4px;font-size:0.9rem;font-family:inherit;}
+  input:focus,select:focus,textarea:focus{outline:2px solid #4CAF50;outline-offset:1px;}
+  textarea{min-height:80px;resize:vertical;}
+  .btn-save{background:#1F7A34;color:#fff;border:none;padding:10px 20px;border-radius:4px;font-size:0.9rem;font-weight:700;cursor:pointer;}
+  .btn-save:hover{background:#145C27;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;}
+  .badge-new{background:#e8f5e9;color:#1F7A34;}
+  .badge-contacted{background:#fff3e0;color:#e65100;}
+  img.thumb{width:56px;height:40px;object-fit:cover;border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="admin-header">
+  <h1>RC Birkfeld · Admin</h1>
+  <div style="display:flex;gap:20px;align-items:center;">
+    <a href="/" target="_blank">Website ansehen ↗</a>
+    <a href="/admin/logout">Abmelden</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPanel('news',this)">Berichte</button>
+  <button class="tab" onclick="showPanel('termine',this)">Termine</button>
+  <button class="tab" onclick="showPanel('gallery',this)">Galerie</button>
+  <button class="tab" onclick="showPanel('members',this)">Beitritte</button>
+</div>
+
+<% if (flash) { %>
+<div style="padding:0 28px;max-width:1100px;margin:16px auto 0;"><div class="flash"><%= flash %></div></div>
+<% } %>
+
+<!-- BERICHTE -->
+<div id="panel-news" class="panel active">
+  <div class="card">
+    <h2>Neuer Bericht</h2>
+    <form method="POST" action="/admin/news">
+      <div class="form-row">
+        <div class="field"><label>Titel</label><input type="text" name="title" required></div>
+        <div class="field"><label>Datum</label><input type="date" name="published_at" value="<%= new Date().toISOString().split('T')[0] %>"></div>
+      </div>
+      <div class="field"><label>Inhalt</label><textarea name="content" required></textarea></div>
+      <div class="field"><label>Bild-URL (optional)</label><input type="url" name="image_url" placeholder="https://..."></div>
+      <button type="submit" class="btn-save">Bericht speichern</button>
+    </form>
+  </div>
+  <table>
+    <thead><tr><th>Datum</th><th>Titel</th><th>Inhalt</th><th></th></tr></thead>
+    <tbody>
+    <% news.forEach(n => { %>
+    <tr>
+      <td><%= new Date(n.published_at).toLocaleDateString('de-AT') %></td>
+      <td><strong><%= n.title %></strong></td>
+      <td style="color:#666;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= n.content.substring(0,80) %></td>
+      <td><form method="POST" action="/admin/news/<%= n.id %>/delete" onsubmit="return confirm('Löschen?')"><button class="btn-del">Löschen</button></form></td>
+    </tr>
+    <% }); %>
+    <% if (news.length === 0) { %><tr><td colspan="4" style="color:#999;text-align:center;padding:20px;">Noch keine Berichte.</td></tr><% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- TERMINE -->
+<div id="panel-termine" class="panel">
+  <div class="card">
+    <h2>Neuer Termin</h2>
+    <form method="POST" action="/admin/termine">
+      <div class="form-row">
+        <div class="field"><label>Titel</label><input type="text" name="title" required></div>
+        <div class="field"><label>Datum</label><input type="date" name="date" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Ort</label><input type="text" name="location"></div>
+        <div class="field"><label>Tag</label><input type="text" name="tag" value="Vereinsrennen"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Detail-URL</label><input type="text" name="detail_url" placeholder="/laurenzibergrennen"></div>
+        <div class="field"><label>Beschreibung</label><input type="text" name="description"></div>
+      </div>
+      <button type="submit" class="btn-save">Termin speichern</button>
+    </form>
+  </div>
+  <table>
+    <thead><tr><th>Datum</th><th>Titel</th><th>Ort</th><th>Tag</th><th></th></tr></thead>
+    <tbody>
+    <% termine.forEach(t => { %>
+    <tr>
+      <td><%= new Date(t.date).toLocaleDateString('de-AT') %></td>
+      <td><strong><%= t.title %></strong></td>
+      <td><%= t.location || '–' %></td>
+      <td><%= t.tag %></td>
+      <td><form method="POST" action="/admin/termine/<%= t.id %>/delete" onsubmit="return confirm('Löschen?')"><button class="btn-del">Löschen</button></form></td>
+    </tr>
+    <% }); %>
+    <% if (termine.length === 0) { %><tr><td colspan="5" style="color:#999;text-align:center;padding:20px;">Noch keine Termine.</td></tr><% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- GALERIE -->
+<div id="panel-gallery" class="panel">
+  <div class="card">
+    <h2>Foto hochladen</h2>
+    <form method="POST" action="/admin/gallery" enctype="multipart/form-data">
+      <div class="form-row">
+        <div class="field"><label>Foto (JPG/PNG/WebP)</label><input type="file" name="photo" accept="image/*" required></div>
+        <div class="field"><label>Beschriftung</label><input type="text" name="caption"></div>
+      </div>
+      <div class="field" style="max-width:200px;"><label>Reihenfolge</label><input type="number" name="sort_order" value="0" min="0"></div>
+      <button type="submit" class="btn-save">Hochladen</button>
+    </form>
+  </div>
+  <table>
+    <thead><tr><th>Vorschau</th><th>Datei</th><th>Beschriftung</th><th>Reihenfolge</th><th></th></tr></thead>
+    <tbody>
+    <% gallery.forEach(g => { %>
+    <tr>
+      <td><img class="thumb" src="/images/galerie/<%= g.filename %>" alt=""></td>
+      <td><%= g.filename %></td>
+      <td><%= g.caption || '–' %></td>
+      <td><%= g.sort_order %></td>
+      <td><form method="POST" action="/admin/gallery/<%= g.id %>/delete" onsubmit="return confirm('Foto löschen?')"><button class="btn-del">Löschen</button></form></td>
+    </tr>
+    <% }); %>
+    <% if (gallery.length === 0) { %><tr><td colspan="5" style="color:#999;text-align:center;padding:20px;">Noch keine Fotos.</td></tr><% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- BEITRITTE -->
+<div id="panel-members" class="panel">
+  <table>
+    <thead><tr><th>Datum</th><th>Name</th><th>E-Mail</th><th>Interesse</th><th>Status</th></tr></thead>
+    <tbody>
+    <% members.forEach(m => { %>
+    <tr>
+      <td><%= new Date(m.created_at).toLocaleDateString('de-AT') %></td>
+      <td><strong><%= m.name %></strong></td>
+      <td><a href="mailto:<%= m.email %>"><%= m.email %></a></td>
+      <td><%= m.interesse || '–' %></td>
+      <td><span class="badge badge-<%= m.status %>"><%= m.status %></span></td>
+    </tr>
+    <% }); %>
+    <% if (members.length === 0) { %><tr><td colspan="5" style="color:#999;text-align:center;padding:20px;">Noch keine Beitrittsanfragen.</td></tr><% } %>
+    </tbody>
+  </table>
+</div>
+
+<script>
+function showPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

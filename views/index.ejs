@@ -1,0 +1,347 @@
+<%- include('partials/head', { title: 'RC ASVÖ Birkfeld' }) %>
+<%- include('partials/nav') %>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" style="padding-top:64px;min-height:640px;">
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0A0A0A"/><stop offset="42%" stop-color="#2A2A2A"/><stop offset="66%" stop-color="#6B6B6B"/><stop offset="100%" stop-color="#D8D8D8"/>
+          </linearGradient>
+          <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/><stop offset="60%" stop-color="#D8D8D8" stop-opacity="0.35"/><stop offset="100%" stop-color="#D8D8D8" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="ridgeFar" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#202020"/><stop offset="100%" stop-color="#161616"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="1440" height="900" fill="url(#sky)"/>
+        <circle class="sun" cx="1080" cy="430" r="230" fill="url(#sunGlow)"/>
+        <circle class="sun" cx="1080" cy="430" r="62" fill="#FFFFFF"/>
+        <path fill="url(#ridgeFar)" opacity="0.75" d="M0,520 L120,480 L260,505 L420,455 L560,490 L720,430 L880,470 L1040,410 L1200,460 L1360,420 L1440,450 L1440,900 L0,900 Z"/>
+        <path fill="#1C1C1C" opacity="0.9" d="M0,600 L150,560 L320,590 L480,540 L650,575 L820,520 L1000,565 L1180,530 L1440,570 L1440,900 L0,900 Z"/>
+        <path fill="#0A0A0A" d="M0,720 L200,650 L420,700 L620,620 L860,690 L1100,630 L1300,670 L1440,640 L1440,900 L0,900 Z"/>
+        <path d="M120,900 C 260,760 340,760 460,690 C 560,635 640,660 700,610 C 760,560 820,600 900,560" fill="none" stroke="#E8E8E8" stroke-opacity="0.85" stroke-width="14" stroke-linecap="round" stroke-dasharray="2 26"/>
+        <g class="rider" transform="translate(690,560) scale(1.05)">
+          <ellipse cx="0" cy="46" rx="34" ry="6" fill="#000" opacity="0.18"/>
+          <circle cx="-24" cy="34" r="16" fill="none" stroke="#0A0A0A" stroke-width="4.5"/>
+          <circle cx="30" cy="34" r="16" fill="none" stroke="#0A0A0A" stroke-width="4.5"/>
+          <path d="M-24,34 L4,10 L30,34 M4,10 L-2,-6 M4,10 L14,34 M-2,-6 L-24,34" stroke="#0A0A0A" stroke-width="4.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M-2,-6 C -6,-22 -4,-34 6,-46 M6,-46 L20,-34 M6,-46 C 6,-46 -8,-40 -16,-22 L-24,-2" stroke="#0A0A0A" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="10" cy="-56" r="8" fill="#0A0A0A"/>
+        </g>
+        <g transform="translate(560,600) scale(0.72)" opacity="0.75">
+          <circle cx="-24" cy="34" r="16" fill="none" stroke="#0A0A0A" stroke-width="5"/>
+          <circle cx="30" cy="34" r="16" fill="none" stroke="#0A0A0A" stroke-width="5"/>
+          <path d="M-24,34 L4,10 L30,34 M4,10 L-2,-6 M4,10 L14,34 M-2,-6 L-24,34" stroke="#0A0A0A" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M-2,-6 C -4,-18 2,-22 8,-24 L20,-22" stroke="#0A0A0A" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="10" cy="-28" r="8" fill="#0A0A0A"/>
+        </g>
+      </svg>
+    </div>
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <span class="eyebrow">Joglland · Oststeiermark · seit 1993</span>
+      <h1>Der Anstieg<br>gehört <span>uns.</span></h1>
+      <p class="lead">Rennrad, MTB und Gravel zwischen Birkfeld und dem Joglland – für Kinder, die ihr erstes Rennen fahren, für Familien am Samstagnachmittag und für alle, die den Ötztaler im Kalender stehen haben.</p>
+      <div class="hero-ctas">
+        <a href="#mitglied" class="btn btn-primary">Join the Club</a>
+        <a href="#angebote" class="btn btn-outline">Angebote ansehen</a>
+      </div>
+    </div>
+    <div class="wrap profile-wrap">
+      <svg class="profile-svg" viewBox="0 0 1180 220" preserveAspectRatio="none" role="img" aria-label="Höhenprofil Joglland mit Vereinskennzahlen">
+        <defs>
+          <linearGradient id="profileGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4A5D3A" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A5D3A" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path class="profile-fill" d="M0,190 L60,175 L140,150 L220,160 L300,110 L380,120 L460,70 L560,90 L650,40 L740,65 L830,95 L920,60 L1000,100 L1080,80 L1180,130 L1180,220 L0,220 Z"/>
+        <path class="profile-line" d="M0,190 L60,175 L140,150 L220,160 L300,110 L380,120 L460,70 L560,90 L650,40 L740,65 L830,95 L920,60 L1000,100 L1080,80 L1180,130"/>
+        <g class="profile-marker"><circle class="marker-dot" cx="140" cy="150" r="5"/><text class="marker-value" x="118" y="135">50+</text><text class="marker-label" x="108" y="200">Mitglieder</text></g>
+        <g class="profile-marker"><circle class="marker-dot" cx="460" cy="70" r="5"/><text class="marker-value" x="418" y="52">U13–U19</text><text class="marker-label" x="418" y="200">Jugendteam</text></g>
+        <g class="profile-marker"><circle class="marker-dot" cx="740" cy="65" r="5"/><text class="marker-value" x="700" y="48">Sa 13:00</text><text class="marker-label" x="700" y="200">Clubausfahrt</text></g>
+        <g class="profile-marker"><circle class="marker-dot" cx="1000" cy="100" r="5"/><text class="marker-value" x="960" y="83">3 Disziplinen</text><text class="marker-label" x="960" y="200">Rennrad · MTB · Gravel</text></g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="wrap">
+      <div class="stat"><div class="num">50+</div><div class="lbl">Aktive Mitglieder</div></div>
+      <div class="stat"><div class="num">3</div><div class="lbl">Disziplinen im Programm</div></div>
+      <div class="stat"><div class="num">1×</div><div class="lbl">Ausfahrt pro Woche, fix</div></div>
+      <div class="stat"><div class="num">U13</div><div class="lbl">Jüngste Jugendklasse</div></div>
+    </div>
+  </div>
+
+  <!-- VEREIN -->
+  <section id="verein">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">Wer wir sind</span>
+        <h2>Ein Dorfverein mit Renn&shy;lizenz.</h2>
+        <p>Der RC ASVÖ Birkfeld ist Treffpunkt für Hobbyfahrer:innen und Rennsportler:innen aus dem Joglland. Wir betreuen ein Jugendteam von U13 bis Junioren, fahren jeden Samstag gemeinsam aus und stehen bei den großen Marathons und Meisterschaften Österreichs am Start – ohne dass man dafür Rennfahrer:in sein muss, um dazuzugehören.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERIE -->
+  <section id="galerie" style="background:var(--gravel-dark);">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">Eindrücke</span>
+        <h2>Unterwegs im Joglland.</h2>
+        <p>Bilder aus Ausfahrten, Rennen und dem Vereinsleben.</p>
+      </div>
+      <div class="gallery-grid">
+        <% gallery.forEach(item => { %>
+        <div class="gallery-item">
+          <img src="/images/galerie/<%= item.filename %>" alt="<%= item.caption || '' %>" loading="lazy">
+          <% if (item.caption) { %><span class="gallery-caption"><%= item.caption %></span><% } %>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANGEBOTE -->
+  <section id="angebote" style="background:var(--gravel-dark);">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">Angebote</span>
+        <h2>Drei Wege aufs Rad.</h2>
+        <p>Egal ob erste Kurbelumdrehung oder nächster Startplatz – wähle, was zu dir passt.</p>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" role="tab" aria-selected="true" data-tab="jugend">Kids &amp; Jugend</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="hobby">Hobby &amp; Einsteiger</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="renn">Rennsport</button>
+      </div>
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="jugend">
+          <div>
+            <h3>Kids &amp; Jugend</h3>
+            <p>Technikschulungen, Bike-Kontrolle und erste Rennerfahrung – betreut von ausgebildeten Guides, im Tempo der Kinder.</p>
+            <ul>
+              <li>Technikschulung für Einsteiger:innen ab 8 Jahren</li>
+              <li>Betreutes Jugendteam der Klassen U13 bis Junioren</li>
+              <li>Begleitung bei ersten Bewerben ohne Leistungsdruck</li>
+              <li>Eigene Trainingsgruppe, getrennt vom Erwachsenentempo</li>
+            </ul>
+          </div>
+          <div class="tab-visual">
+            <img src="/images/galerie/foto-4.jpg" alt="Kids & Jugend beim RC Birkfeld">
+            <div class="overlay"></div>
+            <span class="tag">nächster Schnuppertermin: auf Anfrage</span>
+          </div>
+        </div>
+        <div class="tab-panel" data-panel="hobby">
+          <div>
+            <h3>Hobby &amp; Einsteiger</h3>
+            <p>Die Samstagsausfahrt ist unser Herzstück: mehrere Tempogruppen, damit niemand abgehängt wird – Anschluss finden ist hier die einzige Voraussetzung.</p>
+            <ul>
+              <li>Gemeinsame Ausfahrt jeden Samstag, 13:00 Uhr ab Friesis Bikery</li>
+              <li>Mehrere Gruppen nach Tempo, für Renn­rad und MTB</li>
+              <li>Anmeldung über die Club-WhatsApp-Gruppe</li>
+              <li>Clubdressen zu Mitgliederkonditionen</li>
+            </ul>
+          </div>
+          <div class="tab-visual">
+            <span class="tag">Treffpunkt: Friesis Bikery, Edelseestraße 27</span>
+          </div>
+        </div>
+        <div class="tab-panel" data-panel="renn">
+          <div>
+            <h3>Rennsport</h3>
+            <p>Vom Laurentibergrennen vor der Haustür bis zum Ötztaler Radmarathon – wer Startnummern sammelt, ist bei uns im Kalender gut aufgehoben.</p>
+            <ul>
+              <li>Jahreslizenz des ÖTRV über den Verein</li>
+              <li>Frühjahrs-Trainingslager, jährlich in Kroatien</li>
+              <li>Struk­turiertes Renn­programm über die Saison</li>
+              <li>Startgemeinschaften bei Marathons und Meisterschaften</li>
+            </ul>
+          </div>
+          <div class="tab-visual">
+            <img src="/images/galerie/foto-1.jpg" alt="Trainingslager Porec">
+            <div class="overlay"></div>
+            <span class="tag">Trainingslager 2026: April, Porec/Kroatien</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TERMINE -->
+  <section id="termine">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">Termine</span>
+        <h2>Was als Nächstes ansteht.</h2>
+      </div>
+      <div class="events">
+        <% if (termine.length === 0) { %>
+        <p style="color:#7A7A7A;font-size:0.95rem;">Aktuell keine Termine eingetragen.</p>
+        <% } else { termine.forEach(t => {
+          const d = new Date(t.date);
+          const mon = d.toLocaleDateString('de-AT',{month:'short'}).toUpperCase();
+          const day = d.getDate();
+        %>
+        <div class="event-row">
+          <div class="event-date"><%= mon %><br><small><%= day %>.</small></div>
+          <div class="event-info">
+            <h4><%= t.title %></h4>
+            <span><%= t.location || '' %></span>
+            <% if (t.detail_url) { %><a href="<%= t.detail_url %>" class="event-more">Mehr Infos →</a><% } %>
+          </div>
+          <div class="event-tag"><%= t.tag || 'Vereinsrennen' %></div>
+        </div>
+        <% }); } %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ERGEBNISSE -->
+  <section id="ergebnisse" style="background:var(--gravel-dark);">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">Ergebnisse</span>
+        <h2>Zuletzt am Podest.</h2>
+        <p>Das komplette Archiv seit 2016 gibt's unter Ergebnisse &amp; Berichte – hier nur das Frischeste.</p>
+      </div>
+      <div class="results-grid">
+        <div class="result-card"><div class="rk">01</div><h4>Trainingsausfahrt Laurentiberg</h4><p>28 Teilnehmer:innen, Gäste aus befreundeten Radclubs. Schnellster: Niklas Podhraski.</p><span class="time">2025 · Bergwertung</span></div>
+        <div class="result-card"><div class="rk">02</div><h4>Königskogel Kogelkönig</h4><p>Bestes RC-Mitglied: Obmann Johannes Wildt, Sieg in der Klasse Ü50.</p><span class="time">2023 · Bergzeitfahren</span></div>
+        <div class="result-card"><div class="rk">03</div><h4>Laurentibergrennen</h4><p>Christoph Spreitzhofer als bestes RC-Mitglied, Platz 2 in 23:33 Min.</p><span class="time">2022 · Vereinsrennen</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BERICHTE -->
+  <section id="berichte">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">News &amp; Berichte</span>
+        <h2>Was zuletzt passiert ist.</h2>
+        <p>Rennberichte, Vereinsnachrichten und Rückblicke aus dem Vereinsleben.</p>
+      </div>
+      <div class="news-grid">
+        <% if (news.length === 0) { %>
+        <p style="color:#7A7A7A;">Noch keine Berichte vorhanden. Füge welche im <a href="/admin" style="color:var(--rust);">Admin-Bereich</a> hinzu.</p>
+        <% } else { news.forEach(n => { %>
+        <div class="news-card">
+          <div class="news-card-img">
+            <% if (n.image_url) { %>
+            <img src="<%= n.image_url %>" alt="<%= n.title %>">
+            <% } else { %>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none"><path d="M10,60 L28,30 L44,48 L56,24 L70,60 Z" fill="white" opacity="0.25"/><path d="M10,60 L28,30 L44,48 L56,24 L70,60" stroke="white" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>
+            <% } %>
+          </div>
+          <div class="news-card-body">
+            <span class="news-date"><%= new Date(n.published_at).toLocaleDateString('de-AT',{month:'long',year:'numeric'}) %></span>
+            <h4><%= n.title %></h4>
+            <p><%= n.content.substring(0,160) %><%= n.content.length > 160 ? '…' : '' %></p>
+            <a href="#" class="news-read-more">Bericht lesen →</a>
+          </div>
+        </div>
+        <% }); } %>
+      </div>
+    </div>
+  </section>
+
+  <!-- STRAVA -->
+  <section id="strava">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">Live von Strava</span>
+        <h2>Unser Club, auf der Straße.</h2>
+        <p>Direkt gespiegelt vom offiziellen Strava-Club des RC ASVÖ Birkfeld – Mitgliederzahl und Disziplinen live.</p>
+      </div>
+      <div class="strava-card">
+        <div class="strava-card-main">
+          <span class="strava-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M13.5 2L6 15h4.5L9 22l7.5-13H12l1.5-7z" fill="var(--chalk)"/></svg></span>
+          <div><h3>RC ASVÖ Birkfeld</h3><span class="strava-sub">Radsport-Club auf Strava</span></div>
+        </div>
+        <div class="strava-stats">
+          <div class="strava-stat"><span class="num"><%= strava ? strava.member_count : '–' %></span><span class="lbl">Mitglieder auf Strava</span></div>
+          <div class="strava-stat"><span class="num">8</span><span class="lbl">Disziplinen im Club</span></div>
+        </div>
+        <div class="strava-tags">
+          <span>Rennrad</span><span>Gravel</span><span>Mountainbike</span><span>E-Bike</span><span>E-MTB</span><span>Handbike</span><span>Velomobil</span><span>Rolle / Virtual</span>
+        </div>
+        <a href="https://www.strava.com/clubs/300701" target="_blank" rel="noopener" class="btn btn-outline-dark">Club auf Strava ansehen →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOIN -->
+  <section id="mitglied" class="join">
+    <div class="wrap">
+      <div class="section-head fade-in">
+        <span class="kicker">Community</span>
+        <h2>Join the Club.</h2>
+        <p>Ein Formular, keine Wartezeit – wir melden uns innerhalb weniger Tage mit den nächsten Schritten.</p>
+      </div>
+      <div class="join-grid">
+        <div class="join-info">
+          <h3 style="font-size:1.4rem;">Was dabei ist</h3>
+          <ul>
+            <li>Organisierte Ausfahrten – Rennrad und MTB</li>
+            <li>Clubdressen zu Mitgliederpreisen</li>
+            <li>Technikschulungen für Nachwuchsfahrer:innen</li>
+            <li>Jahreslizenz des ÖTRV</li>
+          </ul>
+        </div>
+        <form id="joinForm" novalidate>
+          <div class="field">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="field">
+            <label for="email">E-Mail</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="field">
+            <label>Interesse</label>
+            <div class="radio-group">
+              <label><input type="radio" name="interesse" value="jugend" checked> Kids &amp; Jugend</label>
+              <label><input type="radio" name="interesse" value="hobby"> Hobby</label>
+              <label><input type="radio" name="interesse" value="renn"> Rennsport</label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary submit-btn">Anfrage senden</button>
+          <div class="form-msg" id="formMsg" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const joinForm = document.getElementById('joinForm');
+if (joinForm) {
+  joinForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('formMsg');
+    const data = Object.fromEntries(new FormData(joinForm));
+    if (!data.name) { msg.textContent = 'Bitte Namen eingeben.'; return; }
+    try {
+      const res = await fetch('/contact/beitritt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (json.ok) { msg.textContent = json.message; joinForm.reset(); }
+      else { msg.textContent = json.error || 'Fehler aufgetreten.'; }
+    } catch { msg.textContent = 'Verbindungsfehler. Bitte später erneut versuchen.'; }
+  });
+}
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,38 @@
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="/" class="logo">
+        <img src="/images/rcbirkfeld-logo.png" alt="RC Birkfeld Logo" width="36" height="36">
+        <span>RC BIRKFELD</span>
+      </a>
+      <ul class="navlinks" id="navlinks">
+        <li><a href="/#verein">Verein</a></li>
+        <li><a href="/#angebote">Angebote</a></li>
+        <li><a href="/#galerie">Galerie</a></li>
+        <li class="has-dropdown">
+          <a href="/#termine">Termine
+            <svg class="dropdown-arrow" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <div class="dropdown">
+            <% if (typeof termine !== 'undefined') { termine.forEach(t => { %>
+            <a href="<%= t.detail_url || '/#termine' %>">
+              <span class="dd-date"><%= new Date(t.date).toLocaleDateString('de-AT', {day:'2-digit', month:'short', year:'numeric'}) %></span>
+              <span class="dd-name"><%= t.title %></span>
+            </a>
+            <% }); } %>
+            <div class="dropdown-divider"></div>
+            <a href="/#termine" class="dd-all">Alle Termine ansehen →</a>
+          </div>
+        </li>
+        <li><a href="/#berichte">Berichte</a></li>
+        <li><a href="/#ergebnisse">Ergebnisse</a></li>
+        <li><a href="/#strava">Strava</a></li>
+        <li><a href="/#kontakt">Kontakt</a></li>
+      </ul>
+      <a href="/#mitglied" class="nav-cta">Join the Club</a>
+      <button class="burger" id="burgerBtn" aria-label="Menü öffnen" aria-expanded="false">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
