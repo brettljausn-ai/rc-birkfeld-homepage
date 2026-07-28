@@ -75,10 +75,21 @@ router.post('/news', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.post('/news/:id/edit', requireAuth, async (req, res, next) => {
+  const { title, content, image_url, published_at } = req.body;
+  try {
+    await pool.query(
+      'UPDATE news SET title=?, content=?, image_url=?, published_at=? WHERE id=?',
+      [title, content, image_url || null, published_at, req.params.id]
+    );
+    res.redirect('/admin?msg=Bericht+aktualisiert&tab=news');
+  } catch (err) { next(err); }
+});
+
 router.post('/news/:id/delete', requireAuth, async (req, res, next) => {
   try {
     await pool.query('DELETE FROM news WHERE id = ?', [req.params.id]);
-    res.redirect('/admin?msg=Bericht+gelöscht');
+    res.redirect('/admin?msg=Bericht+gelöscht&tab=news');
   } catch (err) { next(err); }
 });
 
@@ -94,10 +105,21 @@ router.post('/termine', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.post('/termine/:id/edit', requireAuth, async (req, res, next) => {
+  const { title, date, location, description, detail_url, tag } = req.body;
+  try {
+    await pool.query(
+      'UPDATE termine SET title=?, date=?, location=?, description=?, detail_url=?, tag=? WHERE id=?',
+      [title, date, location || null, description || null, detail_url || null, tag || 'Vereinsrennen', req.params.id]
+    );
+    res.redirect('/admin?msg=Termin+aktualisiert&tab=termine');
+  } catch (err) { next(err); }
+});
+
 router.post('/termine/:id/delete', requireAuth, async (req, res, next) => {
   try {
     await pool.query('DELETE FROM termine WHERE id = ?', [req.params.id]);
-    res.redirect('/admin?msg=Termin+gelöscht');
+    res.redirect('/admin?msg=Termin+gelöscht&tab=termine');
   } catch (err) { next(err); }
 });
 
@@ -113,6 +135,13 @@ router.post('/gallery', requireAuth, upload.single('photo'), async (req, res, ne
       [filename, caption || null, parseInt(sort_order) || 0]
     );
     res.redirect('/admin?msg=Foto+hochgeladen');
+  } catch (err) { next(err); }
+});
+
+router.post('/gallery/:id/caption', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('UPDATE gallery SET caption=? WHERE id=?', [req.body.caption || null, req.params.id]);
+    res.redirect('/admin?msg=Beschriftung+gespeichert&tab=gallery');
   } catch (err) { next(err); }
 });
 
@@ -141,6 +170,28 @@ router.post('/sponsors', requireAuth, uploadSponsor.single('logo'), async (req, 
   } catch (err) { next(err); }
 });
 
+router.post('/members/:id/status', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('UPDATE members SET status=? WHERE id=?', [req.body.status, req.params.id]);
+    res.redirect('/admin?msg=Status+aktualisiert&tab=members');
+  } catch (err) { next(err); }
+});
+
+router.post('/members/:id/delete', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM members WHERE id=?', [req.params.id]);
+    res.redirect('/admin?msg=Eintrag+gelöscht&tab=members');
+  } catch (err) { next(err); }
+});
+
+router.post('/sponsors/:id/edit', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('UPDATE sponsors SET name=?, website_url=? WHERE id=?',
+      [req.body.name, req.body.website_url || null, req.params.id]);
+    res.redirect('/admin?msg=Sponsor+aktualisiert&tab=sponsors');
+  } catch (err) { next(err); }
+});
+
 router.post('/sponsors/:id/delete', requireAuth, async (req, res, next) => {
   try {
     await pool.query('DELETE FROM sponsors WHERE id=?', [req.params.id]);
@@ -160,18 +211,27 @@ router.post('/test-email', requireAuth, async (req, res) => {
 });
 
 /* ── HAUPTSEITE TEXTE ── */
+const CONTENT_KEYS = new Set([
+  'hero_eyebrow','hero_title_line1','hero_title_line2','hero_lead',
+  'stats_1_num','stats_1_lbl','stats_2_num','stats_2_lbl',
+  'stats_3_num','stats_3_lbl','stats_4_num','stats_4_lbl',
+  'verein_text',
+  'result_1_rank','result_1_title','result_1_desc','result_1_meta',
+  'result_2_rank','result_2_title','result_2_desc','result_2_meta',
+  'result_3_rank','result_3_title','result_3_desc','result_3_meta',
+]);
+
 router.post('/page/content', requireAuth, async (req, res, next) => {
-  const keys = ['hero_eyebrow', 'hero_title_line1', 'hero_title_line2', 'hero_lead'];
   try {
-    for (const key of keys) {
-      if (req.body[key] !== undefined) {
+    for (const [key, value] of Object.entries(req.body)) {
+      if (CONTENT_KEYS.has(key)) {
         await pool.query(
           'INSERT INTO site_content (`key`, value) VALUES (?,?) ON DUPLICATE KEY UPDATE value=?',
-          [key, req.body[key], req.body[key]]
+          [key, value, value]
         );
       }
     }
-    res.redirect('/admin?msg=Hauptseite+gespeichert&tab=page');
+    res.redirect('/admin?msg=Gespeichert&tab=page');
   } catch (err) { next(err); }
 });
 

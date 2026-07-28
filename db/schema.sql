@@ -65,7 +65,28 @@ INSERT IGNORE INTO site_content (`key`, value) VALUES
   ('hero_eyebrow',     'Joglland · Oststeiermark · seit 1993'),
   ('hero_title_line1', 'Der Anstieg'),
   ('hero_title_line2', 'gehört uns.'),
-  ('hero_lead',        'Rennrad, MTB und Gravel zwischen Birkfeld und dem Joglland – für Kinder, die ihr erstes Rennen fahren, für Familien am Samstagnachmittag und für alle, die den Ötztaler im Kalender stehen haben.');
+  ('hero_lead',        'Rennrad, MTB und Gravel zwischen Birkfeld und dem Joglland – für Kinder, die ihr erstes Rennen fahren, für Familien am Samstagnachmittag und für alle, die den Ötztaler im Kalender stehen haben.'),
+  ('stats_1_num',      '50+'),
+  ('stats_1_lbl',      'Aktive Mitglieder'),
+  ('stats_2_num',      '3'),
+  ('stats_2_lbl',      'Disziplinen im Programm'),
+  ('stats_3_num',      '1×'),
+  ('stats_3_lbl',      'Ausfahrt pro Woche, fix'),
+  ('stats_4_num',      'U13'),
+  ('stats_4_lbl',      'Jüngste Jugendklasse'),
+  ('verein_text',      'Der RC ASVÖ Birkfeld ist Treffpunkt für Hobbyfahrer:innen und Rennsportler:innen aus dem Joglland. Wir betreuen ein Jugendteam von U13 bis Junioren, fahren jeden Samstag gemeinsam aus und stehen bei den großen Marathons und Meisterschaften Österreichs am Start – ohne dass man dafür Rennfahrer:in sein muss, um dazuzugehören.'),
+  ('result_1_rank',    '01'),
+  ('result_1_title',   'Trainingsausfahrt Laurentiberg'),
+  ('result_1_desc',    '28 Teilnehmer:innen, Gäste aus befreundeten Radclubs. Schnellster: Niklas Podhraski.'),
+  ('result_1_meta',    '2025 · Bergwertung'),
+  ('result_2_rank',    '02'),
+  ('result_2_title',   'Königskogel Kogelkönig'),
+  ('result_2_desc',    'Bestes RC-Mitglied: Obmann Johannes Wildt, Sieg in der Klasse Ü50.'),
+  ('result_2_meta',    '2023 · Bergzeitfahren'),
+  ('result_3_rank',    '03'),
+  ('result_3_title',   'Laurentibergrennen'),
+  ('result_3_desc',    'Christoph Spreitzhofer als bestes RC-Mitglied, Platz 2 in 23:33 Min.'),
+  ('result_3_meta',    '2022 · Vereinsrennen');
 
 -- Seed: Termine
 DELETE FROM termine WHERE id NOT IN (

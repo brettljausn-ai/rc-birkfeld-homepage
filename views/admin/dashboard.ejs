@@ -6,274 +6,384 @@
 <title>Admin – RC Birkfeld</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#f5f5f5;font-family:system-ui,sans-serif;color:#111;}
-  .admin-header{background:#0A0A0A;color:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+  body{background:#f0f0f0;font-family:system-ui,sans-serif;color:#111;}
+  .admin-header{background:#0A0A0A;color:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
   .admin-header h1{font-size:1.1rem;font-weight:700;}
-  .admin-header a{color:#4CAF50;text-decoration:none;font-size:0.85rem;}
-  .tabs{display:flex;gap:0;background:#1A1A1A;padding:0 28px;}
-  .tab{color:#aaa;padding:12px 20px;cursor:pointer;border-bottom:3px solid transparent;font-size:0.9rem;font-weight:600;background:none;border-top:none;border-left:none;border-right:none;}
+  .header-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .header-actions a{color:#4CAF50;text-decoration:none;font-size:0.85rem;}
+  .btn-ghost{background:none;border:1px solid #4CAF50;color:#4CAF50;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:0.82rem;}
+  .tabs{display:flex;gap:0;background:#1A1A1A;padding:0 28px;overflow-x:auto;}
+  .tab{color:#aaa;padding:12px 18px;cursor:pointer;border-bottom:3px solid transparent;font-size:0.88rem;font-weight:600;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;}
   .tab.active{color:#4CAF50;border-bottom-color:#4CAF50;}
-  .panel{display:none;padding:28px;max-width:1100px;margin:0 auto;}
+  .panel{display:none;padding:24px 28px;max-width:1100px;margin:0 auto;}
   .panel.active{display:block;}
   .flash{background:#e8f5e9;border:1px solid #4CAF50;color:#1F7A34;padding:10px 16px;border-radius:4px;margin-bottom:20px;font-size:0.9rem;}
-  table{width:100%;border-collapse:collapse;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.1);}
-  th{background:#0A0A0A;color:#fff;padding:10px 14px;text-align:left;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.06em;}
-  td{padding:10px 14px;border-bottom:1px solid #eee;font-size:0.9rem;vertical-align:middle;}
-  tr:last-child td{border-bottom:none;}
-  .btn-del{background:#e53935;color:#fff;border:none;padding:5px 12px;border-radius:3px;cursor:pointer;font-size:0.8rem;}
-  .btn-del:hover{background:#c62828;}
-  .card{background:#fff;border-radius:6px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.1);margin-bottom:28px;}
-  .card h2{font-size:1rem;font-weight:700;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.06em;color:#555;}
+  .card{background:#fff;border-radius:8px;padding:22px;box-shadow:0 1px 3px rgba(0,0,0,0.08);margin-bottom:20px;}
+  .card h2{font-size:0.82rem;font-weight:700;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.08em;color:#666;}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
-  label{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:#666;}
-  input,select,textarea{border:1px solid #ddd;padding:9px 12px;border-radius:4px;font-size:0.9rem;font-family:inherit;}
-  input:focus,select:focus,textarea:focus{outline:2px solid #4CAF50;outline-offset:1px;}
-  textarea{min-height:80px;resize:vertical;}
-  .btn-save{background:#1F7A34;color:#fff;border:none;padding:10px 20px;border-radius:4px;font-size:0.9rem;font-weight:700;cursor:pointer;}
+  @media(max-width:640px){.form-row{grid-template-columns:1fr;}}
+  .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+  label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:#666;font-weight:600;}
+  input,select,textarea{border:1px solid #ddd;padding:8px 11px;border-radius:5px;font-size:0.9rem;font-family:inherit;width:100%;}
+  input:focus,select:focus,textarea:focus{outline:2px solid #4CAF50;outline-offset:1px;border-color:#4CAF50;}
+  textarea{min-height:72px;resize:vertical;}
+  .btn-save{background:#1F7A34;color:#fff;border:none;padding:9px 18px;border-radius:5px;font-size:0.88rem;font-weight:700;cursor:pointer;}
   .btn-save:hover{background:#145C27;}
-  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;}
-  .badge-new{background:#e8f5e9;color:#1F7A34;}
+  .btn-del{background:#e53935;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:0.78rem;}
+  .btn-del:hover{background:#c62828;}
+  .btn-edit{background:#1565C0;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:0.78rem;}
+  .btn-edit:hover{background:#0D47A1;}
+  .btn-cancel{background:#888;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:0.78rem;}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  th{background:#0A0A0A;color:#fff;padding:10px 12px;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;}
+  td{padding:9px 12px;border-bottom:1px solid #eee;font-size:0.88rem;vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .edit-row td{background:#f8fff8;border-top:2px solid #4CAF50;}
+  img.thumb{width:52px;height:38px;object-fit:cover;border-radius:3px;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.72rem;font-weight:600;}
+  .badge-new{background:#e3f2fd;color:#1565C0;}
   .badge-contacted{background:#fff3e0;color:#e65100;}
-  img.thumb{width:56px;height:40px;object-fit:cover;border-radius:3px;}
+  .badge-member{background:#e8f5e9;color:#1F7A34;}
+  .actions{display:flex;gap:6px;align-items:center;}
+  .section-divider{font-size:0.72rem;text-transform:uppercase;letter-spacing:.1em;color:#999;font-weight:700;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid #e0e0e0;}
+  .gallery-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+  .gallery-admin-tile{background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .gallery-admin-tile img{width:100%;height:90px;object-fit:cover;display:block;}
+  .gallery-admin-tile .tile-body{padding:8px;}
+  .sponsor-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+  .sponsor-card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .sponsor-preview{background:#0A0A0A;padding:16px;display:flex;align-items:center;justify-content:center;height:90px;}
+  .sponsor-preview img{max-width:130px;max-height:60px;object-fit:contain;}
+  .sponsor-card-body{padding:12px;}
+  .edit-form{display:none;background:#f8fff8;border-top:2px solid #4CAF50;padding:14px 12px;}
+  .edit-form.open{display:block;}
 </style>
 </head>
 <body>
+
 <div class="admin-header">
   <h1>RC Birkfeld · Admin</h1>
-  <div style="display:flex;gap:20px;align-items:center;">
-    <button id="testEmailBtn" style="background:none;border:1px solid #4CAF50;color:#4CAF50;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:0.82rem;">E-Mail testen</button>
+  <div class="header-actions">
+    <button class="btn-ghost" id="testEmailBtn">E-Mail testen</button>
     <span id="testEmailResult" style="font-size:0.82rem;display:none;"></span>
-    <a href="/" target="_blank">Website ansehen ↗</a>
+    <a href="/" target="_blank">Website ↗</a>
     <a href="/admin/logout">Abmelden</a>
   </div>
 </div>
 
 <div class="tabs">
-  <button class="tab <%= activeTab==='page' ? 'active' : '' %>" onclick="showPanel('page',this)">Hauptseite</button>
-  <button class="tab <%= activeTab==='news' ? 'active' : '' %>" onclick="showPanel('news',this)">Berichte</button>
-  <button class="tab <%= activeTab==='termine' ? 'active' : '' %>" onclick="showPanel('termine',this)">Termine</button>
-  <button class="tab <%= activeTab==='gallery' ? 'active' : '' %>" onclick="showPanel('gallery',this)">Galerie</button>
-  <button class="tab <%= activeTab==='members' ? 'active' : '' %>" onclick="showPanel('members',this)">Beitritte</button>
-  <button class="tab <%= activeTab==='sponsors' ? 'active' : '' %>" onclick="showPanel('sponsors',this)">Sponsoren</button>
+  <button class="tab <%= activeTab==='page'?'active':'' %>"     onclick="showTab('page',this)">Hauptseite</button>
+  <button class="tab <%= activeTab==='news'?'active':'' %>"     onclick="showTab('news',this)">Berichte</button>
+  <button class="tab <%= activeTab==='termine'?'active':'' %>"  onclick="showTab('termine',this)">Termine</button>
+  <button class="tab <%= activeTab==='gallery'?'active':'' %>"  onclick="showTab('gallery',this)">Galerie</button>
+  <button class="tab <%= activeTab==='members'?'active':'' %>"  onclick="showTab('members',this)">Beitritte</button>
+  <button class="tab <%= activeTab==='sponsors'?'active':'' %>" onclick="showTab('sponsors',this)">Sponsoren</button>
 </div>
 
 <% if (flash) { %>
 <div style="padding:0 28px;max-width:1100px;margin:16px auto 0;"><div class="flash"><%= flash %></div></div>
 <% } %>
 
-<!-- HAUPTSEITE -->
-<div id="panel-page" class="panel <%= activeTab==='page' ? 'active' : '' %>">
+<!-- ══ HAUPTSEITE ══ -->
+<div id="panel-page" class="panel <%= activeTab==='page'?'active':'' %>">
 
-  <!-- Hero Texte -->
   <div class="card">
-    <h2>Hero – Texte</h2>
+    <h2>Hero</h2>
     <form method="POST" action="/admin/page/content">
-      <div class="field">
-        <label>Eyebrow (kleiner Text über dem Titel)</label>
-        <input type="text" name="hero_eyebrow" value="<%= content.hero_eyebrow || 'Joglland · Oststeiermark · seit 1993' %>">
-      </div>
+      <div class="field"><label>Eyebrow</label><input name="hero_eyebrow" value="<%= content.hero_eyebrow||'' %>"></div>
       <div class="form-row">
-        <div class="field">
-          <label>Titel Zeile 1</label>
-          <input type="text" name="hero_title_line1" value="<%= content.hero_title_line1 || 'Der Anstieg' %>">
-        </div>
-        <div class="field">
-          <label>Titel Zeile 2 <span style="font-weight:400;color:#999;">(„uns." wird grün hervorgehoben)</span></label>
-          <input type="text" name="hero_title_line2" value="<%= content.hero_title_line2 || 'gehört uns.' %>">
-        </div>
+        <div class="field"><label>Titel Zeile 1</label><input name="hero_title_line1" value="<%= content.hero_title_line1||'' %>"></div>
+        <div class="field"><label>Titel Zeile 2 <span style="font-weight:400;color:#bbb;">(„uns." wird grün)</span></label><input name="hero_title_line2" value="<%= content.hero_title_line2||'' %>"></div>
       </div>
-      <div class="field">
-        <label>Lead-Text (Beschreibung unter dem Titel)</label>
-        <textarea name="hero_lead" style="min-height:90px;"><%= content.hero_lead || '' %></textarea>
-      </div>
-      <button type="submit" class="btn-save">Texte speichern</button>
+      <div class="field"><label>Lead-Text</label><textarea name="hero_lead"><%= content.hero_lead||'' %></textarea></div>
+      <button class="btn-save" type="submit">Speichern</button>
     </form>
   </div>
 
-  <!-- Galerie Reihenfolge -->
   <div class="card">
-    <h2>Galerie – Reihenfolge per Drag &amp; Drop</h2>
-    <p style="font-size:0.85rem;color:#666;margin-bottom:16px;">Bilder verschieben, dann „Reihenfolge speichern" klicken.</p>
-    <div id="sortable-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px;">
+    <h2>Kennzahlen (Stats)</h2>
+    <form method="POST" action="/admin/page/content">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+        <% for(let i=1;i<=4;i++) { %>
+        <div style="border:1px solid #eee;border-radius:6px;padding:12px;">
+          <div class="field"><label>Zahl <%= i %></label><input name="stats_<%= i %>_num" value="<%= content['stats_'+i+'_num']||'' %>"></div>
+          <div class="field"><label>Beschriftung <%= i %></label><input name="stats_<%= i %>_lbl" value="<%= content['stats_'+i+'_lbl']||'' %>"></div>
+        </div>
+        <% } %>
+      </div>
+      <button class="btn-save" type="submit" style="margin-top:12px;">Speichern</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Verein – Beschreibungstext</h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="field"><textarea name="verein_text" style="min-height:100px;"><%= content.verein_text||'' %></textarea></div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Ergebnisse (3 Karten)</h2>
+    <form method="POST" action="/admin/page/content">
+      <% for(let i=1;i<=3;i++) { %>
+      <div style="border:1px solid #eee;border-radius:6px;padding:12px;margin-bottom:10px;">
+        <div class="form-row">
+          <div class="field"><label>Rang <%= i %></label><input name="result_<%= i %>_rank" value="<%= content['result_'+i+'_rank']||'0'+i %>" style="max-width:80px;"></div>
+          <div class="field"><label>Titel</label><input name="result_<%= i %>_title" value="<%= content['result_'+i+'_title']||'' %>"></div>
+        </div>
+        <div class="field"><label>Beschreibung</label><input name="result_<%= i %>_desc" value="<%= content['result_'+i+'_desc']||'' %>"></div>
+        <div class="field"><label>Meta (Jahr · Kategorie)</label><input name="result_<%= i %>_meta" value="<%= content['result_'+i+'_meta']||'' %>"></div>
+      </div>
+      <% } %>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Galerie – Reihenfolge</h2>
+    <p style="font-size:0.84rem;color:#666;margin-bottom:14px;">Ziehen zum Sortieren, dann speichern.</p>
+    <div id="sortable-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:14px;">
       <% gallery.forEach(g => { %>
       <div class="gallery-tile" data-id="<%= g.id %>" draggable="true"
-           style="background:#fff;border:2px solid #eee;border-radius:6px;cursor:grab;user-select:none;overflow:hidden;transition:border-color .15s,opacity .15s;">
-        <img src="/images/galerie/<%= g.filename %>" alt="" style="width:100%;height:110px;object-fit:cover;display:block;pointer-events:none;">
-        <div style="padding:8px 10px;display:flex;align-items:center;gap:6px;">
-          <span style="font-size:1rem;color:#bbb;">☰</span>
-          <span style="font-size:0.78rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= g.caption || g.filename %></span>
-        </div>
+           style="background:#fff;border:2px solid #eee;border-radius:6px;cursor:grab;overflow:hidden;transition:border-color .15s,opacity .15s;">
+        <img src="/images/galerie/<%= g.filename %>" style="width:100%;height:90px;object-fit:cover;pointer-events:none;">
+        <div style="padding:6px 8px;font-size:0.75rem;color:#555;display:flex;align-items:center;gap:5px;"><span style="color:#ccc;">☰</span><%= g.caption||g.filename %></div>
       </div>
       <% }); %>
     </div>
     <button class="btn-save" id="btn-save-order">Reihenfolge speichern</button>
-    <span id="order-status" style="margin-left:12px;font-size:0.85rem;color:#1F7A34;display:none;">✓ Gespeichert</span>
+    <span id="order-status" style="margin-left:10px;font-size:0.84rem;color:#1F7A34;display:none;">✓ Gespeichert</span>
   </div>
 </div>
 
-<!-- BERICHTE -->
-<div id="panel-news" class="panel <%= activeTab==='news'||activeTab===''?'active':'' %>">
+<!-- ══ BERICHTE ══ -->
+<div id="panel-news" class="panel <%= activeTab==='news'?'active':'' %>">
   <div class="card">
     <h2>Neuer Bericht</h2>
     <form method="POST" action="/admin/news">
       <div class="form-row">
-        <div class="field"><label>Titel</label><input type="text" name="title" required></div>
+        <div class="field"><label>Titel</label><input name="title" required></div>
         <div class="field"><label>Datum</label><input type="date" name="published_at" value="<%= new Date().toISOString().split('T')[0] %>"></div>
       </div>
       <div class="field"><label>Inhalt</label><textarea name="content" required></textarea></div>
       <div class="field"><label>Bild-URL (optional)</label><input type="url" name="image_url" placeholder="https://..."></div>
-      <button type="submit" class="btn-save">Bericht speichern</button>
+      <button class="btn-save" type="submit">Speichern</button>
     </form>
   </div>
+
+  <div class="section-divider">Bestehende Berichte</div>
   <table>
     <thead><tr><th>Datum</th><th>Titel</th><th>Inhalt</th><th></th></tr></thead>
     <tbody>
     <% news.forEach(n => { %>
     <tr>
-      <td><%= new Date(n.published_at).toLocaleDateString('de-AT') %></td>
+      <td style="white-space:nowrap;"><%= new Date(n.published_at).toLocaleDateString('de-AT') %></td>
       <td><strong><%= n.title %></strong></td>
-      <td style="color:#666;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= n.content.substring(0,80) %></td>
-      <td><form method="POST" action="/admin/news/<%= n.id %>/delete" onsubmit="return confirm('Löschen?')"><button class="btn-del">Löschen</button></form></td>
+      <td style="color:#666;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= n.content.substring(0,80) %></td>
+      <td><div class="actions">
+        <button class="btn-edit" onclick="toggleEdit('news-<%= n.id %>')">Bearbeiten</button>
+        <form method="POST" action="/admin/news/<%= n.id %>/delete" onsubmit="return confirm('Löschen?')"><button class="btn-del">Löschen</button></form>
+      </div></td>
     </tr>
+    <tr><td colspan="4" style="padding:0;">
+      <div class="edit-form" id="news-<%= n.id %>">
+        <form method="POST" action="/admin/news/<%= n.id %>/edit">
+          <div class="form-row">
+            <div class="field"><label>Titel</label><input name="title" value="<%= n.title %>" required></div>
+            <div class="field"><label>Datum</label><input type="date" name="published_at" value="<%= new Date(n.published_at).toISOString().split('T')[0] %>"></div>
+          </div>
+          <div class="field"><label>Inhalt</label><textarea name="content" required><%= n.content %></textarea></div>
+          <div class="field"><label>Bild-URL</label><input type="url" name="image_url" value="<%= n.image_url||'' %>"></div>
+          <div class="actions"><button class="btn-save" type="submit">Speichern</button><button class="btn-cancel" type="button" onclick="toggleEdit('news-<%= n.id %>')">Abbrechen</button></div>
+        </form>
+      </div>
+    </td></tr>
     <% }); %>
-    <% if (news.length === 0) { %><tr><td colspan="4" style="color:#999;text-align:center;padding:20px;">Noch keine Berichte.</td></tr><% } %>
+    <% if(news.length===0){%><tr><td colspan="4" style="color:#999;text-align:center;padding:20px;">Noch keine Berichte.</td></tr><%}%>
     </tbody>
   </table>
 </div>
 
-<!-- TERMINE -->
-<div id="panel-termine" class="panel <%= activeTab==='termine' ? 'active' : '' %>">
+<!-- ══ TERMINE ══ -->
+<div id="panel-termine" class="panel <%= activeTab==='termine'?'active':'' %>">
   <div class="card">
     <h2>Neuer Termin</h2>
     <form method="POST" action="/admin/termine">
       <div class="form-row">
-        <div class="field"><label>Titel</label><input type="text" name="title" required></div>
+        <div class="field"><label>Titel</label><input name="title" required></div>
         <div class="field"><label>Datum</label><input type="date" name="date" required></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Ort</label><input type="text" name="location"></div>
-        <div class="field"><label>Tag</label><input type="text" name="tag" value="Vereinsrennen"></div>
+        <div class="field"><label>Ort</label><input name="location"></div>
+        <div class="field"><label>Tag</label><input name="tag" value="Vereinsrennen"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Detail-URL</label><input type="text" name="detail_url" placeholder="/laurenzibergrennen"></div>
-        <div class="field"><label>Beschreibung</label><input type="text" name="description"></div>
+        <div class="field"><label>Detail-URL</label><input name="detail_url" placeholder="/laurenzibergrennen"></div>
+        <div class="field"><label>Beschreibung</label><input name="description"></div>
       </div>
-      <button type="submit" class="btn-save">Termin speichern</button>
+      <button class="btn-save" type="submit">Speichern</button>
     </form>
   </div>
+
+  <div class="section-divider">Bestehende Termine</div>
   <table>
     <thead><tr><th>Datum</th><th>Titel</th><th>Ort</th><th>Tag</th><th></th></tr></thead>
     <tbody>
     <% termine.forEach(t => { %>
     <tr>
-      <td><%= new Date(t.date).toLocaleDateString('de-AT') %></td>
+      <td style="white-space:nowrap;"><%= new Date(t.date).toLocaleDateString('de-AT') %></td>
       <td><strong><%= t.title %></strong></td>
-      <td><%= t.location || '–' %></td>
+      <td><%= t.location||'–' %></td>
       <td><%= t.tag %></td>
-      <td><form method="POST" action="/admin/termine/<%= t.id %>/delete" onsubmit="return confirm('Löschen?')"><button class="btn-del">Löschen</button></form></td>
+      <td><div class="actions">
+        <button class="btn-edit" onclick="toggleEdit('termin-<%= t.id %>')">Bearbeiten</button>
+        <form method="POST" action="/admin/termine/<%= t.id %>/delete" onsubmit="return confirm('Löschen?')"><button class="btn-del">Löschen</button></form>
+      </div></td>
     </tr>
+    <tr><td colspan="5" style="padding:0;">
+      <div class="edit-form" id="termin-<%= t.id %>">
+        <form method="POST" action="/admin/termine/<%= t.id %>/edit">
+          <div class="form-row">
+            <div class="field"><label>Titel</label><input name="title" value="<%= t.title %>" required></div>
+            <div class="field"><label>Datum</label><input type="date" name="date" value="<%= new Date(t.date).toISOString().split('T')[0] %>" required></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Ort</label><input name="location" value="<%= t.location||'' %>"></div>
+            <div class="field"><label>Tag</label><input name="tag" value="<%= t.tag %>"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Detail-URL</label><input name="detail_url" value="<%= t.detail_url||'' %>"></div>
+            <div class="field"><label>Beschreibung</label><input name="description" value="<%= t.description||'' %>"></div>
+          </div>
+          <div class="actions"><button class="btn-save" type="submit">Speichern</button><button class="btn-cancel" type="button" onclick="toggleEdit('termin-<%= t.id %>')">Abbrechen</button></div>
+        </form>
+      </div>
+    </td></tr>
     <% }); %>
-    <% if (termine.length === 0) { %><tr><td colspan="5" style="color:#999;text-align:center;padding:20px;">Noch keine Termine.</td></tr><% } %>
+    <% if(termine.length===0){%><tr><td colspan="5" style="color:#999;text-align:center;padding:20px;">Noch keine Termine.</td></tr><%}%>
     </tbody>
   </table>
 </div>
 
-<!-- GALERIE -->
-<div id="panel-gallery" class="panel <%= activeTab==='gallery' ? 'active' : '' %>">
+<!-- ══ GALERIE ══ -->
+<div id="panel-gallery" class="panel <%= activeTab==='gallery'?'active':'' %>">
   <div class="card">
     <h2>Foto hochladen</h2>
     <form method="POST" action="/admin/gallery" enctype="multipart/form-data">
       <div class="form-row">
         <div class="field"><label>Foto (JPG/PNG/WebP)</label><input type="file" name="photo" accept="image/*" required></div>
-        <div class="field"><label>Beschriftung</label><input type="text" name="caption"></div>
+        <div class="field"><label>Beschriftung</label><input name="caption"></div>
       </div>
-      <div class="field" style="max-width:200px;"><label>Reihenfolge</label><input type="number" name="sort_order" value="0" min="0"></div>
-      <button type="submit" class="btn-save">Hochladen</button>
+      <div class="field" style="max-width:160px;"><label>Reihenfolge</label><input type="number" name="sort_order" value="0"></div>
+      <button class="btn-save" type="submit">Hochladen</button>
     </form>
   </div>
-  <table>
-    <thead><tr><th>Vorschau</th><th>Datei</th><th>Beschriftung</th><th>Reihenfolge</th><th></th></tr></thead>
-    <tbody>
+
+  <div class="section-divider">Fotos (<%= gallery.length %>)</div>
+  <div class="gallery-admin-grid">
     <% gallery.forEach(g => { %>
-    <tr>
-      <td><img class="thumb" src="/images/galerie/<%= g.filename %>" alt=""></td>
-      <td><%= g.filename %></td>
-      <td><%= g.caption || '–' %></td>
-      <td><%= g.sort_order %></td>
-      <td><form method="POST" action="/admin/gallery/<%= g.id %>/delete" onsubmit="return confirm('Foto löschen?')"><button class="btn-del">Löschen</button></form></td>
-    </tr>
-    <% }); %>
-    <% if (gallery.length === 0) { %><tr><td colspan="5" style="color:#999;text-align:center;padding:20px;">Noch keine Fotos.</td></tr><% } %>
-    </tbody>
-  </table>
-</div>
-
-<!-- BEITRITTE -->
-<div id="panel-members" class="panel <%= activeTab==='members' ? 'active' : '' %>">
-  <table>
-    <thead><tr><th>Datum</th><th>Name</th><th>E-Mail</th><th>Interesse</th><th>Status</th></tr></thead>
-    <tbody>
-    <% members.forEach(m => { %>
-    <tr>
-      <td><%= new Date(m.created_at).toLocaleDateString('de-AT') %></td>
-      <td><strong><%= m.name %></strong></td>
-      <td><a href="mailto:<%= m.email %>"><%= m.email %></a></td>
-      <td><%= m.interesse || '–' %></td>
-      <td><span class="badge badge-<%= m.status %>"><%= m.status %></span></td>
-    </tr>
-    <% }); %>
-    <% if (members.length === 0) { %><tr><td colspan="5" style="color:#999;text-align:center;padding:20px;">Noch keine Beitrittsanfragen.</td></tr><% } %>
-    </tbody>
-  </table>
-</div>
-
-<!-- SPONSOREN -->
-<div id="panel-sponsors" class="panel <%= activeTab==='sponsors' ? 'active' : '' %>">
-  <div class="card">
-    <h2>Sponsor hinzufügen</h2>
-    <form method="POST" action="/admin/sponsors" enctype="multipart/form-data">
-      <div class="form-row">
-        <div class="field"><label>Name</label><input type="text" name="name" required></div>
-        <div class="field"><label>Website (optional)</label><input type="url" name="website_url" placeholder="https://..."></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label>Logo (PNG/SVG/WebP – am besten weißes Logo auf transparentem Hintergrund)</label><input type="file" name="logo" accept="image/*" required></div>
-        <div class="field" style="max-width:160px;"><label>Reihenfolge</label><input type="number" name="sort_order" value="0" min="0"></div>
-      </div>
-      <button type="submit" class="btn-save">Sponsor speichern</button>
-    </form>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
-    <% sponsors.forEach(s => { %>
-    <div style="background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,0.1);overflow:hidden;">
-      <div style="background:#0A0A0A;padding:20px;display:flex;align-items:center;justify-content:center;min-height:100px;">
-        <img src="<%= s.logo %>" alt="<%= s.name %>" style="max-width:140px;max-height:72px;object-fit:contain;">
-      </div>
-      <div style="padding:12px 14px;">
-        <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;"><%= s.name %></div>
-        <% if (s.website_url) { %><div style="font-size:0.78rem;color:#888;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= s.website_url %></div><% } %>
-        <form method="POST" action="/admin/sponsors/<%= s.id %>/delete" onsubmit="return confirm('Sponsor löschen?')">
-          <button class="btn-del">Löschen</button>
+    <div class="gallery-admin-tile">
+      <img src="/images/galerie/<%= g.filename %>" alt="">
+      <div class="tile-body">
+        <form method="POST" action="/admin/gallery/<%= g.id %>/caption" style="margin-bottom:8px;">
+          <div class="field"><label>Beschriftung</label><input name="caption" value="<%= g.caption||'' %>" placeholder="Kein Text"></div>
+          <button class="btn-save" type="submit" style="padding:5px 10px;font-size:0.78rem;">Speichern</button>
+        </form>
+        <form method="POST" action="/admin/gallery/<%= g.id %>/delete" onsubmit="return confirm('Foto löschen?')">
+          <button class="btn-del" style="width:100%;">Löschen</button>
         </form>
       </div>
     </div>
     <% }); %>
-    <% if (sponsors.length === 0) { %>
-    <p style="color:#999;font-size:0.9rem;grid-column:1/-1;">Noch keine Sponsoren eingetragen.</p>
-    <% } %>
+    <% if(gallery.length===0){%><p style="color:#999;font-size:0.9rem;grid-column:1/-1;">Noch keine Fotos.</p><%}%>
+  </div>
+</div>
+
+<!-- ══ BEITRITTE ══ -->
+<div id="panel-members" class="panel <%= activeTab==='members'?'active':'' %>">
+  <table>
+    <thead><tr><th>Datum</th><th>Name</th><th>E-Mail</th><th>Interesse</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    <% members.forEach(m => { %>
+    <tr>
+      <td style="white-space:nowrap;"><%= new Date(m.created_at).toLocaleDateString('de-AT') %></td>
+      <td><strong><%= m.name %></strong></td>
+      <td><a href="mailto:<%= m.email %>"><%= m.email %></a></td>
+      <td><%= m.interesse||'–' %></td>
+      <td>
+        <form method="POST" action="/admin/members/<%= m.id %>/status">
+          <select name="status" onchange="this.form.submit()" style="font-size:0.8rem;padding:3px 6px;border-radius:4px;border:1px solid #ddd;">
+            <option value="new" <%=m.status==='new'?'selected':''%>>Neu</option>
+            <option value="contacted" <%=m.status==='contacted'?'selected':''%>>Kontaktiert</option>
+            <option value="member" <%=m.status==='member'?'selected':''%>>Mitglied</option>
+          </select>
+        </form>
+      </td>
+      <td>
+        <form method="POST" action="/admin/members/<%= m.id %>/delete" onsubmit="return confirm('Eintrag löschen?')">
+          <button class="btn-del">Löschen</button>
+        </form>
+      </td>
+    </tr>
+    <% }); %>
+    <% if(members.length===0){%><tr><td colspan="6" style="color:#999;text-align:center;padding:20px;">Noch keine Beitrittsanfragen.</td></tr><%}%>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ SPONSOREN ══ -->
+<div id="panel-sponsors" class="panel <%= activeTab==='sponsors'?'active':'' %>">
+  <div class="card">
+    <h2>Sponsor hinzufügen</h2>
+    <form method="POST" action="/admin/sponsors" enctype="multipart/form-data">
+      <div class="form-row">
+        <div class="field"><label>Name</label><input name="name" required></div>
+        <div class="field"><label>Website (optional)</label><input type="url" name="website_url" placeholder="https://..."></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Logo (PNG/SVG/WebP)</label><input type="file" name="logo" accept="image/*" required></div>
+        <div class="field" style="max-width:160px;"><label>Reihenfolge</label><input type="number" name="sort_order" value="0"></div>
+      </div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+  </div>
+
+  <div class="section-divider">Sponsoren (<%= sponsors.length %>)</div>
+  <div class="sponsor-admin-grid">
+    <% sponsors.forEach(s => { %>
+    <div class="sponsor-card">
+      <div class="sponsor-preview"><img src="<%= s.logo %>" alt="<%= s.name %>"></div>
+      <div class="sponsor-card-body">
+        <form method="POST" action="/admin/sponsors/<%= s.id %>/edit" style="margin-bottom:10px;">
+          <div class="field"><label>Name</label><input name="name" value="<%= s.name %>" required></div>
+          <div class="field"><label>Website</label><input type="url" name="website_url" value="<%= s.website_url||'' %>" placeholder="https://..."></div>
+          <button class="btn-save" type="submit" style="padding:5px 10px;font-size:0.78rem;">Speichern</button>
+        </form>
+        <form method="POST" action="/admin/sponsors/<%= s.id %>/delete" onsubmit="return confirm('Sponsor löschen?')">
+          <button class="btn-del" style="width:100%;">Löschen</button>
+        </form>
+      </div>
+    </div>
+    <% }); %>
+    <% if(sponsors.length===0){%><p style="color:#999;font-size:0.9rem;grid-column:1/-1;">Noch keine Sponsoren.</p><%}%>
   </div>
 </div>
 
 <script>
-function showPanel(id, btn) {
+function showTab(id, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   btn.classList.add('active');
 }
 
-/* ── E-Mail Test ── */
+function toggleEdit(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+/* E-Mail Test */
 document.getElementById('testEmailBtn').addEventListener('click', async () => {
   const btn = document.getElementById('testEmailBtn');
   const result = document.getElementById('testEmailResult');
@@ -286,17 +396,16 @@ document.getElementById('testEmailBtn').addEventListener('click', async () => {
   btn.textContent = 'E-Mail testen';
 });
 
-/* ── Drag & Drop Galerie ── */
+/* Drag & Drop Galerie Reihenfolge */
 (function() {
   const grid = document.getElementById('sortable-gallery');
   if (!grid) return;
   let dragged = null;
-
   grid.addEventListener('dragstart', e => {
     dragged = e.target.closest('.gallery-tile');
     if (dragged) { dragged.style.opacity = '0.4'; dragged.style.borderColor = '#4CAF50'; }
   });
-  grid.addEventListener('dragend', e => {
+  grid.addEventListener('dragend', () => {
     if (dragged) { dragged.style.opacity = ''; dragged.style.borderColor = ''; dragged = null; }
   });
   grid.addEventListener('dragover', e => {
@@ -304,18 +413,12 @@ document.getElementById('testEmailBtn').addEventListener('click', async () => {
     const target = e.target.closest('.gallery-tile');
     if (target && target !== dragged) {
       const tiles = [...grid.querySelectorAll('.gallery-tile')];
-      const iAfter = tiles.indexOf(target) > tiles.indexOf(dragged);
-      grid.insertBefore(dragged, iAfter ? target.nextSibling : target);
+      grid.insertBefore(dragged, tiles.indexOf(target) > tiles.indexOf(dragged) ? target.nextSibling : target);
     }
   });
-
   document.getElementById('btn-save-order').addEventListener('click', async () => {
     const order = [...grid.querySelectorAll('.gallery-tile')].map(t => parseInt(t.dataset.id));
-    const res = await fetch('/admin/gallery/reorder', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ order }),
-    });
+    const res = await fetch('/admin/gallery/reorder', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({order}) });
     if (res.ok) {
       const s = document.getElementById('order-status');
       s.style.display = 'inline';

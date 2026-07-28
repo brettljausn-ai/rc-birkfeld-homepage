@@ -72,10 +72,10 @@
   <!-- STATS -->
   <div class="stats">
     <div class="wrap">
-      <div class="stat"><div class="num">50+</div><div class="lbl">Aktive Mitglieder</div></div>
-      <div class="stat"><div class="num">3</div><div class="lbl">Disziplinen im Programm</div></div>
-      <div class="stat"><div class="num">1×</div><div class="lbl">Ausfahrt pro Woche, fix</div></div>
-      <div class="stat"><div class="num">U13</div><div class="lbl">Jüngste Jugendklasse</div></div>
+      <div class="stat"><div class="num"><%= content.stats_1_num||'50+' %></div><div class="lbl"><%= content.stats_1_lbl||'Aktive Mitglieder' %></div></div>
+      <div class="stat"><div class="num"><%= content.stats_2_num||'3' %></div><div class="lbl"><%= content.stats_2_lbl||'Disziplinen im Programm' %></div></div>
+      <div class="stat"><div class="num"><%= content.stats_3_num||'1×' %></div><div class="lbl"><%= content.stats_3_lbl||'Ausfahrt pro Woche, fix' %></div></div>
+      <div class="stat"><div class="num"><%= content.stats_4_num||'U13' %></div><div class="lbl"><%= content.stats_4_lbl||'Jüngste Jugendklasse' %></div></div>
     </div>
   </div>
 
@@ -85,7 +85,7 @@
       <div class="section-head fade-in">
         <span class="kicker">Wer wir sind</span>
         <h2>Ein Dorfverein mit Renn&shy;lizenz.</h2>
-        <p>Der RC ASVÖ Birkfeld ist Treffpunkt für Hobbyfahrer:innen und Rennsportler:innen aus dem Joglland. Wir betreuen ein Jugendteam von U13 bis Junioren, fahren jeden Samstag gemeinsam aus und stehen bei den großen Marathons und Meisterschaften Österreichs am Start – ohne dass man dafür Rennfahrer:in sein muss, um dazuzugehören.</p>
+        <p><%= content.verein_text||'Der RC ASVÖ Birkfeld ist Treffpunkt für Hobbyfahrer:innen und Rennsportler:innen aus dem Joglland.' %></p>
       </div>
     </div>
   </section>
@@ -214,9 +214,9 @@
         <p>Das komplette Archiv seit 2016 gibt's unter Ergebnisse &amp; Berichte – hier nur das Frischeste.</p>
       </div>
       <div class="results-grid">
-        <div class="result-card"><div class="rk">01</div><h4>Trainingsausfahrt Laurentiberg</h4><p>28 Teilnehmer:innen, Gäste aus befreundeten Radclubs. Schnellster: Niklas Podhraski.</p><span class="time">2025 · Bergwertung</span></div>
-        <div class="result-card"><div class="rk">02</div><h4>Königskogel Kogelkönig</h4><p>Bestes RC-Mitglied: Obmann Johannes Wildt, Sieg in der Klasse Ü50.</p><span class="time">2023 · Bergzeitfahren</span></div>
-        <div class="result-card"><div class="rk">03</div><h4>Laurentibergrennen</h4><p>Christoph Spreitzhofer als bestes RC-Mitglied, Platz 2 in 23:33 Min.</p><span class="time">2022 · Vereinsrennen</span></div>
+        <div class="result-card"><div class="rk"><%= content.result_1_rank||'01' %></div><h4><%= content.result_1_title||'' %></h4><p><%= content.result_1_desc||'' %></p><span class="time"><%= content.result_1_meta||'' %></span></div>
+        <div class="result-card"><div class="rk"><%= content.result_2_rank||'02' %></div><h4><%= content.result_2_title||'' %></h4><p><%= content.result_2_desc||'' %></p><span class="time"><%= content.result_2_meta||'' %></span></div>
+        <div class="result-card"><div class="rk"><%= content.result_3_rank||'03' %></div><h4><%= content.result_3_title||'' %></h4><p><%= content.result_3_desc||'' %></p><span class="time"><%= content.result_3_meta||'' %></span></div>
       </div>
     </div>
   </section>
