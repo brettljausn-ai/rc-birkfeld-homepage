@@ -43,9 +43,13 @@ CREATE TABLE IF NOT EXISTS strava_cache (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Seed: Termine
-INSERT IGNORE INTO termine (title, date, location, detail_url, tag)
-VALUES ('Trainingsausfahrt Laurentiberg', '2026-08-22', 'Friesis Bikery, Edelseestraße 27, Birkfeld', '/laurenzibergrennen', 'Vereinsrennen');
+-- Seed: Termine (explicit id so INSERT IGNORE skips on re-deploy; remove dupes from earlier runs)
+DELETE t1 FROM termine t1
+  INNER JOIN termine t2 ON t1.title = t2.title AND t1.date = t2.date AND t1.id > t2.id;
+
+INSERT INTO termine (id, title, date, location, detail_url, tag)
+VALUES (1, 'Trainingsausfahrt Laurentiberg', '2026-08-22', 'Friesis Bikery, Edelseestraße 27, Birkfeld', '/laurenzibergrennen', 'Vereinsrennen')
+ON DUPLICATE KEY UPDATE title=VALUES(title), date=VALUES(date), location=VALUES(location), detail_url=VALUES(detail_url), tag=VALUES(tag);
 
 -- Seed: Galerie
 INSERT IGNORE INTO gallery (id, filename, caption, sort_order) VALUES
