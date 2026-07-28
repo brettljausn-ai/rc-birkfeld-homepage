@@ -1,19 +1,40 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../lib/db');
-const { getClubData } = require('../lib/strava');
+const { getStravaData } = require('../lib/strava');
+
+const CLUB_ID = '300701';
 
 router.get('/', async (req, res, next) => {
   try {
-    const [[gallery], [news], [termine], strava, [contentRows], [sponsors]] = await Promise.all([
+    const [[gallery], [news], [dbTermine], stravaData, [contentRows], [sponsors]] = await Promise.all([
       pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
       pool.query('SELECT * FROM news ORDER BY published_at DESC LIMIT 3'),
       pool.query('SELECT * FROM termine WHERE date >= CURDATE() ORDER BY date ASC'),
-      getClubData(),
+      getStravaData(),
       pool.query('SELECT `key`, value FROM site_content'),
       pool.query('SELECT * FROM sponsors ORDER BY sort_order ASC'),
     ]);
+
     const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
+    const strava = stravaData.club;
+
+    // Flatten Strava group events into termine-like objects
+    const now = new Date();
+    const stravaTermine = stravaData.events.flatMap(ev =>
+      (ev.upcoming_occurrences || []).map(dt => ({
+        title: ev.title,
+        date: new Date(dt),
+        location: ev.address || null,
+        description: ev.description || null,
+        detail_url: `https://www.strava.com/clubs/${CLUB_ID}/group_events/${ev.id}`,
+        tag: 'Strava',
+        isStrava: true,
+      }))
+    ).filter(ev => ev.date >= now);
+
+    // Merge and sort by date
+    const termine = [...dbTermine, ...stravaTermine].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     res.render('index', { gallery, news, termine, strava, content, sponsors });
   } catch (err) {

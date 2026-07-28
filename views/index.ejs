@@ -198,7 +198,7 @@
             <span><%= t.location || '' %></span>
             <% if (t.detail_url) { %><a href="<%= t.detail_url %>" class="event-more">Mehr Infos →</a><% } %>
           </div>
-          <div class="event-tag"><%= t.tag || 'Vereinsrennen' %></div>
+            <div class="event-tag<%= t.isStrava ? ' event-tag-strava' : '' %>"><% if (t.isStrava) { %><svg width="12" height="12" viewBox="0 0 24 24" style="vertical-align:-1px;margin-right:3px;"><path d="M13.5 2L6 15h4.5L9 22l7.5-13H12l1.5-7z" fill="currentColor"/></svg><% } %><%= t.tag || 'Vereinsrennen' %></div>
         </div>
         <% }); } %>
       </div>
@@ -254,6 +254,7 @@
   </section>
 
   <!-- STRAVA -->
+  <% if (strava) { %>
   <section id="strava">
     <div class="wrap">
       <div class="section-head fade-in">
@@ -264,11 +265,11 @@
       <div class="strava-card">
         <div class="strava-card-main">
           <span class="strava-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M13.5 2L6 15h4.5L9 22l7.5-13H12l1.5-7z" fill="var(--chalk)"/></svg></span>
-          <div><h3>RC ASVÖ Birkfeld</h3><span class="strava-sub">Radsport-Club auf Strava</span></div>
+          <div><h3><%= strava.name || 'RC ASVÖ Birkfeld' %></h3><span class="strava-sub">Radsport-Club auf Strava</span></div>
         </div>
         <div class="strava-stats">
-          <div class="strava-stat"><span class="num"><%= strava ? strava.member_count : '–' %></span><span class="lbl">Mitglieder auf Strava</span></div>
-          <div class="strava-stat"><span class="num">8</span><span class="lbl">Disziplinen im Club</span></div>
+          <div class="strava-stat"><span class="num"><%= strava.member_count %></span><span class="lbl">Mitglieder auf Strava</span></div>
+          <div class="strava-stat"><span class="num"><%= strava.activity_types ? strava.activity_types.length : 8 %></span><span class="lbl">Disziplinen im Club</span></div>
         </div>
         <div class="strava-tags">
           <span>Rennrad</span><span>Gravel</span><span>Mountainbike</span><span>E-Bike</span><span>E-MTB</span><span>Handbike</span><span>Velomobil</span><span>Rolle / Virtual</span>
@@ -277,6 +278,7 @@
       </div>
     </div>
   </section>
+  <% } %>
 
   <!-- SPONSOREN -->
   <% if (sponsors && sponsors.length > 0) { %>
