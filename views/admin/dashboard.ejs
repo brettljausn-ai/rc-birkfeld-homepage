@@ -64,6 +64,8 @@
 <div class="admin-header">
   <h1>RC Birkfeld · Admin</h1>
   <div class="header-actions">
+    <button class="btn-ghost" id="testStravaBtn">Strava testen</button>
+    <span id="testStravaResult" style="font-size:0.82rem;display:none;"></span>
     <button class="btn-ghost" id="testEmailBtn">E-Mail testen</button>
     <span id="testEmailResult" style="font-size:0.82rem;display:none;"></span>
     <a href="/" target="_blank">Website ↗</a>
@@ -382,6 +384,19 @@ function toggleEdit(id) {
   const el = document.getElementById(id);
   el.classList.toggle('open');
 }
+
+/* Strava Test */
+document.getElementById('testStravaBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('testStravaBtn');
+  const result = document.getElementById('testStravaResult');
+  btn.textContent = '…';
+  const res = await fetch('/admin/test-strava', { method: 'POST' });
+  const data = await res.json();
+  result.textContent = data.msg;
+  result.style.color = data.ok ? '#4CAF50' : '#e53935';
+  result.style.display = 'inline';
+  btn.textContent = 'Strava testen';
+});
 
 /* E-Mail Test */
 document.getElementById('testEmailBtn').addEventListener('click', async () => {

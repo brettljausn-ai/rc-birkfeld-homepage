@@ -199,6 +199,20 @@ router.post('/sponsors/:id/delete', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── STRAVA TEST ── */
+router.post('/test-strava', requireAuth, async (req, res) => {
+  const { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN } = process.env;
+  if (!STRAVA_CLIENT_ID) return res.json({ ok: false, msg: 'STRAVA_CLIENT_ID fehlt in Umgebungsvariablen' });
+  try {
+    const { getStravaData } = require('../lib/strava');
+    const data = await getStravaData();
+    if (!data.club) return res.json({ ok: false, msg: 'Strava-API-Fehler: kein Club zurückgegeben (Token ungültig?)' });
+    res.json({ ok: true, msg: `✓ Verbunden: ${data.club.name}, ${data.club.member_count} Mitglieder, ${data.events.length} Events` });
+  } catch (err) {
+    res.json({ ok: false, msg: err.message });
+  }
+});
+
 /* ── E-MAIL TEST ── */
 router.post('/test-email', requireAuth, async (req, res) => {
   const { sendMembershipRequest } = require('../lib/mailer');
