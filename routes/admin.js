@@ -15,8 +15,8 @@ const upload = multer({
 });
 
 const uploadSponsor = multer({
-  dest: path.join(__dirname, '..', 'images', 'sponsoren'),
-  limits: { fileSize: 5 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (/image\/(jpeg|png|webp|svg\+xml)/.test(file.mimetype)) cb(null, true);
     else cb(new Error('Nur JPG, PNG, WebP oder SVG erlaubt'));
@@ -132,12 +132,10 @@ router.post('/gallery/:id/delete', requireAuth, async (req, res, next) => {
 router.post('/sponsors', requireAuth, uploadSponsor.single('logo'), async (req, res, next) => {
   try {
     const { name, website_url, sort_order } = req.body;
-    const ext = path.extname(req.file.originalname) || '.png';
-    const filename = req.file.filename + ext;
-    fs.renameSync(req.file.path, path.join(path.dirname(req.file.path), filename));
+    const logo = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
     await pool.query(
       'INSERT INTO sponsors (name, logo, website_url, sort_order) VALUES (?,?,?,?)',
-      [name, filename, website_url || null, parseInt(sort_order) || 0]
+      [name, logo, website_url || null, parseInt(sort_order) || 0]
     );
     res.redirect('/admin?msg=Sponsor+gespeichert&tab=sponsors');
   } catch (err) { next(err); }
@@ -145,11 +143,6 @@ router.post('/sponsors', requireAuth, uploadSponsor.single('logo'), async (req, 
 
 router.post('/sponsors/:id/delete', requireAuth, async (req, res, next) => {
   try {
-    const [[row]] = await pool.query('SELECT logo FROM sponsors WHERE id=?', [req.params.id]);
-    if (row) {
-      const fp = path.join(__dirname, '..', 'images', 'sponsoren', row.logo);
-      if (fs.existsSync(fp)) fs.unlinkSync(fp);
-    }
     await pool.query('DELETE FROM sponsors WHERE id=?', [req.params.id]);
     res.redirect('/admin?msg=Sponsor+gelöscht&tab=sponsors');
   } catch (err) { next(err); }

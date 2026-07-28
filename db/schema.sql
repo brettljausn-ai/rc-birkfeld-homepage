@@ -46,11 +46,14 @@ CREATE TABLE IF NOT EXISTS strava_cache (
 CREATE TABLE IF NOT EXISTS sponsors (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   name        VARCHAR(200) NOT NULL,
-  logo        TEXT NOT NULL,
+  logo        LONGTEXT NOT NULL,
   website_url TEXT,
   sort_order  INT DEFAULT 0,
   created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE sponsors MODIFY COLUMN logo LONGTEXT NOT NULL;
+DELETE FROM sponsors WHERE logo NOT LIKE 'data:%';
 
 CREATE TABLE IF NOT EXISTS site_content (
   `key`      VARCHAR(100) PRIMARY KEY,
