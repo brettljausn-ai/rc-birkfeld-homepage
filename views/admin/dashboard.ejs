@@ -64,6 +64,9 @@
 <div class="admin-header">
   <h1>RC Birkfeld · Admin</h1>
   <div class="header-actions">
+    <form method="POST" action="/admin/strava-cache/clear" style="display:inline;">
+      <button class="btn-ghost" type="submit">Strava-Cache leeren</button>
+    </form>
     <button class="btn-ghost" id="testStravaBtn">Strava testen</button>
     <span id="testStravaResult" style="font-size:0.82rem;display:none;"></span>
     <button class="btn-ghost" id="testEmailBtn">E-Mail testen</button>
