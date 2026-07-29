@@ -1,6 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const multer = require('multer');
 const { pool } = require('../lib/db');
+
+const uploadFeed = multer({
+  dest: path.join(__dirname, '..', 'images', 'feed'),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/image\/(jpeg|png|webp|gif)/.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Nur JPG, PNG, WebP oder GIF'));
+  },
+});
 
 const AVATAR_COLORS = ['#1F7A34','#1565C0','#7B1FA2','#E65100','#00838F','#C62828'];
 function avatarColor(name) {
@@ -16,6 +27,14 @@ function requireMember(req, res, next) {
   if (req.session.memberName) return next();
   res.redirect('/club/login');
 }
+
+router.post('/upload-image', requireMember, uploadFeed.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Kein Bild' });
+  const ext = req.file.mimetype.split('/')[1].replace('jpeg', 'jpg').replace('svg+xml', 'svg');
+  const newName = req.file.filename + '.' + ext;
+  require('fs').renameSync(req.file.path, path.join(req.file.destination, newName));
+  res.json({ url: '/images/feed/' + newName });
+});
 
 router.get('/login', (req, res) => {
   res.render('club/login', { error: null });

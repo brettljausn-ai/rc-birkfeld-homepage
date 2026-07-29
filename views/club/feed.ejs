@@ -29,10 +29,15 @@
   .compose textarea{flex:1;background:transparent;border:none;color:#E8E8E8;font-family:inherit;font-size:0.95rem;resize:none;outline:none;min-height:72px;line-height:1.5;}
   .compose textarea::placeholder{color:#444;}
   .compose-bottom{display:flex;align-items:center;gap:10px;border-top:1px solid #1e1e1e;padding-top:12px;}
-  .compose-img{flex:1;background:#0D0D0D;border:1px solid #2a2a2a;color:#888;padding:7px 11px;border-radius:6px;font-size:0.82rem;font-family:inherit;}
-  .compose-img:focus{outline:1px solid #4CAF50;color:#E8E8E8;}
   .btn-post{background:#1F7A34;color:#fff;border:none;padding:8px 20px;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
   .btn-post:hover{background:#145C27;}
+  .drop-zone{border:2px dashed #2a2a2a;border-radius:8px;padding:18px;text-align:center;color:#444;font-size:0.8rem;cursor:pointer;transition:border-color .15s,color .15s;margin-top:0;}
+  .drop-zone.over{border-color:#4CAF50;color:#4CAF50;}
+  .drop-zone input[type=file]{display:none;}
+  .drop-preview{position:relative;margin-top:10px;display:none;}
+  .drop-preview img{width:100%;max-height:280px;object-fit:cover;border-radius:8px;display:block;}
+  .drop-remove{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:1rem;line-height:26px;text-align:center;padding:0;}
+  .upload-status{font-size:0.75rem;color:#555;margin-top:6px;font-family:'IBM Plex Mono',monospace;}
   .post-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:16px;}
   .post-header{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;}
   .post-author{font-weight:700;font-size:0.9rem;}
@@ -54,9 +59,19 @@
       <div class="avatar" style="background:<%= avatarColor(memberName) %>;"><%= initials(memberName) %></div>
       <textarea name="content" placeholder="Was gibt's Neues?" required></textarea>
     </div>
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Bild hier ablegen oder klicken zum Auswählen
+      <div class="drop-preview" id="dropPreview">
+        <img id="previewImg" src="" alt="">
+        <button class="drop-remove" id="removeImg" type="button">×</button>
+      </div>
+      <div class="upload-status" id="uploadStatus"></div>
+    </div>
+    <input type="hidden" name="image_url" id="imageUrlField">
     <div class="compose-bottom">
-      <input class="compose-img" type="url" name="image_url" placeholder="Bild-URL (optional)">
-      <button class="btn-post" type="submit">Posten</button>
+      <button class="btn-post" type="submit" id="postBtn">Posten</button>
     </div>
   </form>
 
@@ -87,5 +102,65 @@
   </div>
   <% }); } %>
 </div>
+<script>
+var dropZone = document.getElementById('dropZone');
+var fileInput = document.getElementById('fileInput');
+var previewImg = document.getElementById('previewImg');
+var dropPreview = document.getElementById('dropPreview');
+var removeImg = document.getElementById('removeImg');
+var imageUrlField = document.getElementById('imageUrlField');
+var uploadStatus = document.getElementById('uploadStatus');
+var postBtn = document.getElementById('postBtn');
+
+dropZone.addEventListener('click', function(e) {
+  if (e.target === removeImg) return;
+  fileInput.click();
+});
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('over'); });
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  dropZone.classList.remove('over');
+  var file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+fileInput.addEventListener('change', function() {
+  if (fileInput.files[0]) handleFile(fileInput.files[0]);
+});
+removeImg.addEventListener('click', function(e) {
+  e.stopPropagation();
+  imageUrlField.value = '';
+  previewImg.src = '';
+  dropPreview.style.display = 'none';
+  uploadStatus.textContent = '';
+  fileInput.value = '';
+});
+
+function handleFile(file) {
+  if (!file.type.match(/^image\//)) { uploadStatus.textContent = 'Nur Bilder erlaubt.'; return; }
+  previewImg.src = URL.createObjectURL(file);
+  dropPreview.style.display = 'block';
+  uploadStatus.textContent = 'Wird hochgeladen…';
+  postBtn.disabled = true;
+  var fd = new FormData();
+  fd.append('image', file);
+  fetch('/club/upload-image', { method: 'POST', body: fd })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.url) {
+        imageUrlField.value = data.url;
+        uploadStatus.textContent = 'Bild bereit.';
+      } else {
+        uploadStatus.textContent = 'Fehler beim Hochladen.';
+        dropPreview.style.display = 'none';
+      }
+      postBtn.disabled = false;
+    })
+    .catch(function() {
+      uploadStatus.textContent = 'Fehler beim Hochladen.';
+      postBtn.disabled = false;
+    });
+}
+</script>
 </body>
 </html>
