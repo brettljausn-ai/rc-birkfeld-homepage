@@ -23,6 +23,15 @@ const uploadSponsor = multer({
   },
 });
 
+const uploadNews = multer({
+  dest: path.join(__dirname, '..', 'images', 'news'),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/image\/(jpeg|png|webp|gif)/.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Nur JPG, PNG, WebP oder GIF'));
+  },
+});
+
 function requireAuth(req, res, next) {
   if (req.session.adminLoggedIn) return next();
   res.redirect('/admin/login');
@@ -61,6 +70,15 @@ router.get('/', requireAuth, async (req, res, next) => {
       activeTab: req.query.tab || 'news',
     });
   } catch (err) { next(err); }
+});
+
+/* ── NEWS IMAGE UPLOAD ── */
+router.post('/upload-news-image', requireAuth, uploadNews.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Kein Bild' });
+  const ext = req.file.mimetype.split('/')[1].replace('jpeg', 'jpg').replace('svg+xml', 'svg');
+  const newName = req.file.filename + '.' + ext;
+  fs.renameSync(req.file.path, path.join(req.file.destination, newName));
+  res.json({ url: '/images/news/' + newName });
 });
 
 /* ── NEWS ── */

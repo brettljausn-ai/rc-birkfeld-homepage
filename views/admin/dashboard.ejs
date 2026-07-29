@@ -57,6 +57,13 @@
   .sponsor-card-body{padding:12px;}
   .edit-form{display:none;background:#f8fff8;border-top:2px solid #4CAF50;padding:14px 12px;}
   .edit-form.open{display:block;}
+  .news-drop{border:2px dashed #ccc;border-radius:6px;padding:14px;text-align:center;color:#999;font-size:0.8rem;cursor:pointer;transition:border-color .15s,color .15s;background:#fafafa;}
+  .news-drop.over{border-color:#4CAF50;color:#1F7A34;background:#f0faf0;}
+  .news-drop input[type=file]{display:none;}
+  .news-drop-preview{margin-top:8px;display:none;position:relative;}
+  .news-drop-preview img{width:100%;max-height:180px;object-fit:cover;border-radius:5px;display:block;}
+  .news-drop-remove{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:1rem;line-height:24px;text-align:center;padding:0;}
+  .news-upload-status{font-size:0.74rem;color:#888;margin-top:4px;}
 </style>
 </head>
 <body>
@@ -172,7 +179,16 @@
         <div class="field"><label>Datum</label><input type="date" name="published_at" value="<%= new Date().toISOString().split('T')[0] %>"></div>
       </div>
       <div class="field"><label>Inhalt</label><textarea name="content" required></textarea></div>
-      <div class="field"><label>Bild-URL (optional)</label><input type="url" name="image_url" placeholder="https://..."></div>
+      <div class="field">
+        <label>Bild (optional)</label>
+        <div class="news-drop" id="drop-new" data-target="image_url_new">
+          <input type="file" accept="image/*">
+          ↑ Bild hier ablegen oder klicken
+          <div class="news-drop-preview"><img src="" alt=""><button class="news-drop-remove" type="button">×</button></div>
+          <div class="news-upload-status"></div>
+        </div>
+        <input type="hidden" name="image_url" id="image_url_new">
+      </div>
       <button class="btn-save" type="submit">Speichern</button>
     </form>
   </div>
@@ -199,7 +215,19 @@
             <div class="field"><label>Datum</label><input type="date" name="published_at" value="<%= new Date(n.published_at).toISOString().split('T')[0] %>"></div>
           </div>
           <div class="field"><label>Inhalt</label><textarea name="content" required><%= n.content %></textarea></div>
-          <div class="field"><label>Bild-URL</label><input type="url" name="image_url" value="<%= n.image_url||'' %>"></div>
+          <div class="field">
+            <label>Bild</label>
+            <div class="news-drop" id="drop-<%= n.id %>" data-target="image_url_<%= n.id %>">
+              <input type="file" accept="image/*">
+              ↑ Bild hier ablegen oder klicken
+              <div class="news-drop-preview" <% if(n.image_url){%>style="display:block;"<%}%>>
+                <img src="<%= n.image_url||'' %>" alt="">
+                <button class="news-drop-remove" type="button">×</button>
+              </div>
+              <div class="news-upload-status"></div>
+            </div>
+            <input type="hidden" name="image_url" id="image_url_<%= n.id %>" value="<%= n.image_url||'' %>">
+          </div>
           <div class="actions"><button class="btn-save" type="submit">Speichern</button><button class="btn-cancel" type="button" onclick="toggleEdit('news-<%= n.id %>')">Abbrechen</button></div>
         </form>
       </div>
@@ -413,6 +441,56 @@ document.getElementById('testEmailBtn').addEventListener('click', async () => {
   result.style.display = 'inline';
   btn.textContent = 'E-Mail testen';
 });
+
+/* News image drop zones */
+function initNewsDropZone(zone) {
+  var targetId = zone.dataset.target;
+  var hiddenField = document.getElementById(targetId);
+  var fileInput = zone.querySelector('input[type=file]');
+  var preview = zone.querySelector('.news-drop-preview');
+  var previewImg = preview.querySelector('img');
+  var removeBtn = preview.querySelector('.news-drop-remove');
+  var status = zone.querySelector('.news-upload-status');
+
+  zone.addEventListener('click', function(e) {
+    if (e.target === removeBtn) return;
+    fileInput.click();
+  });
+  zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', function() { zone.classList.remove('over'); });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault(); zone.classList.remove('over');
+    if (e.dataTransfer.files[0]) uploadNewsImage(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', function() {
+    if (fileInput.files[0]) uploadNewsImage(fileInput.files[0]);
+  });
+  removeBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    hiddenField.value = '';
+    previewImg.src = '';
+    preview.style.display = 'none';
+    status.textContent = '';
+    fileInput.value = '';
+  });
+
+  function uploadNewsImage(file) {
+    if (!file.type.match(/^image\//)) { status.textContent = 'Nur Bilder erlaubt.'; return; }
+    previewImg.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+    status.textContent = 'Wird hochgeladen…';
+    var fd = new FormData();
+    fd.append('image', file);
+    fetch('/admin/upload-news-image', { method: 'POST', body: fd })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.url) { hiddenField.value = data.url; status.textContent = 'Bild bereit.'; }
+        else { status.textContent = 'Fehler.'; preview.style.display = 'none'; }
+      })
+      .catch(function() { status.textContent = 'Fehler.'; });
+  }
+}
+document.querySelectorAll('.news-drop').forEach(initNewsDropZone);
 
 /* Drag & Drop Galerie Reihenfolge */
 (function() {
