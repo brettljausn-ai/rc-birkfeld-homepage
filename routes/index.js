@@ -42,6 +42,17 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+router.get('/bericht/:id', async (req, res, next) => {
+  try {
+    const [[rows], [dbTermine]] = await Promise.all([
+      pool.query('SELECT * FROM news WHERE id = ?', [req.params.id]),
+      pool.query('SELECT * FROM termine WHERE date >= CURDATE() ORDER BY date ASC'),
+    ]);
+    if (!rows.length) return res.status(404).render('404', { title: 'Nicht gefunden', termine: [] });
+    res.render('bericht', { bericht: rows[0], termine: dbTermine, title: rows[0].title });
+  } catch (err) { next(err); }
+});
+
 router.get('/laurenzibergrennen', (req, res) => {
   res.render('laurenzibergrennen');
 });

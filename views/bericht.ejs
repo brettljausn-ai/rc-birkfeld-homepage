@@ -1,0 +1,39 @@
+<%- include('partials/head', { title: bericht.title, description: bericht.content.substring(0,160).replace(/\n/g,' ') }) %>
+<%- include('partials/nav') %>
+
+<main style="padding:60px 0 80px;">
+  <div class="wrap" style="max-width:760px;">
+
+    <a href="/#berichte" style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--rust);text-decoration:none;margin-bottom:32px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Alle Berichte
+    </a>
+
+    <% if (bericht.image_url) { %>
+    <div style="border-radius:12px;overflow:hidden;margin-bottom:36px;max-height:440px;">
+      <img src="<%= bericht.image_url %>" alt="<%= bericht.title %>" style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+    <% } %>
+
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--rust);text-transform:uppercase;letter-spacing:.1em;font-weight:600;">
+      <%= new Date(bericht.published_at).toLocaleDateString('de-AT',{day:'2-digit',month:'long',year:'numeric'}) %>
+    </span>
+
+    <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;margin:10px 0 24px;color:var(--chalk);">
+      <%= bericht.title %>
+    </h1>
+
+    <div style="font-size:1.05rem;line-height:1.8;color:#ccc;white-space:pre-wrap;word-break:break-word;">
+      <%= bericht.content %>
+    </div>
+
+    <div style="margin-top:48px;padding-top:24px;border-top:1px solid #1e1e1e;">
+      <a href="/#berichte" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--rust);text-decoration:none;font-weight:600;">
+        ← Zurück zu allen Berichten
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<%- include('partials/footer') %>
