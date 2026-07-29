@@ -255,12 +255,12 @@
 
   <!-- STRAVA -->
   <% if (strava) { %>
+  <% const stravaEvents = termine.filter(t => t.isStrava); %>
   <section id="strava">
     <div class="wrap">
       <div class="section-head fade-in">
         <span class="kicker">Live von Strava</span>
         <h2>Unser Club, auf der Straße.</h2>
-        <p>Direkt gespiegelt vom offiziellen Strava-Club des RC ASVÖ Birkfeld – Mitgliederzahl und Disziplinen live.</p>
       </div>
       <div class="strava-card">
         <div class="strava-card-main">
@@ -271,6 +271,24 @@
           <div class="strava-stat"><span class="num"><%= strava.member_count %></span><span class="lbl">Mitglieder auf Strava</span></div>
           <div class="strava-stat"><span class="num"><%= strava.activity_types ? strava.activity_types.length : 8 %></span><span class="lbl">Disziplinen im Club</span></div>
         </div>
+        <% if (stravaEvents.length > 0) { %>
+        <div class="strava-events">
+          <div class="strava-events-label">Nächste Club-Events</div>
+          <% stravaEvents.forEach(ev => {
+            const d = new Date(ev.date);
+            const day = d.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit'});
+          %>
+          <div class="strava-event-row">
+            <span class="strava-event-date"><%= day %></span>
+            <div class="strava-event-info">
+              <strong><%= ev.title %></strong>
+              <% if (ev.location) { %><span><%= ev.location %></span><% } %>
+            </div>
+            <a href="<%= ev.detail_url %>" target="_blank" rel="noopener" class="strava-event-link">Strava →</a>
+          </div>
+          <% }); %>
+        </div>
+        <% } %>
         <div class="strava-tags">
           <span>Rennrad</span><span>Gravel</span><span>Mountainbike</span><span>E-Bike</span><span>E-MTB</span><span>Handbike</span><span>Velomobil</span><span>Rolle / Virtual</span>
         </div>
