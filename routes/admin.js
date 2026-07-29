@@ -199,6 +199,14 @@ router.post('/sponsors/:id/delete', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── STRAVA CACHE CLEAR ── */
+router.post('/strava-cache/clear', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query("DELETE FROM strava_cache WHERE `key` IN ('club','events')");
+    res.redirect('/admin?msg=Strava-Cache+geleert&tab=page');
+  } catch (err) { next(err); }
+});
+
 /* ── STRAVA TEST ── */
 router.post('/test-strava', requireAuth, async (req, res) => {
   const { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN } = process.env;
