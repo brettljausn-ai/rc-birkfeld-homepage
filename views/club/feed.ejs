@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feed – RC Birkfeld Club</title>
+<%- include('_nav') %>
+<style>
+  .feed-wrap{max-width:600px;margin:0 auto;padding:24px 16px;}
+  /* POST FORM */
+  .compose{background:#141414;border:1px solid #1e1e1e;border-radius:12px;padding:16px;margin-bottom:24px;}
+  .compose-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
+  .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .compose textarea{flex:1;background:transparent;border:none;color:#E8E8E8;font-family:inherit;font-size:0.95rem;resize:none;outline:none;min-height:72px;line-height:1.5;}
+  .compose textarea::placeholder{color:#444;}
+  .compose-bottom{display:flex;align-items:center;gap:10px;border-top:1px solid #1e1e1e;padding-top:12px;}
+  .compose-img{flex:1;background:#0D0D0D;border:1px solid #2a2a2a;color:#888;padding:7px 11px;border-radius:6px;font-size:0.82rem;font-family:inherit;}
+  .compose-img:focus{outline:1px solid #4CAF50;color:#E8E8E8;}
+  .btn-post{background:#1F7A34;color:#fff;border:none;padding:8px 20px;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .btn-post:hover{background:#145C27;}
+  /* POST CARD */
+  .post-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:16px;}
+  .post-header{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;}
+  .post-author{font-weight:700;font-size:0.9rem;}
+  .post-time{font-size:0.75rem;color:#555;font-family:'IBM Plex Mono',monospace;margin-top:1px;}
+  .post-body{padding:0 16px 14px;font-size:0.93rem;line-height:1.65;color:#D8D8D8;white-space:pre-wrap;word-break:break-word;}
+  .post-img{width:100%;max-height:480px;object-fit:cover;display:block;border-top:1px solid #1e1e1e;border-bottom:1px solid #1e1e1e;}
+  .post-footer{padding:8px 16px;display:flex;justify-content:flex-end;}
+  .btn-del{background:none;border:none;color:#333;font-size:0.75rem;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:4px;}
+  .btn-del:hover{color:#e57373;background:#1e1010;}
+  .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
+</style>
+</head>
+<body>
+<div class="feed-wrap">
+
+  <!-- COMPOSE -->
+  <form method="POST" action="/club/post" class="compose">
+    <div class="compose-top">
+      <div class="avatar" style="background:<%= avatarColor(memberName) %>;"><%= initials(memberName) %></div>
+      <textarea name="content" placeholder="Was gibt's Neues?" required></textarea>
+    </div>
+    <div class="compose-bottom">
+      <input class="compose-img" type="url" name="image_url" placeholder="Bild-URL (optional)">
+      <button class="btn-post" type="submit">Posten</button>
+    </div>
+  </form>
+
+  <!-- FEED -->
+  <% if (posts.length === 0) { %>
+  <div class="empty">Noch keine Beiträge. Sei der Erste! 🚴</div>
+  <% } else { posts.forEach(p => {
+    const ts = new Date(p.created_at);
+    const diffMin = Math.floor((Date.now() - ts) / 60000);
+    const relTime = diffMin < 1 ? 'Gerade eben' : diffMin < 60 ? `vor ${diffMin} Min` : diffMin < 1440 ? `vor ${Math.floor(diffMin/60)} Std` : ts.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  %>
+  <div class="post-card">
+    <div class="post-header">
+      <div class="avatar" style="background:<%= avatarColor(p.author) %>;"><%= initials(p.author) %></div>
+      <div>
+        <div class="post-author"><%= p.author %></div>
+        <div class="post-time"><%= relTime %></div>
+      </div>
+    </div>
+    <% if (p.content) { %><div class="post-body"><%= p.content %></div><% } %>
+    <% if (p.image_url) { %><img class="post-img" src="<%= p.image_url %>" alt="" loading="lazy" onerror="this.style.display='none'"><% } %>
+    <% if (p.author === memberName) { %>
+    <div class="post-footer">
+      <form method="POST" action="/club/post/<%= p.id %>/delete" onsubmit="return confirm('Beitrag löschen?')">
+        <button class="btn-del" type="submit">Löschen</button>
+      </form>
+    </div>
+    <% } %>
+  </div>
+  <% }); } %>
+
+</div>
+</body>
+</html>

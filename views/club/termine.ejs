@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Termine – RC Birkfeld Club</title>
+<%- include('_nav') %>
+<style>
+  .termine-wrap{max-width:720px;margin:0 auto;padding:24px 16px;}
+  .page-title{font-family:'Big Shoulders Display',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:6px;}
+  .page-sub{font-size:0.85rem;color:#555;margin-bottom:28px;font-family:'IBM Plex Mono',monospace;}
+  .event-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:16px;}
+  .event-card-top{display:grid;grid-template-columns:80px 1fr;gap:0;}
+  .event-cal{background:#1a1a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 10px;border-right:1px solid #1e1e1e;}
+  .event-cal .mon{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:.1em;color:#4CAF50;font-weight:600;}
+  .event-cal .day{font-family:'Big Shoulders Display',sans-serif;font-size:2.4rem;font-weight:900;line-height:1;color:#fff;}
+  .event-cal .yr{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:#444;}
+  .event-body{padding:18px 20px;}
+  .event-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#555;margin-bottom:6px;}
+  .event-title{font-size:1.15rem;font-weight:700;margin-bottom:4px;}
+  .event-loc{font-size:0.83rem;color:#666;margin-bottom:14px;}
+  .event-loc svg{vertical-align:-2px;margin-right:4px;opacity:.5;}
+  /* RSVP */
+  .rsvp-section{border-top:1px solid #1e1e1e;padding:16px 20px;}
+  .rsvp-btns{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .btn-yes,.btn-no{display:flex;align-items:center;gap:7px;padding:9px 20px;border-radius:8px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:inherit;border:2px solid transparent;transition:all .15s;}
+  .btn-yes{background:#0d2a10;color:#4CAF50;border-color:#1F7A34;}
+  .btn-yes:hover,.btn-yes.active{background:#1F7A34;color:#fff;}
+  .btn-no{background:#2a0d0d;color:#e57373;border-color:#5c2020;}
+  .btn-no:hover,.btn-no.active{background:#c62828;color:#fff;}
+  .rsvp-attendees{display:flex;flex-wrap:wrap;gap:8px;}
+  .attendee{display:flex;align-items:center;gap:6px;background:#1a1a1a;border-radius:20px;padding:4px 12px 4px 4px;font-size:0.8rem;}
+  .attendee .avatar-sm{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:#fff;}
+  .attendee.yes-att .name{color:#4CAF50;}
+  .attendee.no-att .name{color:#e57373;}
+  .attendee.no-att{opacity:.7;}
+  .rsvp-counts{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#444;margin-bottom:10px;}
+  .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
+  .detail-link{font-size:0.78rem;color:#555;display:inline-flex;align-items:center;gap:4px;margin-top:4px;text-decoration:none;}
+  .detail-link:hover{color:#4CAF50;}
+</style>
+</head>
+<body>
+<div class="termine-wrap">
+  <h1 class="page-title">Termine</h1>
+  <p class="page-sub">Sag Bescheid ob du dabei bist.</p>
+
+  <% if (termine.length === 0) { %>
+  <div class="empty">Keine bevorstehenden Termine.</div>
+  <% } else { termine.forEach(t => {
+    const d = new Date(t.date);
+    const mon = d.toLocaleDateString('de-AT',{month:'short'}).toUpperCase().replace('.','');
+    const day = d.getDate();
+    const yr  = d.getFullYear();
+  %>
+  <div class="event-card">
+    <div class="event-card-top">
+      <div class="event-cal">
+        <div class="mon"><%= mon %></div>
+        <div class="day"><%= day %></div>
+        <div class="yr"><%= yr %></div>
+      </div>
+      <div class="event-body">
+        <div class="event-tag"><%= t.tag || 'Vereinsrennen' %></div>
+        <div class="event-title"><%= t.title %></div>
+        <% if (t.location) { %>
+        <div class="event-loc">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/></svg>
+          <%= t.location %>
+        </div>
+        <% } %>
+        <% if (t.detail_url) { %>
+        <a href="<%= t.detail_url %>" class="detail-link" target="<%= t.detail_url.startsWith('http')?'_blank':'_self' %>">
+          Mehr Infos →
+        </a>
+        <% } %>
+      </div>
+    </div>
+    <div class="rsvp-section">
+      <div class="rsvp-counts"><%= t.yes_count %> Zusagen · <%= t.no_count %> Absagen</div>
+      <div class="rsvp-btns">
+        <form method="POST" action="/club/rsvp/<%= t.id %>">
+          <input type="hidden" name="status" value="yes">
+          <button type="submit" class="btn-yes <%= t.my_status==='yes'?'active':'' %>">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Ich bin dabei<%= t.my_status==='yes' ? ' ✓' : '' %>
+          </button>
+        </form>
+        <form method="POST" action="/club/rsvp/<%= t.id %>">
+          <input type="hidden" name="status" value="no">
+          <button type="submit" class="btn-no <%= t.my_status==='no'?'active':'' %>">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            Kann nicht<%= t.my_status==='no' ? ' ✗' : '' %>
+          </button>
+        </form>
+      </div>
+      <% if (t.yes_names.length > 0 || t.no_names.length > 0) { %>
+      <div class="rsvp-attendees">
+        <% t.yes_names.forEach(name => { %>
+        <div class="attendee yes-att">
+          <div class="avatar-sm" style="background:<%= avatarColor(name) %>;"><%= initials(name) %></div>
+          <span class="name"><%= name %></span>
+        </div>
+        <% }); %>
+        <% t.no_names.forEach(name => { %>
+        <div class="attendee no-att">
+          <div class="avatar-sm" style="background:#3a3a3a;"><%= initials(name) %></div>
+          <span class="name"><%= name %></span>
+        </div>
+        <% }); %>
+      </div>
+      <% } %>
+    </div>
+  </div>
+  <% }); } %>
+</div>
+</body>
+</html>
