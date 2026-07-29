@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../lib/db');
 
+const AVATAR_COLORS = ['#1F7A34','#1565C0','#7B1FA2','#E65100','#00838F','#C62828'];
+function avatarColor(name) {
+  let h = 0; for (const c of String(name)) h = (h * 31 + c.charCodeAt(0)) & 0xFFFF;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+function initials(name) {
+  return String(name).split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+}
+const helpers = { avatarColor, initials };
+
 function requireMember(req, res, next) {
   if (req.session.memberName) return next();
   res.redirect('/club/login');
@@ -30,7 +40,7 @@ router.get('/logout', (req, res) => {
 router.get('/', requireMember, async (req, res, next) => {
   try {
     const [rows] = await pool.query('SELECT * FROM club_posts ORDER BY created_at DESC LIMIT 50');
-    res.render('club/feed', { memberName: req.session.memberName, posts: rows, page: 'feed' });
+    res.render('club/feed', { ...helpers, memberName: req.session.memberName, posts: rows, page: 'feed' });
   } catch (err) { next(err); }
 });
 
@@ -72,7 +82,7 @@ router.get('/termine', requireMember, async (req, res, next) => {
       yes_names: t.yes_names ? t.yes_names.split(',').filter(Boolean) : [],
       no_names:  t.no_names  ? t.no_names.split(',').filter(Boolean)  : [],
     }));
-    res.render('club/termine', { memberName: req.session.memberName, termine, page: 'termine' });
+    res.render('club/termine', { ...helpers, memberName: req.session.memberName, termine, page: 'termine' });
   } catch (err) { next(err); }
 });
 
@@ -92,7 +102,7 @@ router.post('/rsvp/:id', requireMember, async (req, res, next) => {
 router.get('/chat', requireMember, async (req, res, next) => {
   try {
     const [rows] = await pool.query('SELECT * FROM club_chat ORDER BY created_at ASC LIMIT 200');
-    res.render('club/chat', { memberName: req.session.memberName, chat: rows, page: 'chat' });
+    res.render('club/chat', { ...helpers, memberName: req.session.memberName, chat: rows, page: 'chat' });
   } catch (err) { next(err); }
 });
 

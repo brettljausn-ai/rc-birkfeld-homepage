@@ -4,27 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Feed – RC Birkfeld Club</title>
-<%- include('_nav') %>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0D0D0D;color:#E8E8E8;font-family:'Public Sans',system-ui,sans-serif;min-height:100vh;}
+  a{color:inherit;text-decoration:none;}
+  .ch{background:#111;border-bottom:1px solid #1e1e1e;padding:0 20px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:200;}
+  .ch-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1rem;color:#4CAF50;letter-spacing:.06em;white-space:nowrap;margin-right:28px;}
+  .ch-tabs{display:flex;height:100%;flex:1;}
+  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;}
+  .ch-tab:hover{color:#aaa;} .ch-tab.active{color:#fff;border-bottom-color:#4CAF50;}
+  .ch-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+  .ch-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .ch-name{font-size:0.82rem;color:#888;white-space:nowrap;}
+  .ch-logout{font-size:0.75rem;color:#555;border:1px solid #2a2a2a;padding:4px 10px;border-radius:4px;text-decoration:none;}
+  .ch-logout:hover{color:#aaa;border-color:#444;}
+  @media(max-width:600px){.ch-name{display:none;}.ch-brand{margin-right:12px;}.ch-tab{padding:0 10px;font-size:0.78rem;}}
+  /* feed */
   .feed-wrap{max-width:600px;margin:0 auto;padding:24px 16px;}
-  /* POST FORM */
+  .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:700;color:#fff;flex-shrink:0;}
   .compose{background:#141414;border:1px solid #1e1e1e;border-radius:12px;padding:16px;margin-bottom:24px;}
   .compose-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
-  .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:700;color:#fff;flex-shrink:0;}
   .compose textarea{flex:1;background:transparent;border:none;color:#E8E8E8;font-family:inherit;font-size:0.95rem;resize:none;outline:none;min-height:72px;line-height:1.5;}
   .compose textarea::placeholder{color:#444;}
   .compose-bottom{display:flex;align-items:center;gap:10px;border-top:1px solid #1e1e1e;padding-top:12px;}
   .compose-img{flex:1;background:#0D0D0D;border:1px solid #2a2a2a;color:#888;padding:7px 11px;border-radius:6px;font-size:0.82rem;font-family:inherit;}
   .compose-img:focus{outline:1px solid #4CAF50;color:#E8E8E8;}
-  .btn-post{background:#1F7A34;color:#fff;border:none;padding:8px 20px;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .btn-post{background:#1F7A34;color:#fff;border:none;padding:8px 20px;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
   .btn-post:hover{background:#145C27;}
-  /* POST CARD */
   .post-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:16px;}
   .post-header{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;}
   .post-author{font-weight:700;font-size:0.9rem;}
   .post-time{font-size:0.75rem;color:#555;font-family:'IBM Plex Mono',monospace;margin-top:1px;}
   .post-body{padding:0 16px 14px;font-size:0.93rem;line-height:1.65;color:#D8D8D8;white-space:pre-wrap;word-break:break-word;}
-  .post-img{width:100%;max-height:480px;object-fit:cover;display:block;border-top:1px solid #1e1e1e;border-bottom:1px solid #1e1e1e;}
+  .post-img{width:100%;max-height:480px;object-fit:cover;display:block;border-top:1px solid #1e1e1e;}
   .post-footer{padding:8px 16px;display:flex;justify-content:flex-end;}
   .btn-del{background:none;border:none;color:#333;font-size:0.75rem;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:4px;}
   .btn-del:hover{color:#e57373;background:#1e1010;}
@@ -32,9 +46,9 @@
 </style>
 </head>
 <body>
+<%- include('_nav') %>
 <div class="feed-wrap">
 
-  <!-- COMPOSE -->
   <form method="POST" action="/club/post" class="compose">
     <div class="compose-top">
       <div class="avatar" style="background:<%= avatarColor(memberName) %>;"><%= initials(memberName) %></div>
@@ -46,13 +60,12 @@
     </div>
   </form>
 
-  <!-- FEED -->
   <% if (posts.length === 0) { %>
   <div class="empty">Noch keine Beiträge. Sei der Erste! 🚴</div>
-  <% } else { posts.forEach(p => {
-    const ts = new Date(p.created_at);
-    const diffMin = Math.floor((Date.now() - ts) / 60000);
-    const relTime = diffMin < 1 ? 'Gerade eben' : diffMin < 60 ? `vor ${diffMin} Min` : diffMin < 1440 ? `vor ${Math.floor(diffMin/60)} Std` : ts.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  <% } else { posts.forEach(function(p) {
+    var ts = new Date(p.created_at);
+    var diffMin = Math.floor((Date.now() - ts) / 60000);
+    var relTime = diffMin < 1 ? 'Gerade eben' : diffMin < 60 ? ('vor ' + diffMin + ' Min') : diffMin < 1440 ? ('vor ' + Math.floor(diffMin/60) + ' Std') : ts.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
   %>
   <div class="post-card">
     <div class="post-header">
@@ -73,7 +86,6 @@
     <% } %>
   </div>
   <% }); } %>
-
 </div>
 </body>
 </html>
