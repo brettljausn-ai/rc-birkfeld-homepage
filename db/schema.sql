@@ -55,6 +55,29 @@ CREATE TABLE IF NOT EXISTS sponsors (
 ALTER TABLE sponsors MODIFY COLUMN logo LONGTEXT NOT NULL;
 DELETE FROM sponsors WHERE logo NOT LIKE 'data:%';
 
+CREATE TABLE IF NOT EXISTS club_posts (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  author     VARCHAR(100) NOT NULL,
+  content    TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS club_chat (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  author     VARCHAR(100) NOT NULL,
+  content    TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS event_rsvp (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  termine_id  INT NOT NULL,
+  member_name VARCHAR(100) NOT NULL,
+  status      ENUM('yes','no') NOT NULL,
+  updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_rsvp (termine_id, member_name)
+);
+
 CREATE TABLE IF NOT EXISTS site_content (
   `key`      VARCHAR(100) PRIMARY KEY,
   value      TEXT NOT NULL,

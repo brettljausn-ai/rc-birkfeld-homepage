@@ -27,6 +27,7 @@ app.use(session({
 app.use('/', require('./routes/index'));
 app.use('/contact', require('./routes/contact'));
 app.use('/admin', require('./routes/admin'));
+app.use('/club', require('./routes/club'));
 
 app.use((err, req, res, next) => {
   console.error(err);

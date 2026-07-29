@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mitglieder – RC Birkfeld</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0D0D0D;color:#E8E8E8;font-family:'Public Sans',system-ui,sans-serif;min-height:100vh;}
+  a{color:inherit;text-decoration:none;}
+
+  /* HEADER */
+  .club-header{background:#111;border-bottom:1px solid #1e1e1e;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+  .club-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.1rem;color:#4CAF50;letter-spacing:.05em;}
+  .club-nav{display:flex;align-items:center;gap:6px;}
+  .club-nav a{font-size:0.82rem;color:#888;padding:6px 12px;border-radius:4px;transition:background .15s,color .15s;}
+  .club-nav a:hover{background:#1a1a1a;color:#fff;}
+  .club-member{font-size:0.82rem;color:#4CAF50;font-weight:600;}
+  .btn-logout{font-size:0.78rem;color:#666;border:1px solid #2a2a2a;padding:5px 11px;border-radius:4px;cursor:pointer;background:none;font-family:inherit;}
+  .btn-logout:hover{border-color:#555;color:#aaa;}
+
+  /* LAYOUT */
+  .club-wrap{max-width:1100px;margin:0 auto;padding:28px 20px;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;}
+  @media(max-width:860px){.club-wrap{grid-template-columns:1fr;}}
+
+  /* SECTION */
+  .section-title{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:.12em;color:#555;font-weight:600;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #1e1e1e;}
+  .card{background:#141414;border:1px solid #1e1e1e;border-radius:8px;padding:22px;margin-bottom:20px;}
+
+  /* TERMINE */
+  .event-item{padding:16px 0;border-bottom:1px solid #1e1e1e;display:grid;grid-template-columns:60px 1fr auto;gap:14px;align-items:start;}
+  .event-item:last-child{border-bottom:none;}
+  .ev-date{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#4CAF50;line-height:1.4;}
+  .ev-title{font-weight:700;font-size:1rem;margin-bottom:3px;}
+  .ev-loc{font-size:0.82rem;color:#666;margin-bottom:10px;}
+  .rsvp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .btn-yes,.btn-no,.btn-yes-active,.btn-no-active{border:none;padding:6px 14px;border-radius:4px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+  .btn-yes{background:#1e3a1e;color:#4CAF50;border:1px solid #1F7A34;}
+  .btn-yes:hover,.btn-yes-active{background:#1F7A34;color:#fff;border-color:#1F7A34;}
+  .btn-no{background:#2a1a1a;color:#e57373;border:1px solid #5c2a2a;}
+  .btn-no:hover,.btn-no-active{background:#c62828;color:#fff;border-color:#c62828;}
+  .rsvp-counts{font-size:0.78rem;color:#666;font-family:'IBM Plex Mono',monospace;}
+  .rsvp-names{font-size:0.75rem;color:#555;margin-top:6px;}
+  .rsvp-names .yes{color:#4CAF50;}
+  .rsvp-names .no{color:#e57373;}
+
+  /* PINNWAND */
+  .post-form textarea{width:100%;background:#0D0D0D;border:1px solid #2a2a2a;color:#E8E8E8;padding:11px 13px;border-radius:5px;font-family:inherit;font-size:0.9rem;resize:vertical;min-height:80px;margin-bottom:10px;}
+  .post-form textarea:focus{outline:2px solid #4CAF50;border-color:#4CAF50;}
+  .btn-post{background:#1F7A34;color:#fff;border:none;padding:8px 18px;border-radius:5px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn-post:hover{background:#145C27;}
+  .post-item{padding:16px 0;border-bottom:1px solid #1e1e1e;}
+  .post-item:last-child{border-bottom:none;}
+  .post-author{font-size:0.78rem;font-weight:700;color:#4CAF50;margin-bottom:4px;}
+  .post-time{font-size:0.72rem;color:#444;font-family:'IBM Plex Mono',monospace;margin-left:8px;}
+  .post-content{font-size:0.92rem;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+  .btn-del-post{background:none;border:none;color:#444;font-size:0.72rem;cursor:pointer;margin-top:6px;padding:0;}
+  .btn-del-post:hover{color:#e57373;}
+  .empty{color:#444;font-size:0.88rem;padding:12px 0;}
+
+  /* CHAT */
+  .chat-box{height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 0;margin-bottom:14px;}
+  .chat-msg{display:flex;flex-direction:column;gap:2px;}
+  .chat-msg.mine{align-items:flex-end;}
+  .chat-bubble{background:#1e1e1e;border-radius:8px;padding:8px 12px;max-width:85%;font-size:0.88rem;line-height:1.5;word-break:break-word;}
+  .chat-msg.mine .chat-bubble{background:#1a3a1a;border-bottom-right-radius:2px;}
+  .chat-meta{font-size:0.7rem;color:#444;font-family:'IBM Plex Mono',monospace;}
+  .chat-form{display:flex;gap:8px;}
+  .chat-form input{flex:1;background:#0D0D0D;border:1px solid #2a2a2a;color:#E8E8E8;padding:9px 12px;border-radius:5px;font-family:inherit;font-size:0.9rem;}
+  .chat-form input:focus{outline:2px solid #4CAF50;border-color:#4CAF50;}
+  .btn-send{background:#1F7A34;color:#fff;border:none;padding:9px 16px;border-radius:5px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .btn-send:hover{background:#145C27;}
+  .chat-status{font-size:0.7rem;color:#444;font-family:'IBM Plex Mono',monospace;text-align:right;margin-top:4px;}
+</style>
+</head>
+<body>
+
+<div class="club-header">
+  <span class="club-brand">RC BIRKFELD · CLUB</span>
+  <div class="club-nav">
+    <a href="#termine">Termine</a>
+    <a href="#pinnwand">Pinnwand</a>
+    <a href="#chat">Chat</a>
+    <a href="/" style="margin-left:6px;">Website ↗</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="club-member">👋 <%= memberName %></span>
+    <a href="/club/logout"><button class="btn-logout">Abmelden</button></a>
+  </div>
+</div>
+
+<div class="club-wrap">
+
+  <!-- LINKE SPALTE: Termine + Pinnwand -->
+  <div>
+
+    <!-- TERMINE -->
+    <div class="card" id="termine">
+      <div class="section-title">Kommende Termine</div>
+      <% if (termine.length === 0) { %>
+      <p class="empty">Keine bevorstehenden Termine.</p>
+      <% } else { termine.forEach(t => {
+        const d = new Date(t.date);
+        const day = d.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit'});
+        const year = d.getFullYear();
+      %>
+      <div class="event-item">
+        <div class="ev-date"><%= day %><br><%= year %></div>
+        <div>
+          <div class="ev-title"><%= t.title %></div>
+          <% if (t.location) { %><div class="ev-loc"><%= t.location %></div><% } %>
+          <div class="rsvp-row">
+            <form method="POST" action="/club/rsvp/<%= t.id %>" style="display:inline;">
+              <input type="hidden" name="status" value="yes">
+              <button type="submit" class="<%= t.my_status==='yes' ? 'btn-yes-active' : 'btn-yes' %>">✓ Zusagen<%= t.my_status==='yes' ? ' ✓' : '' %></button>
+            </form>
+            <form method="POST" action="/club/rsvp/<%= t.id %>" style="display:inline;">
+              <input type="hidden" name="status" value="no">
+              <button type="submit" class="<%= t.my_status==='no' ? 'btn-no-active' : 'btn-no' %>">✗ Absagen<%= t.my_status==='no' ? ' ✗' : '' %></button>
+            </form>
+            <span class="rsvp-counts"><%= t.yes_count %> Ja · <%= t.no_count %> Nein</span>
+          </div>
+          <% if (t.yes_names.length > 0 || t.no_names.length > 0) { %>
+          <div class="rsvp-names">
+            <% if (t.yes_names.length > 0) { %><span class="yes">✓ <%= t.yes_names.join(', ') %></span><% } %>
+            <% if (t.yes_names.length > 0 && t.no_names.length > 0) { %> &nbsp;·&nbsp; <% } %>
+            <% if (t.no_names.length > 0) { %><span class="no">✗ <%= t.no_names.join(', ') %></span><% } %>
+          </div>
+          <% } %>
+        </div>
+        <% if (t.detail_url) { %><a href="<%= t.detail_url %>" style="font-size:0.78rem;color:#555;white-space:nowrap;" target="<%= t.detail_url.startsWith('http') ? '_blank' : '_self' %>">Details →</a><% } %>
+      </div>
+      <% }); } %>
+    </div>
+
+    <!-- PINNWAND -->
+    <div class="card" id="pinnwand">
+      <div class="section-title">Pinnwand</div>
+      <form method="POST" action="/club/post" class="post-form">
+        <textarea name="content" placeholder="Was möchtest du mit dem Club teilen?" required></textarea>
+        <button class="btn-post" type="submit">Posten →</button>
+      </form>
+      <div style="margin-top:20px;">
+        <% if (posts.length === 0) { %>
+        <p class="empty">Noch keine Beiträge.</p>
+        <% } else { posts.forEach(p => { %>
+        <div class="post-item">
+          <div>
+            <span class="post-author"><%= p.author %></span>
+            <span class="post-time"><%= new Date(p.created_at).toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) %></span>
+          </div>
+          <div class="post-content"><%= p.content %></div>
+          <% if (p.author === memberName) { %>
+          <form method="POST" action="/club/post/<%= p.id %>/delete" onsubmit="return confirm('Beitrag löschen?')">
+            <button class="btn-del-post" type="submit">Löschen</button>
+          </form>
+          <% } %>
+        </div>
+        <% }); } %>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RECHTE SPALTE: Chat -->
+  <div class="card" id="chat" style="position:sticky;top:72px;">
+    <div class="section-title">Club-Chat</div>
+    <div class="chat-box" id="chatBox">
+      <% chat.forEach(m => { %>
+      <div class="chat-msg <%= m.author === memberName ? 'mine' : '' %>" data-id="<%= m.id %>">
+        <div class="chat-bubble"><%= m.content %></div>
+        <div class="chat-meta"><%= m.author === memberName ? 'Du' : m.author %> · <%= new Date(m.created_at).toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'}) %></div>
+      </div>
+      <% }); %>
+    </div>
+    <form method="POST" action="/club/chat" class="chat-form" id="chatForm">
+      <input type="text" name="content" id="chatInput" placeholder="Nachricht…" required autocomplete="off">
+      <button class="btn-send" type="submit">↑</button>
+    </form>
+    <div class="chat-status" id="chatStatus"></div>
+  </div>
+
+</div>
+
+<script>
+// Scroll chat to bottom on load
+const chatBox = document.getElementById('chatBox');
+chatBox.scrollTop = chatBox.scrollHeight;
+
+// Track last message ID for polling
+let lastId = 0;
+const msgs = chatBox.querySelectorAll('.chat-msg[data-id]');
+if (msgs.length) lastId = parseInt(msgs[msgs.length-1].dataset.id) || 0;
+
+const memberName = '<%= memberName.replace(/'/g, "\\'") %>';
+
+function renderMsg(m) {
+  const mine = m.author === memberName;
+  const time = new Date(m.created_at).toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+  const div = document.createElement('div');
+  div.className = 'chat-msg' + (mine ? ' mine' : '');
+  div.dataset.id = m.id;
+  div.innerHTML = `<div class="chat-bubble">${m.content.replace(/</g,'&lt;')}</div><div class="chat-meta">${mine?'Du':m.author} · ${time}</div>`;
+  return div;
+}
+
+async function pollChat() {
+  try {
+    const res = await fetch('/club/chat/poll?after=' + lastId);
+    const data = await res.json();
+    if (data.length > 0) {
+      const wasAtBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 40;
+      data.forEach(m => {
+        chatBox.appendChild(renderMsg(m));
+        lastId = Math.max(lastId, m.id);
+      });
+      if (wasAtBottom) chatBox.scrollTop = chatBox.scrollHeight;
+      document.getElementById('chatStatus').textContent = 'Zuletzt aktualisiert: ' + new Date().toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+    }
+  } catch(e) {}
+}
+
+// Send chat via AJAX to avoid full page reload
+document.getElementById('chatForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('chatInput');
+  const content = input.value.trim();
+  if (!content) return;
+  input.value = '';
+  try {
+    await fetch('/club/chat', { method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: 'content=' + encodeURIComponent(content) });
+    await pollChat();
+  } catch(e) {}
+});
+
+setInterval(pollChat, 10000);
+</script>
+</body>
+</html>

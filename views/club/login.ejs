@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Club-Login – RC Birkfeld</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Public+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0A0A0A;color:#fff;font-family:'Public Sans',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+  .box{background:#141414;border:1px solid #222;border-radius:10px;padding:40px 36px;width:100%;max-width:400px;}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+  .brand-name{font-family:'Big Shoulders Display',sans-serif;font-size:1.2rem;font-weight:900;color:#4CAF50;letter-spacing:0.04em;}
+  h1{font-size:1.5rem;font-weight:700;margin-bottom:6px;}
+  .sub{color:#666;font-size:0.88rem;margin-bottom:28px;}
+  label{display:block;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;color:#666;font-weight:700;margin-bottom:5px;}
+  input{width:100%;background:#0A0A0A;border:1px solid #2a2a2a;color:#fff;padding:10px 13px;border-radius:5px;font-size:0.95rem;margin-bottom:18px;font-family:inherit;}
+  input:focus{outline:2px solid #4CAF50;border-color:#4CAF50;}
+  .btn{width:100%;background:#1F7A34;color:#fff;border:none;padding:12px;border-radius:5px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn:hover{background:#145C27;}
+  .error{background:rgba(229,57,53,0.12);border:1px solid rgba(229,57,53,0.3);color:#ff6b6b;padding:10px 14px;border-radius:5px;margin-bottom:18px;font-size:0.88rem;}
+  .hint{margin-top:18px;font-size:0.8rem;color:#444;text-align:center;}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="brand">
+    <svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#1F7A34"/><path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    <span class="brand-name">RC BIRKFELD</span>
+  </div>
+  <h1>Mitglieder-Bereich</h1>
+  <p class="sub">Nur für Club-Mitglieder</p>
+  <% if (error) { %><div class="error"><%= error %></div><% } %>
+  <form method="POST" action="/club/login">
+    <label>Dein Name</label>
+    <input type="text" name="name" placeholder="z.B. Simon Friesenbichler" required autocomplete="name">
+    <label>Club-Code</label>
+    <input type="password" name="pin" placeholder="Club-Code" required autocomplete="current-password">
+    <button class="btn" type="submit">Einloggen →</button>
+  </form>
+  <p class="hint">Den Club-Code bekommst du vom Obmann.</p>
+</div>
+</body>
+</html>
