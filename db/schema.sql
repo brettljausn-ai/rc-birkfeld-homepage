@@ -131,6 +131,9 @@ INSERT IGNORE INTO gallery (id, filename, caption, sort_order) VALUES
 
 DELETE FROM gallery WHERE filename IN ('foto-5.jpg', 'foto-6.jpg');
 
+ALTER TABLE club_posts MODIFY COLUMN image_url MEDIUMTEXT NULL;
+ALTER TABLE news MODIFY COLUMN image_url MEDIUMTEXT NULL;
+
 CREATE TABLE IF NOT EXISTS club_oauth (
   id INT AUTO_INCREMENT PRIMARY KEY,
   provider VARCHAR(20) NOT NULL,
