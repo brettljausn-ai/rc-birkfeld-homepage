@@ -60,6 +60,22 @@ router.get('/api/strava', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.get('/api/strava-events', async (req, res, next) => {
+  try {
+    const data = await getStravaData();
+    const now = new Date();
+    const events = data.events.flatMap(ev =>
+      (ev.upcoming_occurrences || []).map(dt => ({
+        title: ev.title,
+        date: new Date(dt),
+        location: ev.address || null,
+        detail_url: `https://www.strava.com/clubs/${CLUB_ID}/group_events/${ev.id}`,
+      }))
+    ).filter(ev => ev.date >= now).sort((a, b) => a.date - b.date).slice(0, 5);
+    res.json(events);
+  } catch (err) { next(err); }
+});
+
 /* ── OTHER PAGES ── */
 
 router.get('/bericht/:id', async (req, res, next) => {

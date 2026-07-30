@@ -376,12 +376,31 @@ fetch('/api/news').then(function(r){return r.json();}).then(function(items){
   }).join('');
 }).catch(function(){});
 
-fetch('/api/strava').then(function(r){return r.json();}).then(function(s){
+Promise.all([
+  fetch('/api/strava').then(function(r){return r.json();}),
+  fetch('/api/strava-events').then(function(r){return r.json();}).catch(function(){return [];})
+]).then(function(res){
+  var s = res[0], events = res[1]||[];
   var card = document.getElementById('stravaCard');
   if(!s){card.closest('section').style.display='none';return;}
+  var evHtml = '';
+  if(events.length){
+    evHtml = '<div class="strava-events"><div class="strava-events-label">Kommende Gruppenfahrten</div>'+
+      events.map(function(ev){
+        var d = new Date(ev.date);
+        var dateStr = d.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit'});
+        var timeStr = d.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+        return '<div class="strava-event-row">'+
+          '<span class="strava-event-date">'+dateStr+'<br><small style="color:#888;">'+timeStr+'</small></span>'+
+          '<div class="strava-event-info"><strong>'+escH(ev.title)+'</strong>'+(ev.location?'<span>'+escH(ev.location)+'</span>':'')+'</div>'+
+          '<a href="'+escH(ev.detail_url)+'" target="_blank" rel="noopener" class="strava-event-link">Details →</a>'+
+          '</div>';
+      }).join('')+'</div>';
+  }
   card.innerHTML =
     '<div class="strava-card-main"><span class="strava-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M13.5 2L6 15h4.5L9 22l7.5-13H12l1.5-7z" fill="var(--chalk)"/></svg></span><div><h3>'+escH(s.name||'RC ASVÖ Birkfeld')+'</h3><span class="strava-sub">Radsport-Club auf Strava</span></div></div>'+
     '<div class="strava-stats"><div class="strava-stat"><span class="num">'+escH(s.member_count||0)+'</span><span class="lbl">Mitglieder auf Strava</span></div><div class="strava-stat"><span class="num">'+(s.activity_types?s.activity_types.length:8)+'</span><span class="lbl">Disziplinen im Club</span></div></div>'+
+    evHtml+
     '<div class="strava-tags"><span>Rennrad</span><span>Gravel</span><span>Mountainbike</span><span>E-Bike</span><span>E-MTB</span><span>Handbike</span><span>Velomobil</span><span>Rolle / Virtual</span></div>'+
     '<a href="https://www.strava.com/clubs/300701" target="_blank" rel="noopener" class="btn btn-outline-dark">Club auf Strava ansehen →</a>';
 }).catch(function(){document.getElementById('stravaCard').closest('section').style.display='none';});
