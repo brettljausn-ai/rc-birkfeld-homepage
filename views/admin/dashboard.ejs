@@ -448,12 +448,16 @@
     </form>
   </div>
 
-  <div class="section-divider">Fotos (<%= gallery.length %>)</div>
-  <div class="gallery-admin-grid">
+  <div class="section-divider">Fotos (<%= gallery.length %>) – Reihenfolge per Drag & Drop</div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+    <button class="btn-save" id="btn-save-order" type="button">Reihenfolge speichern</button>
+    <span id="order-status" style="display:none;font-size:0.82rem;color:#1F7A34;">Gespeichert ✓</span>
+  </div>
+  <div id="sortable-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
     <% gallery.forEach(g => { %>
-    <div class="gallery-admin-tile">
-      <img src="/images/galerie/<%= g.filename %>" alt="">
-      <div class="tile-body">
+    <div class="gallery-tile" draggable="true" data-id="<%= g.id %>" style="background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);cursor:grab;border:2px solid transparent;">
+      <img src="/images/galerie/<%= g.filename %>" alt="" style="width:100%;height:90px;object-fit:cover;display:block;pointer-events:none;">
+      <div style="padding:8px;">
         <form method="POST" action="/admin/gallery/<%= g.id %>/caption" style="margin-bottom:8px;">
           <div class="field"><label>Beschriftung</label><input name="caption" value="<%= g.caption||'' %>" placeholder="Kein Text"></div>
           <button class="btn-save" type="submit" style="padding:5px 10px;font-size:0.78rem;">Speichern</button>
