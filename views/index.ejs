@@ -83,8 +83,8 @@
   <section id="verein">
     <div class="wrap">
       <div class="section-head fade-in">
-        <span class="kicker">Wer wir sind</span>
-        <h2>Ein Dorfverein mit Renn&shy;lizenz.</h2>
+        <span class="kicker"><%= content.verein_kicker||'Wer wir sind' %></span>
+        <h2><%= content.verein_title||'Ein Dorfverein mit Rennlizenz.' %></h2>
         <p><%= content.verein_text||'Der RC ASVÖ Birkfeld ist Treffpunkt für Hobbyfahrer:innen und Rennsportler:innen aus dem Joglland.' %></p>
       </div>
     </div>
@@ -94,9 +94,9 @@
   <section id="galerie" style="background:var(--gravel-dark);">
     <div class="wrap">
       <div class="section-head fade-in">
-        <span class="kicker">Eindrücke</span>
-        <h2>Unterwegs im Joglland.</h2>
-        <p>Bilder aus Ausfahrten, Rennen und dem Vereinsleben.</p>
+        <span class="kicker"><%= content.galerie_kicker||'Eindrücke' %></span>
+        <h2><%= content.galerie_title||'Unterwegs im Joglland.' %></h2>
+        <p><%= content.galerie_desc||'Bilder aus Ausfahrten, Rennen und dem Vereinsleben.' %></p>
       </div>
       <div class="gallery-grid" id="galerieGrid">
         <div class="gallery-item skel"></div>
@@ -111,65 +111,38 @@
   <section id="angebote" style="background:var(--gravel-dark);">
     <div class="wrap">
       <div class="section-head fade-in">
-        <span class="kicker">Angebote</span>
-        <h2>Drei Wege aufs Rad.</h2>
-        <p>Egal ob erste Kurbelumdrehung oder nächster Startplatz – wähle, was zu dir passt.</p>
+        <span class="kicker"><%= content.angebote_kicker||'Angebote' %></span>
+        <h2><%= content.angebote_title||'Drei Wege aufs Rad.' %></h2>
+        <p><%= content.angebote_desc||'Egal ob erste Kurbelumdrehung oder nächster Startplatz – wähle, was zu dir passt.' %></p>
       </div>
       <div class="tabs" role="tablist">
-        <button class="tab-btn active" role="tab" aria-selected="true" data-tab="jugend">Kids &amp; Jugend</button>
-        <button class="tab-btn" role="tab" aria-selected="false" data-tab="hobby">Hobby &amp; Einsteiger</button>
-        <button class="tab-btn" role="tab" aria-selected="false" data-tab="renn">Rennsport</button>
+        <button class="tab-btn active" role="tab" aria-selected="true" data-tab="jugend"><%= content.angebote_tab1_label||'Kids & Jugend' %></button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="hobby"><%= content.angebote_tab2_label||'Hobby & Einsteiger' %></button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="renn"><%= content.angebote_tab3_label||'Rennsport' %></button>
       </div>
+      <%
+        var _tabs=[
+          {id:'jugend',n:1,dfltImg:'/images/galerie/foto-4.jpg'},
+          {id:'hobby', n:2,dfltImg:''},
+          {id:'renn',  n:3,dfltImg:'/images/galerie/foto-1.jpg'}
+        ];
+      %>
       <div class="tab-panels">
-        <div class="tab-panel active" data-panel="jugend">
+      <% _tabs.forEach(function(_t){ var _n=_t.n;
+         var _list=(content['angebote_tab'+_n+'_list']||'').split('\n').filter(function(s){return s.trim();});
+         var _img=content['angebote_tab'+_n+'_img']||_t.dfltImg; %>
+        <div class="tab-panel <%= _t.id==='jugend'?'active':'' %>" data-panel="<%= _t.id %>">
           <div>
-            <h3>Kids &amp; Jugend</h3>
-            <p>Technikschulungen, Bike-Kontrolle und erste Rennerfahrung – betreut von ausgebildeten Guides, im Tempo der Kinder.</p>
-            <ul>
-              <li>Technikschulung für Einsteiger:innen ab 8 Jahren</li>
-              <li>Betreutes Jugendteam der Klassen U13 bis Junioren</li>
-              <li>Begleitung bei ersten Bewerben ohne Leistungsdruck</li>
-              <li>Eigene Trainingsgruppe, getrennt vom Erwachsenentempo</li>
-            </ul>
+            <h3><%= content['angebote_tab'+_n+'_title']||'' %></h3>
+            <p><%= content['angebote_tab'+_n+'_desc']||'' %></p>
+            <ul><% _list.forEach(function(item){ %><li><%= item.trim() %></li><% }); %></ul>
           </div>
           <div class="tab-visual">
-            <img src="/images/galerie/foto-4.jpg" alt="Kids & Jugend beim RC Birkfeld">
-            <div class="overlay"></div>
-            <span class="tag">nächster Schnuppertermin: auf Anfrage</span>
+            <% if(_img){ %><img src="<%= _img %>" alt="<%= content['angebote_tab'+_n+'_title']||'' %>"><div class="overlay"></div><% } %>
+            <span class="tag"><%= content['angebote_tab'+_n+'_tag']||'' %></span>
           </div>
         </div>
-        <div class="tab-panel" data-panel="hobby">
-          <div>
-            <h3>Hobby &amp; Einsteiger</h3>
-            <p>Die Samstagsausfahrt ist unser Herzstück: mehrere Tempogruppen, damit niemand abgehängt wird – Anschluss finden ist hier die einzige Voraussetzung.</p>
-            <ul>
-              <li>Gemeinsame Ausfahrt jeden Samstag, 13:00 Uhr ab Friesis Bikery</li>
-              <li>Mehrere Gruppen nach Tempo, für Renn­rad und MTB</li>
-              <li>Anmeldung über die Club-WhatsApp-Gruppe</li>
-              <li>Clubdressen zu Mitgliederkonditionen</li>
-            </ul>
-          </div>
-          <div class="tab-visual">
-            <span class="tag">Treffpunkt: Friesis Bikery, Edelseestraße 27</span>
-          </div>
-        </div>
-        <div class="tab-panel" data-panel="renn">
-          <div>
-            <h3>Rennsport</h3>
-            <p>Vom Laurentibergrennen vor der Haustür bis zum Ötztaler Radmarathon – wer Startnummern sammelt, ist bei uns im Kalender gut aufgehoben.</p>
-            <ul>
-              <li>Jahreslizenz des ÖTRV über den Verein</li>
-              <li>Frühjahrs-Trainingslager, jährlich in Kroatien</li>
-              <li>Struk­turiertes Renn­programm über die Saison</li>
-              <li>Startgemeinschaften bei Marathons und Meisterschaften</li>
-            </ul>
-          </div>
-          <div class="tab-visual">
-            <img src="/images/galerie/foto-1.jpg" alt="Trainingslager Porec">
-            <div class="overlay"></div>
-            <span class="tag">Trainingslager 2026: April, Porec/Kroatien</span>
-          </div>
-        </div>
+      <% }); %>
       </div>
     </div>
   </section>
@@ -178,8 +151,8 @@
   <section id="termine">
     <div class="wrap">
       <div class="section-head fade-in">
-        <span class="kicker">Termine</span>
-        <h2>Was als Nächstes ansteht.</h2>
+        <span class="kicker"><%= content.termine_kicker||'Termine' %></span>
+        <h2><%= content.termine_title||'Was als Nächstes ansteht.' %></h2>
       </div>
       <div class="events" id="termineList">
         <div class="event-row"><span class="skel" style="height:48px;width:60px;"></span><div style="flex:1;padding:0 24px;"><span class="skel" style="height:18px;width:55%;margin-bottom:8px;"></span><span class="skel" style="height:13px;width:35%;"></span></div><span class="skel" style="height:24px;width:90px;border-radius:12px;"></span></div>
@@ -193,9 +166,9 @@
   <section id="ergebnisse" style="background:var(--gravel-dark);">
     <div class="wrap">
       <div class="section-head fade-in">
-        <span class="kicker">Ergebnisse</span>
-        <h2>Zuletzt am Podest.</h2>
-        <p>Das komplette Archiv seit 2016 gibt's unter Ergebnisse &amp; Berichte – hier nur das Frischeste.</p>
+        <span class="kicker"><%= content.ergebnisse_kicker||'Ergebnisse' %></span>
+        <h2><%= content.ergebnisse_title||'Zuletzt am Podest.' %></h2>
+        <p><%= content.ergebnisse_desc||'Das komplette Archiv seit 2016 gibt\'s unter Ergebnisse & Berichte – hier nur das Frischeste.' %></p>
       </div>
       <div class="results-grid">
         <div class="result-card"><div class="rk"><%= content.result_1_rank||'01' %></div><h4><%= content.result_1_title||'' %></h4><p><%= content.result_1_desc||'' %></p><span class="time"><%= content.result_1_meta||'' %></span></div>
@@ -209,9 +182,9 @@
   <section id="berichte">
     <div class="wrap">
       <div class="section-head fade-in">
-        <span class="kicker">News &amp; Berichte</span>
-        <h2>Was zuletzt passiert ist.</h2>
-        <p>Rennberichte, Vereinsnachrichten und Rückblicke aus dem Vereinsleben.</p>
+        <span class="kicker"><%= content.berichte_kicker||'News & Berichte' %></span>
+        <h2><%= content.berichte_title||'Was zuletzt passiert ist.' %></h2>
+        <p><%= content.berichte_desc||'Rennberichte, Vereinsnachrichten und Rückblicke aus dem Vereinsleben.' %></p>
       </div>
       <div class="news-grid" id="newsGrid">
         <% for (var _si=0;_si<3;_si++) { %>
@@ -235,8 +208,8 @@
   <section id="strava">
     <div class="wrap">
       <div class="section-head fade-in">
-        <span class="kicker">Live von Strava</span>
-        <h2>Unser Club, auf der Straße.</h2>
+        <span class="kicker"><%= content.strava_kicker||'Live von Strava' %></span>
+        <h2><%= content.strava_title||'Unser Club, auf der Straße.' %></h2>
       </div>
       <div class="strava-card" id="stravaCard">
         <div class="strava-card-main">
@@ -281,18 +254,15 @@
   <section id="mitglied" class="join">
     <div class="wrap">
       <div class="section-head fade-in">
-        <span class="kicker">Community</span>
-        <h2>Join the Club.</h2>
-        <p>Ein Formular, keine Wartezeit – wir melden uns innerhalb weniger Tage mit den nächsten Schritten.</p>
+        <span class="kicker"><%= content.join_kicker||'Community' %></span>
+        <h2><%= content.join_title||'Join the Club.' %></h2>
+        <p><%= content.join_intro||'Ein Formular, keine Wartezeit – wir melden uns innerhalb weniger Tage mit den nächsten Schritten.' %></p>
       </div>
       <div class="join-grid">
         <div class="join-info">
           <h3 style="font-size:1.4rem;">Was dabei ist</h3>
           <ul>
-            <li>Organisierte Ausfahrten – Rennrad und MTB</li>
-            <li>Clubdressen zu Mitgliederpreisen</li>
-            <li>Technikschulungen für Nachwuchsfahrer:innen</li>
-            <li>Jahreslizenz des ÖTRV</li>
+            <% (content.join_list||'Organisierte Ausfahrten – Rennrad und MTB\nClubdressen zu Mitgliederpreisen\nTechnikschulungen für Nachwuchsfahrer:innen\nJahreslizenz des ÖTRV').split('\n').filter(function(s){return s.trim();}).forEach(function(item){ %><li><%= item.trim() %></li><% }); %>
           </ul>
         </div>
         <form id="joinForm" novalidate>

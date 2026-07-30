@@ -133,6 +133,40 @@ DELETE FROM gallery WHERE filename IN ('foto-5.jpg', 'foto-6.jpg');
 
 ALTER TABLE club_posts MODIFY COLUMN image_url MEDIUMTEXT NULL;
 ALTER TABLE news MODIFY COLUMN image_url MEDIUMTEXT NULL;
+ALTER TABLE site_content MODIFY COLUMN value MEDIUMTEXT NOT NULL;
+
+INSERT IGNORE INTO site_content (`key`, value) VALUES
+  ('nav_label_verein','Verein'),('nav_label_angebote','Angebote'),
+  ('nav_label_galerie','Galerie'),('nav_label_termine','Termine'),
+  ('nav_label_berichte','Berichte'),('nav_label_ergebnisse','Ergebnisse'),
+  ('nav_label_strava','Strava'),('nav_label_kontakt','Kontakt'),
+  ('nav_label_mitglieder','Mitgliederbereich'),
+  ('verein_kicker','Wer wir sind'),('verein_title','Ein Dorfverein mit Rennlizenz.'),
+  ('galerie_kicker','Eindrücke'),('galerie_title','Unterwegs im Joglland.'),
+  ('galerie_desc','Bilder aus Ausfahrten, Rennen und dem Vereinsleben.'),
+  ('angebote_kicker','Angebote'),('angebote_title','Drei Wege aufs Rad.'),
+  ('angebote_desc','Egal ob erste Kurbelumdrehung oder nächster Startplatz – wähle, was zu dir passt.'),
+  ('angebote_tab1_label','Kids & Jugend'),('angebote_tab1_title','Kids & Jugend'),
+  ('angebote_tab1_desc','Technikschulungen, Bike-Kontrolle und erste Rennerfahrung – betreut von ausgebildeten Guides, im Tempo der Kinder.'),
+  ('angebote_tab1_list','Technikschulung für Einsteiger:innen ab 8 Jahren\nBetreutes Jugendteam der Klassen U13 bis Junioren\nBegleitung bei ersten Bewerben ohne Leistungsdruck\nEigene Trainingsgruppe, getrennt vom Erwachsenentempo'),
+  ('angebote_tab1_tag','nächster Schnuppertermin: auf Anfrage'),('angebote_tab1_img',''),
+  ('angebote_tab2_label','Hobby & Einsteiger'),('angebote_tab2_title','Hobby & Einsteiger'),
+  ('angebote_tab2_desc','Die Samstagsausfahrt ist unser Herzstück: mehrere Tempogruppen, damit niemand abgehängt wird – Anschluss finden ist hier die einzige Voraussetzung.'),
+  ('angebote_tab2_list','Gemeinsame Ausfahrt jeden Samstag, 13:00 Uhr ab Friesis Bikery\nMehrere Gruppen nach Tempo, für Rennrad und MTB\nAnmeldung über die Club-WhatsApp-Gruppe\nClubdressen zu Mitgliederkonditionen'),
+  ('angebote_tab2_tag','Treffpunkt: Friesis Bikery, Edelseestraße 27'),('angebote_tab2_img',''),
+  ('angebote_tab3_label','Rennsport'),('angebote_tab3_title','Rennsport'),
+  ('angebote_tab3_desc','Vom Laurentibergrennen vor der Haustür bis zum Ötztaler Radmarathon – wer Startnummern sammelt, ist bei uns im Kalender gut aufgehoben.'),
+  ('angebote_tab3_list','Jahreslizenz des ÖTRV über den Verein\nFrühjahrs-Trainingslager, jährlich in Kroatien\nStrukturiertes Rennprogramm über die Saison\nStartgemeinschaften bei Marathons und Meisterschaften'),
+  ('angebote_tab3_tag','Trainingslager 2026: April, Porec/Kroatien'),('angebote_tab3_img',''),
+  ('termine_kicker','Termine'),('termine_title','Was als Nächstes ansteht.'),
+  ('ergebnisse_kicker','Ergebnisse'),('ergebnisse_title','Zuletzt am Podest.'),
+  ('ergebnisse_desc','Das komplette Archiv seit 2016 gibt\'s unter Ergebnisse & Berichte – hier nur das Frischeste.'),
+  ('berichte_kicker','News & Berichte'),('berichte_title','Was zuletzt passiert ist.'),
+  ('berichte_desc','Rennberichte, Vereinsnachrichten und Rückblicke aus dem Vereinsleben.'),
+  ('strava_kicker','Live von Strava'),('strava_title','Unser Club, auf der Straße.'),
+  ('join_kicker','Community'),('join_title','Join the Club.'),
+  ('join_intro','Ein Formular, keine Wartezeit – wir melden uns innerhalb weniger Tage mit den nächsten Schritten.'),
+  ('join_list','Organisierte Ausfahrten – Rennrad und MTB\nClubdressen zu Mitgliederpreisen\nTechnikschulungen für Nachwuchsfahrer:innen\nJahreslizenz des ÖTRV');
 
 CREATE TABLE IF NOT EXISTS club_oauth (
   id INT AUTO_INCREMENT PRIMARY KEY,

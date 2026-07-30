@@ -277,10 +277,22 @@ const CONTENT_KEYS = new Set([
   'hero_eyebrow','hero_title_line1','hero_title_line2','hero_lead',
   'stats_1_num','stats_1_lbl','stats_2_num','stats_2_lbl',
   'stats_3_num','stats_3_lbl','stats_4_num','stats_4_lbl',
-  'verein_text',
+  'verein_text','verein_kicker','verein_title',
   'result_1_rank','result_1_title','result_1_desc','result_1_meta',
   'result_2_rank','result_2_title','result_2_desc','result_2_meta',
   'result_3_rank','result_3_title','result_3_desc','result_3_meta',
+  'nav_label_verein','nav_label_angebote','nav_label_galerie','nav_label_termine',
+  'nav_label_berichte','nav_label_ergebnisse','nav_label_strava','nav_label_kontakt','nav_label_mitglieder',
+  'galerie_kicker','galerie_title','galerie_desc',
+  'angebote_kicker','angebote_title','angebote_desc',
+  'angebote_tab1_label','angebote_tab1_title','angebote_tab1_desc','angebote_tab1_list','angebote_tab1_tag','angebote_tab1_img',
+  'angebote_tab2_label','angebote_tab2_title','angebote_tab2_desc','angebote_tab2_list','angebote_tab2_tag','angebote_tab2_img',
+  'angebote_tab3_label','angebote_tab3_title','angebote_tab3_desc','angebote_tab3_list','angebote_tab3_tag','angebote_tab3_img',
+  'termine_kicker','termine_title',
+  'ergebnisse_kicker','ergebnisse_title','ergebnisse_desc',
+  'berichte_kicker','berichte_title','berichte_desc',
+  'strava_kicker','strava_title',
+  'join_kicker','join_title','join_intro','join_list',
 ]);
 
 router.post('/page/content', requireAuth, async (req, res, next) => {

@@ -5,12 +5,13 @@
         <img src="/images/rcbirkfeld-logo.png" alt="RC Birkfeld Logo" width="36" height="36">
         <span>RC BIRKFELD</span>
       </a>
+      <% var _nc = (typeof content !== 'undefined' ? content : {}); %>
       <ul class="navlinks" id="navlinks">
-        <li><a href="/#verein">Verein</a></li>
-        <li><a href="/#angebote">Angebote</a></li>
-        <li><a href="/#galerie">Galerie</a></li>
+        <li><a href="/#verein"><%= _nc.nav_label_verein||'Verein' %></a></li>
+        <li><a href="/#angebote"><%= _nc.nav_label_angebote||'Angebote' %></a></li>
+        <li><a href="/#galerie"><%= _nc.nav_label_galerie||'Galerie' %></a></li>
         <li class="has-dropdown">
-          <a href="/#termine">Termine
+          <a href="/#termine"><%= _nc.nav_label_termine||'Termine' %>
             <svg class="dropdown-arrow" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
           <div class="dropdown">
@@ -24,11 +25,11 @@
             <a href="/#termine" class="dd-all">Alle Termine ansehen →</a>
           </div>
         </li>
-        <li><a href="/#berichte">Berichte</a></li>
-        <li><a href="/#ergebnisse">Ergebnisse</a></li>
-        <li><a href="/#strava">Strava</a></li>
-        <li><a href="/#kontakt">Kontakt</a></li>
-        <li><a href="/club" style="color:#4CAF50;font-weight:700;">Mitgliederbereich</a></li>
+        <li><a href="/#berichte"><%= _nc.nav_label_berichte||'Berichte' %></a></li>
+        <li><a href="/#ergebnisse"><%= _nc.nav_label_ergebnisse||'Ergebnisse' %></a></li>
+        <li><a href="/#strava"><%= _nc.nav_label_strava||'Strava' %></a></li>
+        <li><a href="/#kontakt"><%= _nc.nav_label_kontakt||'Kontakt' %></a></li>
+        <li><a href="/club" style="color:#4CAF50;font-weight:700;"><%= _nc.nav_label_mitglieder||'Mitgliederbereich' %></a></li>
       </ul>
       <a href="/#mitglied" class="nav-cta">Join the Club</a>
       <button class="burger" id="burgerBtn" aria-label="Menü öffnen" aria-expanded="false">

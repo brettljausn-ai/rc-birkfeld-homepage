@@ -80,12 +80,14 @@ router.get('/api/strava-events', async (req, res, next) => {
 
 router.get('/bericht/:id', async (req, res, next) => {
   try {
-    const [[rows], [dbTermine]] = await Promise.all([
+    const [[rows], [dbTermine], [contentRows]] = await Promise.all([
       pool.query('SELECT * FROM news WHERE id = ?', [req.params.id]),
       pool.query('SELECT * FROM termine WHERE date >= CURDATE() ORDER BY date ASC'),
+      pool.query('SELECT `key`, value FROM site_content'),
     ]);
     if (!rows.length) return res.status(404).render('404', { title: 'Nicht gefunden', termine: [] });
-    res.render('bericht', { bericht: rows[0], termine: dbTermine, title: rows[0].title });
+    const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
+    res.render('bericht', { bericht: rows[0], termine: dbTermine, title: rows[0].title, content });
   } catch (err) { next(err); }
 });
 

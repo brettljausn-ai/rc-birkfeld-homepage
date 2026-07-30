@@ -101,8 +101,28 @@
 <!-- ══ HAUPTSEITE ══ -->
 <div id="panel-page" class="panel <%= activeTab==='page'?'active':'' %>">
 
+  <div class="section-divider">Navigation</div>
   <div class="card">
-    <h2>Hero</h2>
+    <h2>Menü-Links</h2>
+    <form method="POST" action="/admin/page/content">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px;">
+        <div class="field"><label>Verein</label><input name="nav_label_verein" value="<%= content.nav_label_verein||'Verein' %>"></div>
+        <div class="field"><label>Angebote</label><input name="nav_label_angebote" value="<%= content.nav_label_angebote||'Angebote' %>"></div>
+        <div class="field"><label>Galerie</label><input name="nav_label_galerie" value="<%= content.nav_label_galerie||'Galerie' %>"></div>
+        <div class="field"><label>Termine</label><input name="nav_label_termine" value="<%= content.nav_label_termine||'Termine' %>"></div>
+        <div class="field"><label>Berichte</label><input name="nav_label_berichte" value="<%= content.nav_label_berichte||'Berichte' %>"></div>
+        <div class="field"><label>Ergebnisse</label><input name="nav_label_ergebnisse" value="<%= content.nav_label_ergebnisse||'Ergebnisse' %>"></div>
+        <div class="field"><label>Strava</label><input name="nav_label_strava" value="<%= content.nav_label_strava||'Strava' %>"></div>
+        <div class="field"><label>Kontakt</label><input name="nav_label_kontakt" value="<%= content.nav_label_kontakt||'Kontakt' %>"></div>
+        <div class="field"><label>Mitgliederbereich</label><input name="nav_label_mitglieder" value="<%= content.nav_label_mitglieder||'Mitgliederbereich' %>"></div>
+      </div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+  </div>
+
+  <div class="section-divider">Hero</div>
+  <div class="card">
+    <h2>Hero-Text</h2>
     <form method="POST" action="/admin/page/content">
       <div class="field"><label>Eyebrow</label><input name="hero_eyebrow" value="<%= content.hero_eyebrow||'' %>"></div>
       <div class="form-row">
@@ -114,8 +134,9 @@
     </form>
   </div>
 
+  <div class="section-divider">Stats-Leiste</div>
   <div class="card">
-    <h2>Kennzahlen (Stats)</h2>
+    <h2>Kennzahlen</h2>
     <form method="POST" action="/admin/page/content">
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
         <% for(let i=1;i<=4;i++) { %>
@@ -129,10 +150,97 @@
     </form>
   </div>
 
+  <div class="section-divider">Verein – "Wer wir sind"</div>
   <div class="card">
-    <h2>Verein – Beschreibungstext</h2>
+    <h2>Verein</h2>
     <form method="POST" action="/admin/page/content">
-      <div class="field"><textarea name="verein_text" style="min-height:100px;"><%= content.verein_text||'' %></textarea></div>
+      <div class="form-row">
+        <div class="field"><label>Kicker</label><input name="verein_kicker" value="<%= content.verein_kicker||'Wer wir sind' %>"></div>
+        <div class="field"><label>Titel (H2)</label><input name="verein_title" value="<%= content.verein_title||'Ein Dorfverein mit Rennlizenz.' %>"></div>
+      </div>
+      <div class="field"><label>Beschreibungstext</label><textarea name="verein_text" style="min-height:80px;"><%= content.verein_text||'' %></textarea></div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+  </div>
+
+  <div class="section-divider">Galerie – "Eindrücke"</div>
+  <div class="card">
+    <h2>Galerie-Bereich</h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="form-row">
+        <div class="field"><label>Kicker</label><input name="galerie_kicker" value="<%= content.galerie_kicker||'Eindrücke' %>"></div>
+        <div class="field"><label>Titel (H2)</label><input name="galerie_title" value="<%= content.galerie_title||'Unterwegs im Joglland.' %>"></div>
+      </div>
+      <div class="field"><label>Beschreibung</label><textarea name="galerie_desc"><%= content.galerie_desc||'' %></textarea></div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+    <p style="font-size:0.82rem;color:#888;margin-top:10px;">Fotos und Reihenfolge → Tab <strong>Galerie</strong></p>
+  </div>
+
+  <div class="section-divider">Angebote – "Drei Wege aufs Rad"</div>
+  <div class="card">
+    <h2>Angebote – Abschnitt</h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="form-row">
+        <div class="field"><label>Kicker</label><input name="angebote_kicker" value="<%= content.angebote_kicker||'Angebote' %>"></div>
+        <div class="field"><label>Titel (H2)</label><input name="angebote_title" value="<%= content.angebote_title||'Drei Wege aufs Rad.' %>"></div>
+      </div>
+      <div class="field"><label>Einleitung</label><textarea name="angebote_desc"><%= content.angebote_desc||'' %></textarea></div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+  </div>
+
+  <% [['tab1','Kids & Jugend'],['tab2','Hobby & Einsteiger'],['tab3','Rennsport']].forEach(function(t,idx){ var tid=t[0]; var tlbl=t[1]; %>
+  <div class="card">
+    <h2>Angebote – Tab <%= idx+1 %>: <em><%= content['angebote_'+tid+'_label']||tlbl %></em></h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="form-row">
+        <div class="field"><label>Tab-Label</label><input name="angebote_<%= tid %>_label" value="<%= content['angebote_'+tid+'_label']||tlbl %>"></div>
+        <div class="field"><label>Titel (H3)</label><input name="angebote_<%= tid %>_title" value="<%= content['angebote_'+tid+'_title']||tlbl %>"></div>
+      </div>
+      <div class="field"><label>Beschreibung</label><textarea name="angebote_<%= tid %>_desc"><%= content['angebote_'+tid+'_desc']||'' %></textarea></div>
+      <div class="field"><label>Stichpunkte <span style="font-weight:400;color:#bbb;">(eine Zeile = ein Punkt)</span></label><textarea name="angebote_<%= tid %>_list" style="min-height:100px;"><%= content['angebote_'+tid+'_list']||'' %></textarea></div>
+      <div class="field"><label>Tag-Text</label><input name="angebote_<%= tid %>_tag" value="<%= content['angebote_'+tid+'_tag']||'' %>"></div>
+      <div class="field">
+        <label>Bild</label>
+        <div class="news-drop" id="drop-<%= tid %>" data-target="angebote_<%= tid %>_img">
+          <input type="file" accept="image/*">
+          ↑ Bild hier ablegen oder klicken
+          <div class="news-drop-preview" <% if(content['angebote_'+tid+'_img']&&content['angebote_'+tid+'_img'].startsWith('data:')){%>style="display:block;"<%}%>>
+            <img src="<%= content['angebote_'+tid+'_img']||'' %>" alt="">
+            <button class="news-drop-remove" type="button">×</button>
+          </div>
+          <div class="news-upload-status"></div>
+        </div>
+        <input type="hidden" name="angebote_<%= tid %>_img" id="angebote_<%= tid %>_img" value="<%= content['angebote_'+tid+'_img']||'' %>">
+      </div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+  </div>
+  <% }); %>
+
+  <div class="section-divider">Termine</div>
+  <div class="card">
+    <h2>Termine – Abschnitt</h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="form-row">
+        <div class="field"><label>Kicker</label><input name="termine_kicker" value="<%= content.termine_kicker||'Termine' %>"></div>
+        <div class="field"><label>Titel (H2)</label><input name="termine_title" value="<%= content.termine_title||'Was als Nächstes ansteht.' %>"></div>
+      </div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+    <p style="font-size:0.82rem;color:#888;margin-top:10px;">Termine selbst → Tab <strong>Termine</strong></p>
+  </div>
+
+  <div class="section-divider">Ergebnisse – "Zuletzt am Podest"</div>
+  <div class="card">
+    <h2>Ergebnisse – Abschnitt</h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="form-row">
+        <div class="field"><label>Kicker</label><input name="ergebnisse_kicker" value="<%= content.ergebnisse_kicker||'Ergebnisse' %>"></div>
+        <div class="field"><label>Titel (H2)</label><input name="ergebnisse_title" value="<%= content.ergebnisse_title||'Zuletzt am Podest.' %>"></div>
+      </div>
+      <div class="field"><label>Beschreibung</label><textarea name="ergebnisse_desc"><%= content.ergebnisse_desc||'' %></textarea></div>
       <button class="btn-save" type="submit">Speichern</button>
     </form>
   </div>
@@ -154,21 +262,46 @@
     </form>
   </div>
 
+  <div class="section-divider">Berichte – "News & Berichte"</div>
   <div class="card">
-    <h2>Galerie – Reihenfolge</h2>
-    <p style="font-size:0.84rem;color:#666;margin-bottom:14px;">Ziehen zum Sortieren, dann speichern.</p>
-    <div id="sortable-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:14px;">
-      <% gallery.forEach(g => { %>
-      <div class="gallery-tile" data-id="<%= g.id %>" draggable="true"
-           style="background:#fff;border:2px solid #eee;border-radius:6px;cursor:grab;overflow:hidden;transition:border-color .15s,opacity .15s;">
-        <img src="/images/galerie/<%= g.filename %>" style="width:100%;height:90px;object-fit:cover;pointer-events:none;">
-        <div style="padding:6px 8px;font-size:0.75rem;color:#555;display:flex;align-items:center;gap:5px;"><span style="color:#ccc;">☰</span><%= g.caption||g.filename %></div>
+    <h2>Berichte – Abschnitt</h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="form-row">
+        <div class="field"><label>Kicker</label><input name="berichte_kicker" value="<%= content.berichte_kicker||'News & Berichte' %>"></div>
+        <div class="field"><label>Titel (H2)</label><input name="berichte_title" value="<%= content.berichte_title||'Was zuletzt passiert ist.' %>"></div>
       </div>
-      <% }); %>
-    </div>
-    <button class="btn-save" id="btn-save-order">Reihenfolge speichern</button>
-    <span id="order-status" style="margin-left:10px;font-size:0.84rem;color:#1F7A34;display:none;">✓ Gespeichert</span>
+      <div class="field"><label>Beschreibung</label><textarea name="berichte_desc"><%= content.berichte_desc||'' %></textarea></div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+    <p style="font-size:0.82rem;color:#888;margin-top:10px;">Artikel → Tab <strong>Berichte</strong></p>
   </div>
+
+  <div class="section-divider">Strava</div>
+  <div class="card">
+    <h2>Strava – Abschnitt</h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="form-row">
+        <div class="field"><label>Kicker</label><input name="strava_kicker" value="<%= content.strava_kicker||'Live von Strava' %>"></div>
+        <div class="field"><label>Titel (H2)</label><input name="strava_title" value="<%= content.strava_title||'Unser Club, auf der Straße.' %>"></div>
+      </div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+  </div>
+
+  <div class="section-divider">Mitglied werden – "Join the Club"</div>
+  <div class="card">
+    <h2>Join the Club</h2>
+    <form method="POST" action="/admin/page/content">
+      <div class="form-row">
+        <div class="field"><label>Kicker</label><input name="join_kicker" value="<%= content.join_kicker||'Community' %>"></div>
+        <div class="field"><label>Titel (H2)</label><input name="join_title" value="<%= content.join_title||'Join the Club.' %>"></div>
+      </div>
+      <div class="field"><label>Einleitung</label><textarea name="join_intro"><%= content.join_intro||'' %></textarea></div>
+      <div class="field"><label>Vorteile <span style="font-weight:400;color:#bbb;">(eine Zeile = ein Punkt)</span></label><textarea name="join_list" style="min-height:100px;"><%= content.join_list||'' %></textarea></div>
+      <button class="btn-save" type="submit">Speichern</button>
+    </form>
+  </div>
+
 </div>
 
 <!-- ══ BERICHTE ══ -->
