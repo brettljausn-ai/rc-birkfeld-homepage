@@ -5,42 +5,62 @@ const { getStravaData } = require('../lib/strava');
 
 const CLUB_ID = '300701';
 
+/* ── MAIN PAGE (shell only – data loads via API) ── */
 router.get('/', async (req, res, next) => {
   try {
-    const [[gallery], [news], [dbTermine], stravaData, [contentRows], [sponsors]] = await Promise.all([
-      pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
-      pool.query('SELECT * FROM news ORDER BY published_at DESC LIMIT 3'),
-      pool.query('SELECT * FROM termine WHERE date >= CURDATE() ORDER BY date ASC'),
-      getStravaData(),
+    const [[contentRows], [termine], [sponsors]] = await Promise.all([
       pool.query('SELECT `key`, value FROM site_content'),
+      pool.query('SELECT * FROM termine WHERE date >= CURDATE() ORDER BY date ASC LIMIT 6'),
       pool.query('SELECT * FROM sponsors ORDER BY sort_order ASC'),
     ]);
-
     const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
-    const strava = stravaData.club;
+    res.render('index', { content, termine, sponsors });
+  } catch (err) { next(err); }
+});
 
-    // Flatten Strava group events into termine-like objects
+/* ── PUBLIC API ── */
+
+router.get('/api/news', async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT id, title, content, image_url, published_at FROM news ORDER BY published_at DESC LIMIT 3');
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+router.get('/api/termine', async (req, res, next) => {
+  try {
+    const [[rows], stravaData] = await Promise.all([
+      pool.query('SELECT * FROM termine WHERE date >= CURDATE() ORDER BY date ASC'),
+      getStravaData(),
+    ]);
     const now = new Date();
     const stravaTermine = stravaData.events.flatMap(ev =>
       (ev.upcoming_occurrences || []).map(dt => ({
-        title: ev.title,
-        date: new Date(dt),
-        location: ev.address || null,
-        description: ev.description || null,
+        title: ev.title, date: new Date(dt), location: ev.address || null,
         detail_url: `https://www.strava.com/clubs/${CLUB_ID}/group_events/${ev.id}`,
-        tag: 'Strava',
-        isStrava: true,
+        tag: 'Strava', isStrava: true,
       }))
     ).filter(ev => ev.date >= now);
-
-    // Merge and sort by date
-    const termine = [...dbTermine, ...stravaTermine].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    res.render('index', { gallery, news, termine, strava, content, sponsors });
-  } catch (err) {
-    next(err);
-  }
+    const termine = [...rows, ...stravaTermine].sort((a, b) => new Date(a.date) - new Date(b.date));
+    res.json(termine);
+  } catch (err) { next(err); }
 });
+
+router.get('/api/galerie', async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT filename, caption FROM gallery ORDER BY sort_order ASC');
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+router.get('/api/strava', async (req, res, next) => {
+  try {
+    const data = await getStravaData();
+    res.json(data.club || null);
+  } catch (err) { next(err); }
+});
+
+/* ── OTHER PAGES ── */
 
 router.get('/bericht/:id', async (req, res, next) => {
   try {

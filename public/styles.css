@@ -288,3 +288,13 @@ footer a:hover{color:var(--chalk);}
 a.sponsor-tile:hover{background:rgba(255,255,255,0.13);border-color:rgba(255,255,255,0.18);}
 .sponsor-tile img{width:140px;height:64px;object-fit:contain;opacity:.85;transition:opacity .2s;}
 a.sponsor-tile:hover img{opacity:1;}
+
+/* Skeleton loading */
+@keyframes skel-shine { to { background-position: -200% center; } }
+.skel {
+  background: linear-gradient(90deg, #dde5de 25%, #eaf0ea 50%, #dde5de 75%);
+  background-size: 200% auto;
+  animation: skel-shine 1.5s linear infinite;
+  border-radius: 4px;
+  display: block;
+}

@@ -31,6 +31,7 @@
   .compose-bottom{display:flex;align-items:center;gap:10px;border-top:1px solid #1e1e1e;padding-top:12px;}
   .btn-post{background:#1F7A34;color:#fff;border:none;padding:8px 20px;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
   .btn-post:hover{background:#145C27;}
+  @keyframes skel-shine{to{background-position:-200% center;}}
   .drop-zone{border:2px dashed #2a2a2a;border-radius:8px;padding:18px;text-align:center;color:#444;font-size:0.8rem;cursor:pointer;transition:border-color .15s,color .15s;margin-top:0;}
   .drop-zone.over{border-color:#4CAF50;color:#4CAF50;}
   .drop-zone input[type=file]{display:none;}
@@ -54,7 +55,7 @@
 <%- include('_nav') %>
 <div class="feed-wrap">
 
-  <form method="POST" action="/club/post" class="compose">
+  <form id="composeForm" class="compose">
     <div class="compose-top">
       <div class="avatar" style="background:<%= avatarColor(memberName) %>;"><%= initials(memberName) %></div>
       <textarea name="content" placeholder="Was gibt's Neues?" required></textarea>
@@ -75,34 +76,47 @@
     </div>
   </form>
 
-  <% if (posts.length === 0) { %>
-  <div class="empty">Noch keine Beiträge. Sei der Erste! 🚴</div>
-  <% } else { posts.forEach(function(p) {
-    var ts = new Date(p.created_at);
-    var diffMin = Math.floor((Date.now() - ts) / 60000);
-    var relTime = diffMin < 1 ? 'Gerade eben' : diffMin < 60 ? ('vor ' + diffMin + ' Min') : diffMin < 1440 ? ('vor ' + Math.floor(diffMin/60) + ' Std') : ts.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
-  %>
-  <div class="post-card">
-    <div class="post-header">
-      <div class="avatar" style="background:<%= avatarColor(p.author) %>;"><%= initials(p.author) %></div>
-      <div>
-        <div class="post-author"><%= p.author %></div>
-        <div class="post-time"><%= relTime %></div>
+  <div id="feedPosts">
+    <% for (var _si=0;_si<3;_si++) { %>
+    <div class="post-card">
+      <div class="post-header">
+        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(90deg,#1e1e1e 25%,#2a2a2a 50%,#1e1e1e 75%);background-size:200% auto;animation:skel-shine 1.5s linear infinite;flex-shrink:0;"></div>
+        <div style="flex:1;margin-left:10px;display:flex;flex-direction:column;gap:6px;">
+          <span style="height:14px;width:40%;background:linear-gradient(90deg,#1e1e1e 25%,#2a2a2a 50%,#1e1e1e 75%);background-size:200% auto;animation:skel-shine 1.5s linear infinite;border-radius:4px;display:block;"></span>
+          <span style="height:11px;width:25%;background:linear-gradient(90deg,#1e1e1e 25%,#2a2a2a 50%,#1e1e1e 75%);background-size:200% auto;animation:skel-shine 1.5s linear infinite;border-radius:4px;display:block;"></span>
+        </div>
       </div>
-    </div>
-    <% if (p.content) { %><div class="post-body"><%= p.content %></div><% } %>
-    <% if (p.image_url) { %><img class="post-img" src="<%= p.image_url %>" alt="" loading="lazy" onerror="this.style.display='none'"><% } %>
-    <% if (p.author === memberName) { %>
-    <div class="post-footer">
-      <form method="POST" action="/club/post/<%= p.id %>/delete" onsubmit="return confirm('Beitrag löschen?')">
-        <button class="btn-del" type="submit">Löschen</button>
-      </form>
+      <div class="post-body" style="display:flex;flex-direction:column;gap:6px;">
+        <span style="height:14px;width:90%;background:linear-gradient(90deg,#1e1e1e 25%,#2a2a2a 50%,#1e1e1e 75%);background-size:200% auto;animation:skel-shine 1.5s linear infinite;border-radius:4px;display:block;"></span>
+        <span style="height:14px;width:75%;background:linear-gradient(90deg,#1e1e1e 25%,#2a2a2a 50%,#1e1e1e 75%);background-size:200% auto;animation:skel-shine 1.5s linear infinite;border-radius:4px;display:block;"></span>
+      </div>
     </div>
     <% } %>
   </div>
-  <% }); } %>
 </div>
 <script>
+var MEMBER = '<%= memberName.replace(/\\/g,"\\\\").replace(/'/g,"\\'") %>';
+var COLORS = ['#1F7A34','#1565C0','#7B1FA2','#E65100','#00838F','#C62828'];
+function aColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))&0xFFFF;return COLORS[h%COLORS.length];}
+function aInit(n){return n.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2);}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function loadFeed() {
+  fetch('/club/api/feed').then(function(r){return r.json();}).then(function(posts){
+    var el = document.getElementById('feedPosts');
+    if(!posts.length){el.innerHTML='<div class="empty">Noch keine Beiträge. Sei der Erste!</div>';return;}
+    el.innerHTML = posts.map(function(p){
+      var ts = new Date(p.created_at);
+      var diff = Math.floor((Date.now()-ts)/60000);
+      var rel = diff<1?'Gerade eben':diff<60?('vor '+diff+' Min'):diff<1440?('vor '+Math.floor(diff/60)+' Std'):ts.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+      var del = p.author===MEMBER ? '<div class="post-footer"><form method="POST" action="/club/post/'+p.id+'/delete" onsubmit="return confirm(\'Beitrag löschen?\')"><button class="btn-del" type="submit">Löschen</button></form></div>' : '';
+      var img = p.image_url ? '<img class="post-img" src="'+escH(p.image_url)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '';
+      return '<div class="post-card"><div class="post-header"><div class="avatar" style="background:'+aColor(p.author)+';">'+aInit(p.author)+'</div><div><div class="post-author">'+escH(p.author)+'</div><div class="post-time">'+rel+'</div></div></div>'+(p.content?'<div class="post-body">'+escH(p.content)+'</div>':'')+img+del+'</div>';
+    }).join('');
+  }).catch(function(){});
+}
+loadFeed();
+
 var dropZone = document.getElementById('dropZone');
 var fileInput = document.getElementById('fileInput');
 var previewImg = document.getElementById('previewImg');
@@ -161,6 +175,24 @@ function handleFile(file) {
       postBtn.disabled = false;
     });
 }
+
+document.getElementById('composeForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var content = this.querySelector('textarea[name=content]').value.trim();
+  if (!content) return;
+  var imageUrl = imageUrlField.value;
+  postBtn.disabled = true;
+  fetch('/club/post', {method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'content='+encodeURIComponent(content)+'&image_url='+encodeURIComponent(imageUrl)})
+    .then(function() {
+      document.querySelector('textarea[name=content]').value = '';
+      imageUrlField.value = '';
+      dropPreview.style.display = 'none';
+      uploadStatus.textContent = '';
+      fileInput.value = '';
+      postBtn.disabled = false;
+      loadFeed();
+    }).catch(function() { postBtn.disabled = false; });
+});
 </script>
 </body>
 </html>

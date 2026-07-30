@@ -130,20 +130,24 @@ async function handleOAuthProfile(req, res, next, profile) {
 }
 
 /* ── FEED ── */
-router.get('/', requireMember, async (req, res, next) => {
+router.get('/api/feed', requireMember, async (req, res, next) => {
   try {
     const [rows] = await pool.query('SELECT * FROM club_posts ORDER BY created_at DESC LIMIT 50');
-    res.render('club/feed', { ...helpers, memberName: req.session.memberName, posts: rows, page: 'feed' });
+    res.json(rows);
   } catch (err) { next(err); }
+});
+
+router.get('/', requireMember, (req, res) => {
+  res.render('club/feed', { ...helpers, memberName: req.session.memberName, page: 'feed' });
 });
 
 router.post('/post', requireMember, async (req, res, next) => {
   const content = (req.body.content || '').trim();
-  if (!content) return res.redirect('/club');
+  if (!content) return res.json({ ok: false });
   try {
     await pool.query('INSERT INTO club_posts (author, content, image_url) VALUES (?,?,?)',
       [req.session.memberName, content, req.body.image_url || null]);
-    res.redirect('/club');
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 
