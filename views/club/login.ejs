@@ -15,29 +15,18 @@
   h1{font-size:1.5rem;font-weight:700;margin-bottom:6px;}
   .sub{color:#666;font-size:0.88rem;margin-bottom:24px;}
   .error{background:rgba(229,57,53,0.12);border:1px solid rgba(229,57,53,0.3);color:#ff6b6b;padding:10px 14px;border-radius:6px;margin-bottom:18px;font-size:0.88rem;}
-  /* SSO */
-  .btn-sso{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;border-radius:6px;font-size:0.92rem;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid #2a2a2a;margin-bottom:10px;transition:border-color .15s,background .15s;color:#fff;background:#1a1a1a;}
+  .btn-sso{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:6px;font-size:0.92rem;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid #2a2a2a;margin-bottom:10px;transition:border-color .15s,background .15s;color:#fff;background:#1a1a1a;}
   .btn-google:hover{background:#1e1e1e;border-color:#4285F4;}
-  /* divider */
   .divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:#333;font-size:0.78rem;}
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:#222;}
-  /* email form */
   label{display:block;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;color:#555;font-weight:700;margin-bottom:5px;}
-  input[type=email],input[type=password]{width:100%;background:#0A0A0A;border:1px solid #2a2a2a;color:#fff;padding:10px 13px;border-radius:6px;font-size:0.92rem;margin-bottom:14px;font-family:inherit;}
+  input{width:100%;background:#0A0A0A;border:1px solid #2a2a2a;color:#fff;padding:10px 13px;border-radius:6px;font-size:0.92rem;margin-bottom:14px;font-family:inherit;}
   input:focus{outline:2px solid #4CAF50;border-color:#4CAF50;}
   .btn-main{width:100%;background:#1F7A34;color:#fff;border:none;padding:12px;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;}
   .btn-main:hover{background:#145C27;}
-  .register-link{display:block;text-align:center;margin-top:14px;font-size:0.85rem;color:#555;}
-  .register-link a{color:#4CAF50;text-decoration:none;font-weight:600;}
-  .register-link a:hover{text-decoration:underline;}
-  /* Club-Code fallback */
-  .pin-toggle{display:block;text-align:center;margin-top:24px;font-size:0.78rem;color:#333;cursor:pointer;text-decoration:underline;}
-  .pin-toggle:hover{color:#555;}
-  .pin-section{display:none;margin-top:16px;padding-top:16px;border-top:1px solid #1e1e1e;}
-  .pin-section.open{display:block;}
-  .pin-section input[type=text]{width:100%;background:#0A0A0A;border:1px solid #2a2a2a;color:#fff;padding:10px 13px;border-radius:6px;font-size:0.92rem;margin-bottom:14px;font-family:inherit;}
-  .btn-pin{width:100%;background:#222;color:#aaa;border:1px solid #2a2a2a;padding:10px;border-radius:6px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;}
-  .btn-pin:hover{background:#2a2a2a;color:#fff;}
+  .bottom-links{display:flex;justify-content:center;margin-top:16px;font-size:0.85rem;color:#555;}
+  .bottom-links a{color:#4CAF50;text-decoration:none;font-weight:600;}
+  .bottom-links a:hover{text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -66,17 +55,8 @@
     <button class="btn-main" type="submit">Anmelden →</button>
   </form>
 
-  <p class="register-link">Noch kein Konto? <a href="/club/register">Jetzt registrieren →</a></p>
-
-  <a class="pin-toggle" onclick="document.getElementById('pinSection').classList.toggle('open')">Mit Club-Code anmelden</a>
-  <div class="pin-section" id="pinSection">
-    <form method="POST" action="/club/login">
-      <label>Name</label>
-      <input type="text" name="name" placeholder="Dein Name" required>
-      <label>Club-Code</label>
-      <input type="password" name="pin" placeholder="Club-Code" required>
-      <button class="btn-pin" type="submit">Einloggen</button>
-    </form>
+  <div class="bottom-links">
+    Noch kein Konto?&nbsp;<a href="/club/register">Jetzt registrieren →</a>
   </div>
 </div>
 </body>
