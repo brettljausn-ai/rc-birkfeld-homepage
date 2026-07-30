@@ -55,17 +55,19 @@ router.get('/logout', (req, res) => {
 
 router.get('/', requireAuth, async (req, res, next) => {
   try {
-    const [[news], [termine], [gallery], [members], [contentRows], [sponsors]] = await Promise.all([
+    const [[news], [termine], [gallery], [members], [contentRows], [sponsors], [clubOauth], [clubMembersAuth]] = await Promise.all([
       pool.query('SELECT * FROM news ORDER BY published_at DESC'),
       pool.query('SELECT * FROM termine ORDER BY date ASC'),
       pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
       pool.query('SELECT * FROM members ORDER BY created_at DESC LIMIT 50'),
       pool.query('SELECT `key`, value FROM site_content'),
       pool.query('SELECT * FROM sponsors ORDER BY sort_order ASC'),
+      pool.query('SELECT * FROM club_oauth ORDER BY created_at DESC'),
+      pool.query('SELECT id, name, email, created_at FROM club_members_auth ORDER BY created_at DESC'),
     ]);
     const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
     res.render('admin/dashboard', {
-      news, termine, gallery, members, content, sponsors,
+      news, termine, gallery, members, content, sponsors, clubOauth, clubMembersAuth,
       flash: req.query.msg || null,
       activeTab: req.query.tab || 'news',
     });
@@ -199,6 +201,20 @@ router.post('/members/:id/delete', requireAuth, async (req, res, next) => {
   try {
     await pool.query('DELETE FROM members WHERE id=?', [req.params.id]);
     res.redirect('/admin?msg=Eintrag+gelöscht&tab=members');
+  } catch (err) { next(err); }
+});
+
+router.post('/club-members/oauth/:id/delete', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM club_oauth WHERE id=?', [req.params.id]);
+    res.redirect('/admin?msg=Mitglied+gelöscht&tab=clubmembers');
+  } catch (err) { next(err); }
+});
+
+router.post('/club-members/email/:id/delete', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM club_members_auth WHERE id=?', [req.params.id]);
+    res.redirect('/admin?msg=Mitglied+gelöscht&tab=clubmembers');
   } catch (err) { next(err); }
 });
 

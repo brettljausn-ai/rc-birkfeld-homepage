@@ -89,8 +89,9 @@
   <button class="tab <%= activeTab==='news'?'active':'' %>"     onclick="showTab('news',this)">Berichte</button>
   <button class="tab <%= activeTab==='termine'?'active':'' %>"  onclick="showTab('termine',this)">Termine</button>
   <button class="tab <%= activeTab==='gallery'?'active':'' %>"  onclick="showTab('gallery',this)">Galerie</button>
-  <button class="tab <%= activeTab==='members'?'active':'' %>"  onclick="showTab('members',this)">Beitritte</button>
-  <button class="tab <%= activeTab==='sponsors'?'active':'' %>" onclick="showTab('sponsors',this)">Sponsoren</button>
+  <button class="tab <%= activeTab==='members'?'active':'' %>"      onclick="showTab('members',this)">Beitritte</button>
+  <button class="tab <%= activeTab==='clubmembers'?'active':'' %>" onclick="showTab('clubmembers',this)">Mitglieder</button>
+  <button class="tab <%= activeTab==='sponsors'?'active':'' %>"     onclick="showTab('sponsors',this)">Sponsoren</button>
 </div>
 
 <% if (flash) { %>
@@ -362,6 +363,50 @@
     </tr>
     <% }); %>
     <% if(members.length===0){%><tr><td colspan="6" style="color:#999;text-align:center;padding:20px;">Noch keine Beitrittsanfragen.</td></tr><%}%>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ MITGLIEDER ══ -->
+<div id="panel-clubmembers" class="panel <%= activeTab==='clubmembers'?'active':'' %>">
+  <div class="section-divider">E-Mail-Registrierung (<%= clubMembersAuth.length %>)</div>
+  <table>
+    <thead><tr><th>Beitritt</th><th>Name</th><th>E-Mail</th><th></th></tr></thead>
+    <tbody>
+    <% clubMembersAuth.forEach(m => { %>
+    <tr>
+      <td style="white-space:nowrap;"><%= new Date(m.created_at).toLocaleDateString('de-AT') %></td>
+      <td><strong><%= m.name %></strong></td>
+      <td><a href="mailto:<%= m.email %>"><%= m.email %></a></td>
+      <td>
+        <form method="POST" action="/admin/club-members/email/<%= m.id %>/delete" onsubmit="return confirm('Mitglied löschen?')">
+          <button class="btn-del">Löschen</button>
+        </form>
+      </td>
+    </tr>
+    <% }); %>
+    <% if(clubMembersAuth.length===0){%><tr><td colspan="4" style="color:#999;text-align:center;padding:20px;">Keine E-Mail-Mitglieder.</td></tr><%}%>
+    </tbody>
+  </table>
+
+  <div class="section-divider" style="margin-top:28px;">Google-Anmeldung (<%= clubOauth.length %>)</div>
+  <table>
+    <thead><tr><th>Beitritt</th><th>Name</th><th>E-Mail</th><th>Anbieter</th><th></th></tr></thead>
+    <tbody>
+    <% clubOauth.forEach(m => { %>
+    <tr>
+      <td style="white-space:nowrap;"><%= new Date(m.created_at).toLocaleDateString('de-AT') %></td>
+      <td><strong><%= m.member_name %></strong></td>
+      <td><% if(m.email){ %><a href="mailto:<%= m.email %>"><%= m.email %></a><% } else { %>–<% } %></td>
+      <td><span class="badge badge-new" style="text-transform:capitalize;"><%= m.provider %></span></td>
+      <td>
+        <form method="POST" action="/admin/club-members/oauth/<%= m.id %>/delete" onsubmit="return confirm('Mitglied löschen?')">
+          <button class="btn-del">Löschen</button>
+        </form>
+      </td>
+    </tr>
+    <% }); %>
+    <% if(clubOauth.length===0){%><tr><td colspan="5" style="color:#999;text-align:center;padding:20px;">Keine Google-Mitglieder.</td></tr><%}%>
     </tbody>
   </table>
 </div>
