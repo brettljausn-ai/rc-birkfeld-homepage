@@ -11,7 +11,7 @@
 
     <% if (bericht.image_url) { %>
     <div style="border-radius:12px;overflow:hidden;margin-bottom:36px;max-height:440px;">
-      <img src="<%= bericht.image_url %>" alt="<%= bericht.title %>" style="width:100%;height:100%;object-fit:cover;display:block;">
+      <img src="<%= bericht.image_url %>" alt="<%= bericht.title %>" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentNode.style.display='none'">
     </div>
     <% } %>
 

@@ -371,7 +371,7 @@ fetch('/api/news').then(function(r){return r.json();}).then(function(items){
   el.innerHTML = items.map(function(n){
     var date = new Date(n.published_at).toLocaleDateString('de-AT',{month:'long',year:'numeric'});
     var preview = n.content.length>160 ? n.content.substring(0,160)+'…' : n.content;
-    var img = n.image_url ? '<img src="'+escH(n.image_url)+'" alt="'+escH(n.title)+'">' : '<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><path d="M10,60 L28,30 L44,48 L56,24 L70,60 Z" fill="white" opacity="0.25"/><path d="M10,60 L28,30 L44,48 L56,24 L70,60" stroke="white" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>';
+    var img = n.image_url ? '<img src="'+escH(n.image_url)+'" alt="'+escH(n.title)+'" onerror="this.style.display=\'none\'">' : '<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><path d="M10,60 L28,30 L44,48 L56,24 L70,60 Z" fill="white" opacity="0.25"/><path d="M10,60 L28,30 L44,48 L56,24 L70,60" stroke="white" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>';
     return '<div class="news-card"><div class="news-card-img">'+img+'</div><div class="news-card-body"><span class="news-date">'+date+'</span><h4>'+escH(n.title)+'</h4><p>'+escH(preview)+'</p><a href="/bericht/'+n.id+'" class="news-read-more">Bericht lesen →</a></div></div>';
   }).join('');
 }).catch(function(){});
