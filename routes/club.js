@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const multer = require('multer');
 const passport = require('../lib/passport');
+const bcrypt = require('bcryptjs');
 const { pool } = require('../lib/db');
 
 const uploadFeed = multer({
@@ -60,6 +61,46 @@ router.post('/login', (req, res) => {
 router.get('/logout', (req, res) => {
   delete req.session.memberName;
   res.redirect('/club/login');
+});
+
+/* ── REGISTER / EMAIL LOGIN ── */
+router.get('/register', (req, res) => {
+  if (req.session.memberName) return res.redirect('/club');
+  res.render('club/register', { error: null });
+});
+
+router.post('/register', async (req, res, next) => {
+  const name  = (req.body.name  || '').trim();
+  const email = (req.body.email || '').trim().toLowerCase();
+  const pass  = req.body.password || '';
+  const pass2 = req.body.password2 || '';
+  if (name.length < 2 || !email.includes('@') || pass.length < 6) {
+    return res.render('club/register', { error: 'Bitte alle Felder korrekt ausfüllen (Passwort mind. 6 Zeichen).' });
+  }
+  if (pass !== pass2) {
+    return res.render('club/register', { error: 'Passwörter stimmen nicht überein.' });
+  }
+  try {
+    const [existing] = await pool.query('SELECT id FROM club_members_auth WHERE email=?', [email]);
+    if (existing.length) return res.render('club/register', { error: 'Diese E-Mail ist bereits registriert.' });
+    const hash = await bcrypt.hash(pass, 10);
+    await pool.query('INSERT INTO club_members_auth (name, email, password_hash) VALUES (?,?,?)', [name, email, hash]);
+    req.session.memberName = name;
+    res.redirect('/club');
+  } catch (err) { next(err); }
+});
+
+router.post('/login/email', async (req, res, next) => {
+  const email = (req.body.email || '').trim().toLowerCase();
+  const pass  = req.body.password || '';
+  try {
+    const [rows] = await pool.query('SELECT * FROM club_members_auth WHERE email=?', [email]);
+    if (!rows.length || !(await bcrypt.compare(pass, rows[0].password_hash))) {
+      return res.render('club/login', { error: 'E-Mail oder Passwort falsch.', googleEnabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET), facebookEnabled: false });
+    }
+    req.session.memberName = rows[0].name;
+    res.redirect('/club');
+  } catch (err) { next(err); }
 });
 
 /* ── OAUTH ── */

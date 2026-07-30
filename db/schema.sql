@@ -140,3 +140,12 @@ CREATE TABLE IF NOT EXISTS club_oauth (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_provider (provider, provider_id)
 );
+
+CREATE TABLE IF NOT EXISTS club_members_auth (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(200) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_email (email)
+);

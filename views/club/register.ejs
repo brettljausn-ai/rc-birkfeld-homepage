@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Registrieren – RC Birkfeld Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Public+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0A0A0A;color:#fff;font-family:'Public Sans',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+  .box{background:#141414;border:1px solid #222;border-radius:12px;padding:40px 36px;width:100%;max-width:400px;}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+  .brand-name{font-family:'Big Shoulders Display',sans-serif;font-size:1.2rem;font-weight:900;color:#4CAF50;letter-spacing:0.04em;}
+  h1{font-size:1.5rem;font-weight:700;margin-bottom:6px;}
+  .sub{color:#666;font-size:0.88rem;margin-bottom:24px;}
+  .error{background:rgba(229,57,53,0.12);border:1px solid rgba(229,57,53,0.3);color:#ff6b6b;padding:10px 14px;border-radius:6px;margin-bottom:18px;font-size:0.88rem;}
+  label{display:block;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;color:#555;font-weight:700;margin-bottom:5px;}
+  input{width:100%;background:#0A0A0A;border:1px solid #2a2a2a;color:#fff;padding:10px 13px;border-radius:6px;font-size:0.92rem;margin-bottom:14px;font-family:inherit;}
+  input:focus{outline:2px solid #4CAF50;border-color:#4CAF50;}
+  .btn-main{width:100%;background:#1F7A34;color:#fff;border:none;padding:12px;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn-main:hover{background:#145C27;}
+  .login-link{display:block;text-align:center;margin-top:14px;font-size:0.85rem;color:#555;}
+  .login-link a{color:#4CAF50;text-decoration:none;font-weight:600;}
+  .login-link a:hover{text-decoration:underline;}
+  .hint{margin-top:6px;font-size:0.75rem;color:#333;}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="brand">
+    <svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#1F7A34"/><path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    <span class="brand-name">RC BIRKFELD</span>
+  </div>
+  <h1>Konto erstellen</h1>
+  <p class="sub">Kostenlos und ohne Club-Code.</p>
+  <% if (error) { %><div class="error"><%= error %></div><% } %>
+
+  <form method="POST" action="/club/register">
+    <label>Dein Name</label>
+    <input type="text" name="name" placeholder="z.B. Simon Friesenbichler" required autocomplete="name">
+    <label>E-Mail</label>
+    <input type="email" name="email" placeholder="deine@email.com" required autocomplete="email">
+    <label>Passwort</label>
+    <input type="password" name="password" placeholder="Mind. 6 Zeichen" required autocomplete="new-password">
+    <p class="hint">Mindestens 6 Zeichen</p>
+    <label style="margin-top:10px;">Passwort wiederholen</label>
+    <input type="password" name="password2" placeholder="••••••••" required autocomplete="new-password">
+    <button class="btn-main" type="submit">Konto erstellen →</button>
+  </form>
+
+  <p class="login-link">Bereits ein Konto? <a href="/club/login">Anmelden →</a></p>
+</div>
+</body>
+</html>
