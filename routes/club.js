@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const multer = require('multer');
+const passport = require('../lib/passport');
 const { pool } = require('../lib/db');
 
 const uploadFeed = multer({
@@ -36,15 +37,21 @@ router.post('/upload-image', requireMember, uploadFeed.single('image'), (req, re
   res.json({ url: '/images/feed/' + newName });
 });
 
+/* ── LOGIN / LOGOUT ── */
 router.get('/login', (req, res) => {
-  res.render('club/login', { error: null });
+  const errorMap = { google: 'Google-Anmeldung fehlgeschlagen.', facebook: 'Facebook-Anmeldung fehlgeschlagen.' };
+  res.render('club/login', {
+    error: errorMap[req.query.error] || null,
+    googleEnabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+    facebookEnabled: !!(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET),
+  });
 });
 
 router.post('/login', (req, res) => {
   const name = (req.body.name || '').trim();
-  if (name.length < 2) return res.render('club/login', { error: 'Bitte deinen Namen eingeben.' });
+  if (name.length < 2) return res.render('club/login', { error: 'Bitte deinen Namen eingeben.', googleEnabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET), facebookEnabled: !!(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) });
   if (req.body.pin !== (process.env.CLUB_PIN || 'birkfeld')) {
-    return res.render('club/login', { error: 'Falscher Club-Code.' });
+    return res.render('club/login', { error: 'Falscher Club-Code.', googleEnabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET), facebookEnabled: !!(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) });
   }
   req.session.memberName = name;
   res.redirect('/club');
@@ -53,6 +60,76 @@ router.post('/login', (req, res) => {
 router.get('/logout', (req, res) => {
   delete req.session.memberName;
   res.redirect('/club/login');
+});
+
+/* ── OAUTH ── */
+router.get('/auth/google', (req, res, next) => {
+  if (!process.env.GOOGLE_CLIENT_ID) return res.redirect('/club/login?error=google');
+  passport.authenticate('google', { session: false, scope: ['profile', 'email'] })(req, res, next);
+});
+
+router.get('/auth/google/callback', (req, res, next) => {
+  passport.authenticate('google', { session: false, failureRedirect: '/club/login?error=google' }, (err, profile) => {
+    if (err || !profile) return res.redirect('/club/login?error=google');
+    handleOAuthProfile(req, res, next, profile);
+  })(req, res, next);
+});
+
+router.get('/auth/facebook', (req, res, next) => {
+  if (!process.env.FACEBOOK_APP_ID) return res.redirect('/club/login?error=facebook');
+  passport.authenticate('facebook', { session: false, scope: ['email'] })(req, res, next);
+});
+
+router.get('/auth/facebook/callback', (req, res, next) => {
+  passport.authenticate('facebook', { session: false, failureRedirect: '/club/login?error=facebook' }, (err, profile) => {
+    if (err || !profile) return res.redirect('/club/login?error=facebook');
+    handleOAuthProfile(req, res, next, profile);
+  })(req, res, next);
+});
+
+async function handleOAuthProfile(req, res, next, profile) {
+  try {
+    const provider = profile.provider;
+    const providerId = String(profile.id);
+    const name = profile.displayName || (profile.emails && profile.emails[0].value.split('@')[0]) || 'Mitglied';
+    const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
+
+    const [rows] = await pool.query(
+      'SELECT member_name FROM club_oauth WHERE provider=? AND provider_id=?',
+      [provider, providerId]
+    );
+
+    if (rows.length) {
+      req.session.memberName = rows[0].member_name;
+      return res.redirect('/club');
+    }
+
+    req.session.oauthPending = { provider, providerId, name, email };
+    res.redirect('/club/auth/verify');
+  } catch (err) { next(err); }
+}
+
+router.get('/auth/verify', (req, res) => {
+  if (!req.session.oauthPending) return res.redirect('/club/login');
+  res.render('club/verify', { name: req.session.oauthPending.name, error: null });
+});
+
+router.post('/auth/verify', async (req, res, next) => {
+  if (!req.session.oauthPending) return res.redirect('/club/login');
+  const pending = req.session.oauthPending;
+  if (req.body.pin !== (process.env.CLUB_PIN || 'birkfeld')) {
+    return res.render('club/verify', { name: pending.name, error: 'Falscher Club-Code.' });
+  }
+  try {
+    const memberName = (req.body.name || '').trim() || pending.name;
+    await pool.query(
+      'INSERT IGNORE INTO club_oauth (provider, provider_id, member_name, email) VALUES (?,?,?,?)',
+      [pending.provider, pending.providerId, memberName, pending.email]
+    );
+    delete req.session.oauthPending;
+    req.session.memberName = memberName;
+    res.redirect('/club');
+  } catch (err) { next(err); }
 });
 
 /* ── FEED ── */

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const passport = require('./lib/passport');
 const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
 const { pool, callbackPool } = require('./lib/db');
@@ -23,6 +24,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 },
 }));
+app.use(passport.initialize());
 
 app.use('/', require('./routes/index'));
 app.use('/contact', require('./routes/contact'));

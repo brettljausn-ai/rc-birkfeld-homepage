@@ -130,3 +130,13 @@ INSERT IGNORE INTO gallery (id, filename, caption, sort_order) VALUES
   (4, 'foto-4.jpg', 'MTB-Trail Joglland',      4);
 
 DELETE FROM gallery WHERE filename IN ('foto-5.jpg', 'foto-6.jpg');
+
+CREATE TABLE IF NOT EXISTS club_oauth (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  provider VARCHAR(20) NOT NULL,
+  provider_id VARCHAR(200) NOT NULL,
+  member_name VARCHAR(100) NOT NULL,
+  email VARCHAR(200) NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_provider (provider, provider_id)
+);
