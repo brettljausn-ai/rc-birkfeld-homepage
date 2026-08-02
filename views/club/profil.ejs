@@ -116,8 +116,31 @@
         </div>
         <input type="hidden" name="avatar_url" id="avatarUrlField" value="<%= (profile && profile.avatar_url) || '' %>">
       </div>
+      <div class="field">
+        <label>Mein Rad <span style="font-weight:400;color:#333;">– aktuelles Foto deines Fahrrads</span></label>
+        <div class="avatar-drop" id="bikeDrop" style="border-radius:8px;">
+          <input type="file" id="bikeFile" accept="image/*">
+          ↑ Bild ablegen oder klicken
+          <div class="bike-drop-preview" id="bikePreview" <% if(profile && profile.bike_url){%>style="display:block"<%}%>>
+            <img id="bikePreviewImg" src="<%= (profile && profile.bike_url) || '' %>" alt="" style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;display:block;margin-top:10px;">
+            <button type="button" class="avatar-drop-remove" id="bikeRemove" style="top:14px;right:4px;left:auto;">×</button>
+          </div>
+          <div class="upload-status" id="bikeStatus"></div>
+        </div>
+        <input type="hidden" name="bike_url" id="bikeUrlField" value="<%= (profile && profile.bike_url) || '' %>">
+      </div>
       <button type="submit" class="btn-save">Speichern</button>
     </form>
+  </div>
+  <% } %>
+
+  <!-- ── Bike ── -->
+  <% if (profile && profile.bike_url) { %>
+  <div style="margin-bottom:28px;">
+    <div class="section-label">Mein Rad</div>
+    <div style="background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;">
+      <img src="<%= profile.bike_url %>" alt="Rad von <%= profileName %>" style="width:100%;max-height:420px;object-fit:cover;display:block;" loading="lazy" onerror="this.closest('div.section-label + div').style.display='none'">
+    </div>
   </div>
   <% } %>
 
@@ -171,54 +194,47 @@ if (bioField) {
   });
 }
 
-/* Avatar drop zone */
-var avatarDrop     = document.getElementById('avatarDrop');
-var avatarFile     = document.getElementById('avatarFile');
-var avatarPreview  = document.getElementById('avatarPreview');
-var avatarPreviewImg = document.getElementById('avatarPreviewImg');
-var avatarRemove   = document.getElementById('avatarRemove');
-var avatarUrlField = document.getElementById('avatarUrlField');
-var avatarStatus   = document.getElementById('avatarStatus');
+function initDropZone(dropId, fileId, previewId, previewImgId, removeId, hiddenId, statusId) {
+  var drop    = document.getElementById(dropId);
+  var file    = document.getElementById(fileId);
+  var preview = document.getElementById(previewId);
+  var previewImg = document.getElementById(previewImgId);
+  var remove  = document.getElementById(removeId);
+  var hidden  = document.getElementById(hiddenId);
+  var status  = document.getElementById(statusId);
+  if (!drop) return;
 
-if (avatarDrop) {
-  avatarDrop.addEventListener('click', function(e) {
-    if (e.target === avatarRemove) return;
-    avatarFile.click();
+  drop.addEventListener('click', function(e) { if (e.target !== remove) file.click(); });
+  drop.addEventListener('dragover', function(e) { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', function() { drop.classList.remove('over'); });
+  drop.addEventListener('drop', function(e) {
+    e.preventDefault(); drop.classList.remove('over');
+    if (e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]);
   });
-  avatarDrop.addEventListener('dragover', function(e) { e.preventDefault(); avatarDrop.classList.add('over'); });
-  avatarDrop.addEventListener('dragleave', function() { avatarDrop.classList.remove('over'); });
-  avatarDrop.addEventListener('drop', function(e) {
-    e.preventDefault(); avatarDrop.classList.remove('over');
-    if (e.dataTransfer.files[0]) uploadAvatar(e.dataTransfer.files[0]);
-  });
-  avatarFile.addEventListener('change', function() {
-    if (avatarFile.files[0]) uploadAvatar(avatarFile.files[0]);
-  });
-  avatarRemove.addEventListener('click', function(e) {
+  file.addEventListener('change', function() { if (file.files[0]) upload(file.files[0]); });
+  remove.addEventListener('click', function(e) {
     e.stopPropagation();
-    avatarUrlField.value = '';
-    avatarPreviewImg.src = '';
-    avatarPreview.style.display = 'none';
-    avatarFile.value = '';
-    avatarStatus.textContent = '';
+    hidden.value = ''; previewImg.src = ''; preview.style.display = 'none'; file.value = ''; status.textContent = '';
   });
 
-  function uploadAvatar(file) {
-    if (!file.type.match(/^image\//)) { avatarStatus.textContent = 'Nur Bilder erlaubt.'; return; }
-    avatarPreviewImg.src = URL.createObjectURL(file);
-    avatarPreview.style.display = 'block';
-    avatarStatus.textContent = 'Wird hochgeladen…';
-    var fd = new FormData();
-    fd.append('image', file);
+  function upload(f) {
+    if (!f.type.match(/^image\//)) { status.textContent = 'Nur Bilder erlaubt.'; return; }
+    previewImg.src = URL.createObjectURL(f);
+    preview.style.display = 'block';
+    status.textContent = 'Wird hochgeladen…';
+    var fd = new FormData(); fd.append('image', f);
     fetch('/club/upload-image', { method: 'POST', body: fd })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (data.url) { avatarUrlField.value = data.url; avatarStatus.textContent = 'Bild bereit.'; }
-        else { avatarStatus.textContent = 'Fehler beim Hochladen.'; avatarPreview.style.display = 'none'; }
+        if (data.url) { hidden.value = data.url; status.textContent = 'Bild bereit.'; }
+        else { status.textContent = 'Fehler beim Hochladen.'; preview.style.display = 'none'; }
       })
-      .catch(function() { avatarStatus.textContent = 'Fehler beim Hochladen.'; });
+      .catch(function() { status.textContent = 'Fehler beim Hochladen.'; });
   }
 }
+
+initDropZone('avatarDrop','avatarFile','avatarPreview','avatarPreviewImg','avatarRemove','avatarUrlField','avatarStatus');
+initDropZone('bikeDrop','bikeFile','bikePreview','bikePreviewImg','bikeRemove','bikeUrlField','bikeStatus');
 </script>
 </body>
 </html>

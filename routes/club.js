@@ -225,12 +225,13 @@ router.get('/profil/:name', requireMember, async (req, res, next) => {
 });
 
 router.post('/profil/edit', requireMember, async (req, res, next) => {
-  const bio = (req.body.bio || '').trim().slice(0, 300);
+  const bio        = (req.body.bio || '').trim().slice(0, 300);
   const avatar_url = req.body.avatar_url || null;
+  const bike_url   = req.body.bike_url   || null;
   try {
     await pool.query(
-      'INSERT INTO club_member_profiles (member_name, bio, avatar_url) VALUES (?,?,?) ON DUPLICATE KEY UPDATE bio=VALUES(bio), avatar_url=VALUES(avatar_url)',
-      [req.session.memberName, bio, avatar_url]
+      'INSERT INTO club_member_profiles (member_name, bio, avatar_url, bike_url) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE bio=VALUES(bio), avatar_url=VALUES(avatar_url), bike_url=VALUES(bike_url)',
+      [req.session.memberName, bio, avatar_url, bike_url]
     );
     res.redirect('/club/profil/' + encodeURIComponent(req.session.memberName));
   } catch (err) { next(err); }

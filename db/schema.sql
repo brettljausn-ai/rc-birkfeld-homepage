@@ -191,5 +191,7 @@ CREATE TABLE IF NOT EXISTS club_member_profiles (
   member_name  VARCHAR(100) PRIMARY KEY,
   bio          TEXT,
   avatar_url   MEDIUMTEXT,
+  bike_url     MEDIUMTEXT,
   updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_url MEDIUMTEXT;
