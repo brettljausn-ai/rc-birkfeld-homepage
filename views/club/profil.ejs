@@ -55,6 +55,7 @@
   .avatar-drop-preview img{width:84px;height:84px;border-radius:50%;object-fit:cover;display:block;border:2px solid #222;}
   .avatar-drop-remove{position:absolute;top:-4px;right:-4px;background:rgba(0,0,0,.8);border:1px solid #333;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:0.85rem;line-height:22px;text-align:center;padding:0;}
   .upload-status{font-size:0.73rem;color:#555;margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+  @media(max-width:480px){.bike-fields{grid-template-columns:1fr 1fr!important;}}
 
   /* posts */
   .section-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:.1em;color:#444;font-weight:700;padding-bottom:10px;border-bottom:1px solid #1a1a1a;margin-bottom:16px;}
@@ -116,8 +117,22 @@
         </div>
         <input type="hidden" name="avatar_url" id="avatarUrlField" value="<%= (profile && profile.avatar_url) || '' %>">
       </div>
+      <div class="field bike-fields" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div>
+          <label>Hersteller</label>
+          <input type="text" name="bike_brand" maxlength="100" value="<%= (profile && profile.bike_brand) || '' %>" placeholder="z.B. Trek">
+        </div>
+        <div>
+          <label>Modell</label>
+          <input type="text" name="bike_model" maxlength="100" value="<%= (profile && profile.bike_model) || '' %>" placeholder="z.B. Domane SL6">
+        </div>
+        <div>
+          <label>Größe</label>
+          <input type="text" name="bike_size" maxlength="20" value="<%= (profile && profile.bike_size) || '' %>" placeholder="z.B. 56 cm">
+        </div>
+      </div>
       <div class="field">
-        <label>Mein Rad <span style="font-weight:400;color:#333;">– aktuelles Foto deines Fahrrads</span></label>
+        <label>Mein Rad <span style="font-weight:400;color:#333;">– Foto</span></label>
         <div class="avatar-drop" id="bikeDrop" style="border-radius:8px;">
           <input type="file" id="bikeFile" accept="image/*">
           ↑ Bild ablegen oder klicken
@@ -135,11 +150,27 @@
   <% } %>
 
   <!-- ── Bike ── -->
-  <% if (profile && profile.bike_url) { %>
+  <% var _hasBike = profile && (profile.bike_url || profile.bike_brand || profile.bike_model || profile.bike_size); %>
+  <% if (_hasBike) { %>
   <div style="margin-bottom:28px;">
     <div class="section-label">Mein Rad</div>
     <div style="background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;">
-      <img src="<%= profile.bike_url %>" alt="Rad von <%= profileName %>" style="width:100%;max-height:420px;object-fit:cover;display:block;" loading="lazy" onerror="this.closest('div.section-label + div').style.display='none'">
+      <% if (profile.bike_url) { %>
+        <img src="<%= profile.bike_url %>" alt="Rad von <%= profileName %>" style="width:100%;max-height:420px;object-fit:cover;display:block;" loading="lazy" onerror="this.style.display='none'">
+      <% } %>
+      <% if (profile.bike_brand || profile.bike_model || profile.bike_size) { %>
+        <div style="padding:14px 16px;display:flex;gap:24px;flex-wrap:wrap;">
+          <% if (profile.bike_brand) { %>
+            <div><div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#444;font-weight:700;margin-bottom:3px;">Hersteller</div><div style="font-size:0.9rem;color:#ccc;"><%= profile.bike_brand %></div></div>
+          <% } %>
+          <% if (profile.bike_model) { %>
+            <div><div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#444;font-weight:700;margin-bottom:3px;">Modell</div><div style="font-size:0.9rem;color:#ccc;"><%= profile.bike_model %></div></div>
+          <% } %>
+          <% if (profile.bike_size) { %>
+            <div><div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#444;font-weight:700;margin-bottom:3px;">Größe</div><div style="font-size:0.9rem;color:#ccc;"><%= profile.bike_size %></div></div>
+          <% } %>
+        </div>
+      <% } %>
     </div>
   </div>
   <% } %>

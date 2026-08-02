@@ -228,10 +228,16 @@ router.post('/profil/edit', requireMember, async (req, res, next) => {
   const bio        = (req.body.bio || '').trim().slice(0, 300);
   const avatar_url = req.body.avatar_url || null;
   const bike_url   = req.body.bike_url   || null;
+  const bike_brand = (req.body.bike_brand || '').trim().slice(0, 100) || null;
+  const bike_model = (req.body.bike_model || '').trim().slice(0, 100) || null;
+  const bike_size  = (req.body.bike_size  || '').trim().slice(0, 20)  || null;
   try {
     await pool.query(
-      'INSERT INTO club_member_profiles (member_name, bio, avatar_url, bike_url) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE bio=VALUES(bio), avatar_url=VALUES(avatar_url), bike_url=VALUES(bike_url)',
-      [req.session.memberName, bio, avatar_url, bike_url]
+      `INSERT INTO club_member_profiles (member_name, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size)
+       VALUES (?,?,?,?,?,?,?)
+       ON DUPLICATE KEY UPDATE bio=VALUES(bio), avatar_url=VALUES(avatar_url), bike_url=VALUES(bike_url),
+         bike_brand=VALUES(bike_brand), bike_model=VALUES(bike_model), bike_size=VALUES(bike_size)`,
+      [req.session.memberName, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size]
     );
     res.redirect('/club/profil/' + encodeURIComponent(req.session.memberName));
   } catch (err) { next(err); }
