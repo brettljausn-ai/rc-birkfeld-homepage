@@ -95,4 +95,12 @@ router.get('/laurenzibergrennen', (req, res) => {
   res.render('laurenzibergrennen');
 });
 
+router.get('/impressum', (req, res) => {
+  res.render('impressum', { content: {}, termine: [] });
+});
+
+router.get('/datenschutz', (req, res) => {
+  res.redirect('/impressum#datenschutz');
+});
+
 module.exports = router;
