@@ -129,13 +129,21 @@ async function handleOAuthProfile(req, res, next, profile) {
 /* ── FEED ── */
 router.get('/api/feed', requireMember, async (req, res, next) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM club_posts ORDER BY created_at DESC LIMIT 50');
+    const [rows] = await pool.query(`
+      SELECT p.*, mp.avatar_url AS author_avatar
+      FROM club_posts p
+      LEFT JOIN club_member_profiles mp ON mp.member_name = p.author
+      ORDER BY p.created_at DESC LIMIT 50
+    `);
     res.json(rows);
   } catch (err) { next(err); }
 });
 
-router.get('/', requireMember, (req, res) => {
-  res.render('club/feed', { ...helpers, memberName: req.session.memberName, page: 'feed' });
+router.get('/', requireMember, async (req, res, next) => {
+  try {
+    const [[profileRows]] = await pool.query('SELECT avatar_url FROM club_member_profiles WHERE member_name=?', [req.session.memberName]);
+    res.render('club/feed', { ...helpers, memberName: req.session.memberName, page: 'feed', myAvatar: profileRows ? profileRows.avatar_url : null });
+  } catch (err) { next(err); }
 });
 
 router.post('/post', requireMember, async (req, res, next) => {
