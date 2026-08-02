@@ -262,7 +262,12 @@ router.post('/profil/edit', requireMember, async (req, res, next) => {
 /* ── CHAT ── */
 router.get('/chat', requireMember, async (req, res, next) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM club_chat ORDER BY created_at ASC LIMIT 200');
+    const [rows] = await pool.query(`
+      SELECT c.*, mp.avatar_url AS author_avatar
+      FROM club_chat c
+      LEFT JOIN club_member_profiles mp ON mp.member_name = c.author
+      ORDER BY c.created_at ASC LIMIT 200
+    `);
     res.render('club/chat', { ...helpers, memberName: req.session.memberName, chat: rows, page: 'chat' });
   } catch (err) { next(err); }
 });
@@ -270,7 +275,12 @@ router.get('/chat', requireMember, async (req, res, next) => {
 router.get('/chat/poll', requireMember, async (req, res, next) => {
   try {
     const after = parseInt(req.query.after) || 0;
-    const [rows] = await pool.query('SELECT * FROM club_chat WHERE id > ? ORDER BY created_at ASC LIMIT 50', [after]);
+    const [rows] = await pool.query(`
+      SELECT c.*, mp.avatar_url AS author_avatar
+      FROM club_chat c
+      LEFT JOIN club_member_profiles mp ON mp.member_name = c.author
+      WHERE c.id > ? ORDER BY c.created_at ASC LIMIT 50
+    `, [after]);
     res.json(rows);
   } catch (err) { next(err); }
 });

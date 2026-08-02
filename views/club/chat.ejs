@@ -59,7 +59,11 @@
     <% } %>
     <div class="msg-row <%= m.author === memberName ? 'mine' : '' %>" data-id="<%= m.id %>">
       <% if (m.author !== memberName) { %>
-      <div class="msg-av" style="background:<%= avatarColor(m.author) %>;"><%= initials(m.author) %></div>
+      <% if (m.author_avatar) { %>
+        <img class="msg-av" src="<%= m.author_avatar %>" style="object-fit:cover;" onerror="this.outerHTML='<div class=\'msg-av\' style=\'background:<%= avatarColor(m.author) %>;\''><%= initials(m.author) %></div>'">
+      <% } else { %>
+        <div class="msg-av" style="background:<%= avatarColor(m.author) %>;"><%= initials(m.author) %></div>
+      <% } %>
       <% } %>
       <div class="msg-col">
         <% if (m.author !== memberName) { %><div class="msg-name"><%= m.author %></div><% } %>
@@ -97,7 +101,10 @@ function renderMsg(m){
   row.className = 'msg-row'+(mine?' mine':'');
   row.dataset.id = m.id;
   var txt = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  row.innerHTML = (mine?'':'<div class="msg-av" style="background:'+aColor(m.author)+';">'+aInit(m.author)+'</div>')+
+  var avHtml = mine ? '' : (m.author_avatar
+    ? '<img class="msg-av" src="'+m.author_avatar.replace(/"/g,'&quot;')+'" style="object-fit:cover;" onerror="this.outerHTML=\'<div class=&quot;msg-av&quot; style=&quot;background:'+aColor(m.author)+';&quot;>'+aInit(m.author)+'</div>\'">'
+    : '<div class="msg-av" style="background:'+aColor(m.author)+';">'+aInit(m.author)+'</div>');
+  row.innerHTML = avHtml+
     '<div class="msg-col">'+(mine?'':'<div class="msg-name">'+m.author+'</div>')+
     '<div class="bubble">'+txt+'</div><div class="msg-time">'+time+'</div></div>';
   return row;
