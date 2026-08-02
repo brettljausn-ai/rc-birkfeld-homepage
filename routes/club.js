@@ -4,6 +4,7 @@ const multer = require('multer');
 const passport = require('../lib/passport');
 const bcrypt = require('bcryptjs');
 const { pool } = require('../lib/db');
+const { getClubActivities } = require('../lib/strava');
 
 const uploadFeed = multer({
   storage: multer.memoryStorage(),
@@ -212,12 +213,23 @@ router.get('/profil/:name', requireMember, async (req, res, next) => {
       pool.query('SELECT * FROM club_member_profiles WHERE member_name=?', [profileName]),
       pool.query('SELECT * FROM club_posts WHERE author=? ORDER BY created_at DESC', [profileName]),
     ]);
+    const profile = profileRows[0] || null;
+
+    let stravaActivities = [];
+    if (profile && profile.strava_athlete_id) {
+      const all = await getClubActivities();
+      stravaActivities = all
+        .filter(a => a.athlete && String(a.athlete.id) === String(profile.strava_athlete_id))
+        .slice(0, 10);
+    }
+
     res.render('club/profil', {
       ...helpers,
       memberName: req.session.memberName,
       profileName,
-      profile: profileRows[0] || null,
+      profile,
       posts,
+      stravaActivities,
       isOwnProfile: req.session.memberName === profileName,
       page: 'profil',
     });
@@ -231,13 +243,17 @@ router.post('/profil/edit', requireMember, async (req, res, next) => {
   const bike_brand = (req.body.bike_brand || '').trim().slice(0, 100) || null;
   const bike_model = (req.body.bike_model || '').trim().slice(0, 100) || null;
   const bike_size  = (req.body.bike_size  || '').trim().slice(0, 20)  || null;
+  const rawStrava  = (req.body.strava_athlete_id || '').trim();
+  const stravaMatch = rawStrava.match(/athletes\/(\d+)/);
+  const strava_athlete_id = stravaMatch ? stravaMatch[1] : (rawStrava.match(/^\d+$/) ? rawStrava : null);
   try {
     await pool.query(
-      `INSERT INTO club_member_profiles (member_name, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size)
-       VALUES (?,?,?,?,?,?,?)
+      `INSERT INTO club_member_profiles (member_name, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size, strava_athlete_id)
+       VALUES (?,?,?,?,?,?,?,?)
        ON DUPLICATE KEY UPDATE bio=VALUES(bio), avatar_url=VALUES(avatar_url), bike_url=VALUES(bike_url),
-         bike_brand=VALUES(bike_brand), bike_model=VALUES(bike_model), bike_size=VALUES(bike_size)`,
-      [req.session.memberName, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size]
+         bike_brand=VALUES(bike_brand), bike_model=VALUES(bike_model), bike_size=VALUES(bike_size),
+         strava_athlete_id=VALUES(strava_athlete_id)`,
+      [req.session.memberName, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size, strava_athlete_id]
     );
     res.redirect('/club/profil/' + encodeURIComponent(req.session.memberName));
   } catch (err) { next(err); }

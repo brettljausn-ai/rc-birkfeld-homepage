@@ -68,6 +68,13 @@
   .btn-del{background:none;border:none;color:#333;font-size:0.75rem;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:4px;}
   .btn-del:hover{color:#e57373;background:#1e1010;}
   .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
+  .strava-card{background:#141414;border:1px solid #1e1e1e;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+  .strava-icon{width:36px;height:36px;border-radius:8px;background:#FC4C02;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .strava-name{font-size:0.9rem;font-weight:600;color:#E8E8E8;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .strava-stats{display:flex;gap:16px;flex-wrap:wrap;}
+  .strava-stat{font-size:0.75rem;color:#555;font-family:'IBM Plex Mono',monospace;}
+  .strava-stat span{color:#aaa;font-weight:600;}
+  .strava-date{font-size:0.72rem;color:#333;font-family:'IBM Plex Mono',monospace;margin-left:auto;white-space:nowrap;align-self:flex-start;padding-top:2px;}
 </style>
 </head>
 <body>
@@ -144,6 +151,10 @@
         </div>
         <input type="hidden" name="bike_url" id="bikeUrlField" value="<%= (profile && profile.bike_url) || '' %>">
       </div>
+      <div class="field">
+        <label>Strava-Profil <span style="font-weight:400;color:#333;">– URL oder Athleten-ID (strava.com/athletes/<em>12345678</em>)</span></label>
+        <input type="text" name="strava_athlete_id" value="<%= (profile && profile.strava_athlete_id) || '' %>" placeholder="https://www.strava.com/athletes/12345678">
+      </div>
       <button type="submit" class="btn-save">Speichern</button>
     </form>
   </div>
@@ -172,6 +183,51 @@
         </div>
       <% } %>
     </div>
+  </div>
+  <% } %>
+
+  <!-- ── Strava ── -->
+  <% if (stravaActivities && stravaActivities.length) { %>
+  <div style="margin-bottom:28px;">
+    <div class="section-label" style="display:flex;align-items:center;gap:8px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="#FC4C02"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+      Strava Aktivitäten
+    </div>
+    <%
+    function fmtDist(m) { return (m/1000).toFixed(1)+' km'; }
+    function fmtTime(s) { var h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h '+m+'min':m+' min'; }
+    function fmtElev(m) { return Math.round(m)+' hm'; }
+    function sportIcon(t) {
+      var s = (t||'').toLowerCase();
+      if (s.includes('ride') || s.includes('cycling')) return '<path d="M17 5a2 2 0 100-4 2 2 0 000 4zm-5 4l-3 6h2l1-2h4l1 2h2l-3-6h-4zm-9 5a4 4 0 108 0 4 4 0 00-8 0zm14 0a4 4 0 108 0 4 4 0 00-8 0z" fill="white"/>';
+      if (s.includes('run')) return '<path d="M13.5 5.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7" fill="white"/>';
+      return '<path d="M12 2a10 10 0 110 20A10 10 0 0112 2zm0 4a1 1 0 100 2 1 1 0 000-2zm1 3h-2v6h2V9z" fill="white"/>';
+    }
+    %>
+    <% stravaActivities.forEach(function(a) {
+      var dateStr = a.start_date ? new Date(a.start_date).toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'}) : '';
+      var athleteUrl = 'https://www.strava.com/athletes/' + (profile.strava_athlete_id);
+    %>
+    <a href="<%= athleteUrl %>" target="_blank" rel="noopener" class="strava-card" style="text-decoration:none;">
+      <div class="strava-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24"><%- sportIcon(a.sport_type || a.type) %></svg>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="strava-name"><%= a.name %></div>
+        <div class="strava-stats">
+          <% if (a.distance > 0) { %><div class="strava-stat"><span><%= fmtDist(a.distance) %></span></div><% } %>
+          <% if (a.moving_time > 0) { %><div class="strava-stat"><span><%= fmtTime(a.moving_time) %></span></div><% } %>
+          <% if (a.total_elevation_gain > 0) { %><div class="strava-stat">↑ <span><%= fmtElev(a.total_elevation_gain) %></span></div><% } %>
+        </div>
+      </div>
+      <div class="strava-date"><%= dateStr %></div>
+    </a>
+    <% }); %>
+  </div>
+  <% } else if (profile && profile.strava_athlete_id) { %>
+  <div style="margin-bottom:28px;">
+    <div class="section-label">Strava Aktivitäten</div>
+    <div style="color:#333;font-size:0.85rem;padding:16px 0;">Noch keine Aktivitäten im Club-Feed gefunden.</div>
   </div>
   <% } %>
 

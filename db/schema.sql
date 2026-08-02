@@ -194,7 +194,8 @@ CREATE TABLE IF NOT EXISTS club_member_profiles (
   bike_url     MEDIUMTEXT,
   updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_url   MEDIUMTEXT;
-ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_brand VARCHAR(100);
-ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_model VARCHAR(100);
-ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_size  VARCHAR(20);
+ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_url          MEDIUMTEXT;
+ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_brand        VARCHAR(100);
+ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_model        VARCHAR(100);
+ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_size         VARCHAR(20);
+ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS strava_athlete_id VARCHAR(50);
