@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/rcbirkfeld-logo.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title><%= profileName %> – RC Birkfeld Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0D0D0D;color:#E8E8E8;font-family:'Public Sans',system-ui,sans-serif;min-height:100vh;}
+  a{color:inherit;text-decoration:none;}
+  .ch{background:#111;border-bottom:1px solid #1e1e1e;padding:0 20px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:200;}
+  .ch-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1rem;color:#4CAF50;letter-spacing:.06em;white-space:nowrap;margin-right:28px;}
+  .ch-tabs{display:flex;height:100%;flex:1;}
+  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;}
+  .ch-tab:hover{color:#aaa;} .ch-tab.active{color:#fff;border-bottom-color:#4CAF50;}
+  .ch-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+  .ch-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .ch-name{font-size:0.82rem;color:#888;white-space:nowrap;}
+  .ch-logout{font-size:0.75rem;color:#555;border:1px solid #2a2a2a;padding:4px 10px;border-radius:4px;text-decoration:none;}
+  .ch-logout:hover{color:#aaa;border-color:#444;}
+  @media(max-width:600px){.ch-name{display:none;}.ch-brand{margin-right:12px;}.ch-tab{padding:0 10px;font-size:0.78rem;}}
+
+  .profil-wrap{max-width:640px;margin:0 auto;padding:32px 16px;}
+
+  /* header */
+  .profil-header{display:flex;align-items:flex-start;gap:22px;margin-bottom:32px;}
+  .profil-avatar-img{width:84px;height:84px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #222;}
+  .profil-avatar-init{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .profil-name{font-size:1.35rem;font-weight:700;margin-bottom:7px;line-height:1.2;}
+  .profil-bio{color:#888;font-size:0.9rem;line-height:1.6;margin-bottom:10px;}
+  .profil-meta{font-size:0.75rem;color:#444;font-family:'IBM Plex Mono',monospace;margin-bottom:10px;}
+  .btn-edit{background:none;border:1px solid #2a2a2a;color:#888;padding:6px 16px;border-radius:20px;font-size:0.8rem;cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s;}
+  .btn-edit:hover{border-color:#444;color:#fff;}
+
+  /* edit card */
+  .edit-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;padding:20px;margin-bottom:28px;display:none;}
+  .edit-card.open{display:block;}
+  .field{margin-bottom:14px;}
+  label{font-size:0.72rem;text-transform:uppercase;letter-spacing:.07em;color:#555;font-weight:600;display:block;margin-bottom:5px;}
+  textarea,input[type=text]{width:100%;background:#0d0d0d;border:1px solid #2a2a2a;color:#E8E8E8;font-family:inherit;font-size:0.9rem;padding:10px 12px;border-radius:8px;outline:none;}
+  textarea{resize:vertical;min-height:72px;}
+  textarea:focus,input[type=text]:focus{border-color:#4CAF50;}
+  .char-count{font-size:0.72rem;color:#444;font-family:'IBM Plex Mono',monospace;margin-top:3px;text-align:right;}
+  .btn-save{background:#1F7A34;color:#fff;border:none;padding:8px 22px;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn-save:hover{background:#145C27;}
+
+  /* avatar drop zone */
+  .avatar-drop{border:2px dashed #2a2a2a;border-radius:8px;padding:14px;text-align:center;color:#444;font-size:0.8rem;cursor:pointer;transition:border-color .15s,color .15s;}
+  .avatar-drop.over{border-color:#4CAF50;color:#4CAF50;}
+  .avatar-drop input[type=file]{display:none;}
+  .avatar-drop-preview{display:none;margin-top:10px;position:relative;width:84px;margin-left:auto;margin-right:auto;}
+  .avatar-drop-preview img{width:84px;height:84px;border-radius:50%;object-fit:cover;display:block;border:2px solid #222;}
+  .avatar-drop-remove{position:absolute;top:-4px;right:-4px;background:rgba(0,0,0,.8);border:1px solid #333;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:0.85rem;line-height:22px;text-align:center;padding:0;}
+  .upload-status{font-size:0.73rem;color:#555;margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+
+  /* posts */
+  .section-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:.1em;color:#444;font-weight:700;padding-bottom:10px;border-bottom:1px solid #1a1a1a;margin-bottom:16px;}
+  .post-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:14px;}
+  .post-img{width:100%;max-height:480px;object-fit:cover;display:block;}
+  .post-img.has-body{border-bottom:1px solid #1e1e1e;}
+  .post-body{padding:14px 16px;font-size:0.93rem;line-height:1.65;color:#D8D8D8;white-space:pre-wrap;word-break:break-word;}
+  .post-footer{padding:8px 16px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #111;}
+  .post-time{font-size:0.73rem;color:#444;font-family:'IBM Plex Mono',monospace;}
+  .btn-del{background:none;border:none;color:#333;font-size:0.75rem;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:4px;}
+  .btn-del:hover{color:#e57373;background:#1e1010;}
+  .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
+</style>
+</head>
+<body>
+<%- include('_nav') %>
+<div class="profil-wrap">
+
+  <!-- ── Profile header ── -->
+  <div class="profil-header">
+    <% if (profile && profile.avatar_url) { %>
+      <img class="profil-avatar-img" src="<%= profile.avatar_url %>" alt="" onerror="this.style.display='none'">
+    <% } else { %>
+      <div class="profil-avatar-init" style="background:<%= avatarColor(profileName) %>;"><%= initials(profileName) %></div>
+    <% } %>
+    <div style="flex:1;min-width:0;">
+      <div class="profil-name"><%= profileName %></div>
+      <% if (profile && profile.bio) { %>
+        <p class="profil-bio"><%= profile.bio %></p>
+      <% } else if (isOwnProfile) { %>
+        <p class="profil-bio" style="color:#333;font-style:italic;">Noch keine Info – füge eine kurze Beschreibung hinzu.</p>
+      <% } %>
+      <div class="profil-meta"><%= posts.length %> <%= posts.length === 1 ? 'Beitrag' : 'Beiträge' %></div>
+      <% if (isOwnProfile) { %>
+        <button class="btn-edit" id="toggleEditBtn">Profil bearbeiten</button>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- ── Edit form (own profile only) ── -->
+  <% if (isOwnProfile) { %>
+  <div class="edit-card" id="editCard">
+    <form method="POST" action="/club/profil/edit" id="profilForm">
+      <div class="field">
+        <label>Kurze Info <span style="font-weight:400;color:#333;">(max. 300 Zeichen)</span></label>
+        <textarea name="bio" id="bioField" maxlength="300"><%= (profile && profile.bio) || '' %></textarea>
+        <div class="char-count"><span id="charCount"><%= ((profile && profile.bio) || '').length %></span>/300</div>
+      </div>
+      <div class="field">
+        <label>Profilbild</label>
+        <div class="avatar-drop" id="avatarDrop">
+          <input type="file" id="avatarFile" accept="image/*">
+          ↑ Bild ablegen oder klicken
+          <div class="avatar-drop-preview" id="avatarPreview" <% if(profile && profile.avatar_url){%>style="display:block"<%}%>>
+            <img id="avatarPreviewImg" src="<%= (profile && profile.avatar_url) || '' %>" alt="">
+            <button type="button" class="avatar-drop-remove" id="avatarRemove">×</button>
+          </div>
+          <div class="upload-status" id="avatarStatus"></div>
+        </div>
+        <input type="hidden" name="avatar_url" id="avatarUrlField" value="<%= (profile && profile.avatar_url) || '' %>">
+      </div>
+      <button type="submit" class="btn-save">Speichern</button>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- ── Posts ── -->
+  <div class="section-label">Beiträge · <%= posts.length %></div>
+
+  <% if (!posts.length) { %>
+    <div class="empty">Noch keine Beiträge.</div>
+  <% } %>
+
+  <% posts.forEach(function(p) {
+    var ts = new Date(p.created_at);
+    var dateStr = ts.toLocaleDateString('de-AT', {day:'2-digit', month:'2-digit', year:'numeric'});
+  %>
+  <div class="post-card">
+    <% if (p.image_url) { %>
+      <img class="post-img<%= p.content ? ' has-body' : '' %>" src="<%= p.image_url %>" alt="" loading="lazy" onerror="this.style.display='none'">
+    <% } %>
+    <% if (p.content) { %>
+      <div class="post-body"><%= p.content %></div>
+    <% } %>
+    <div class="post-footer">
+      <span class="post-time"><%= dateStr %></span>
+      <% if (isOwnProfile) { %>
+        <form method="POST" action="/club/post/<%= p.id %>/delete" onsubmit="return confirm('Beitrag löschen?')">
+          <button class="btn-del" type="submit">Löschen</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+  <% }); %>
+
+</div>
+<script>
+/* Toggle edit card */
+var toggleBtn = document.getElementById('toggleEditBtn');
+var editCard  = document.getElementById('editCard');
+if (toggleBtn) {
+  toggleBtn.addEventListener('click', function() {
+    editCard.classList.toggle('open');
+    toggleBtn.textContent = editCard.classList.contains('open') ? 'Schließen' : 'Profil bearbeiten';
+  });
+}
+
+/* Char counter */
+var bioField = document.getElementById('bioField');
+var charCount = document.getElementById('charCount');
+if (bioField) {
+  bioField.addEventListener('input', function() {
+    charCount.textContent = bioField.value.length;
+  });
+}
+
+/* Avatar drop zone */
+var avatarDrop     = document.getElementById('avatarDrop');
+var avatarFile     = document.getElementById('avatarFile');
+var avatarPreview  = document.getElementById('avatarPreview');
+var avatarPreviewImg = document.getElementById('avatarPreviewImg');
+var avatarRemove   = document.getElementById('avatarRemove');
+var avatarUrlField = document.getElementById('avatarUrlField');
+var avatarStatus   = document.getElementById('avatarStatus');
+
+if (avatarDrop) {
+  avatarDrop.addEventListener('click', function(e) {
+    if (e.target === avatarRemove) return;
+    avatarFile.click();
+  });
+  avatarDrop.addEventListener('dragover', function(e) { e.preventDefault(); avatarDrop.classList.add('over'); });
+  avatarDrop.addEventListener('dragleave', function() { avatarDrop.classList.remove('over'); });
+  avatarDrop.addEventListener('drop', function(e) {
+    e.preventDefault(); avatarDrop.classList.remove('over');
+    if (e.dataTransfer.files[0]) uploadAvatar(e.dataTransfer.files[0]);
+  });
+  avatarFile.addEventListener('change', function() {
+    if (avatarFile.files[0]) uploadAvatar(avatarFile.files[0]);
+  });
+  avatarRemove.addEventListener('click', function(e) {
+    e.stopPropagation();
+    avatarUrlField.value = '';
+    avatarPreviewImg.src = '';
+    avatarPreview.style.display = 'none';
+    avatarFile.value = '';
+    avatarStatus.textContent = '';
+  });
+
+  function uploadAvatar(file) {
+    if (!file.type.match(/^image\//)) { avatarStatus.textContent = 'Nur Bilder erlaubt.'; return; }
+    avatarPreviewImg.src = URL.createObjectURL(file);
+    avatarPreview.style.display = 'block';
+    avatarStatus.textContent = 'Wird hochgeladen…';
+    var fd = new FormData();
+    fd.append('image', file);
+    fetch('/club/upload-image', { method: 'POST', body: fd })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.url) { avatarUrlField.value = data.url; avatarStatus.textContent = 'Bild bereit.'; }
+        else { avatarStatus.textContent = 'Fehler beim Hochladen.'; avatarPreview.style.display = 'none'; }
+      })
+      .catch(function() { avatarStatus.textContent = 'Fehler beim Hochladen.'; });
+  }
+}
+</script>
+</body>
+</html>

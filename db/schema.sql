@@ -186,3 +186,10 @@ CREATE TABLE IF NOT EXISTS club_members_auth (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_email (email)
 );
+
+CREATE TABLE IF NOT EXISTS club_member_profiles (
+  member_name  VARCHAR(100) PRIMARY KEY,
+  bio          TEXT,
+  avatar_url   MEDIUMTEXT,
+  updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

@@ -192,6 +192,42 @@ router.post('/rsvp/:id', requireMember, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── PROFIL ── */
+router.get('/profil', requireMember, (req, res) => {
+  res.redirect('/club/profil/' + encodeURIComponent(req.session.memberName));
+});
+
+router.get('/profil/:name', requireMember, async (req, res, next) => {
+  try {
+    const profileName = decodeURIComponent(req.params.name);
+    const [[profileRows], [posts]] = await Promise.all([
+      pool.query('SELECT * FROM club_member_profiles WHERE member_name=?', [profileName]),
+      pool.query('SELECT * FROM club_posts WHERE author=? ORDER BY created_at DESC', [profileName]),
+    ]);
+    res.render('club/profil', {
+      ...helpers,
+      memberName: req.session.memberName,
+      profileName,
+      profile: profileRows[0] || null,
+      posts,
+      isOwnProfile: req.session.memberName === profileName,
+      page: 'profil',
+    });
+  } catch (err) { next(err); }
+});
+
+router.post('/profil/edit', requireMember, async (req, res, next) => {
+  const bio = (req.body.bio || '').trim().slice(0, 300);
+  const avatar_url = req.body.avatar_url || null;
+  try {
+    await pool.query(
+      'INSERT INTO club_member_profiles (member_name, bio, avatar_url) VALUES (?,?,?) ON DUPLICATE KEY UPDATE bio=VALUES(bio), avatar_url=VALUES(avatar_url)',
+      [req.session.memberName, bio, avatar_url]
+    );
+    res.redirect('/club/profil/' + encodeURIComponent(req.session.memberName));
+  } catch (err) { next(err); }
+});
+
 /* ── CHAT ── */
 router.get('/chat', requireMember, async (req, res, next) => {
   try {
