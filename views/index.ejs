@@ -331,7 +331,8 @@ fetch('/api/termine').then(function(r){return r.json();}).then(function(items){
     var day = d.getDate();
     var stravaIcon = t.isStrava ? '<svg width="12" height="12" viewBox="0 0 24 24" style="vertical-align:-1px;margin-right:3px;"><path d="M13.5 2L6 15h4.5L9 22l7.5-13H12l1.5-7z" fill="currentColor"/></svg>' : '';
     var tagClass = 'event-tag'+(t.isStrava?' event-tag-strava':'');
-    return '<div class="event-row"><div class="event-date">'+mon+'<br><small>'+day+'.</small></div><div class="event-info"><h4>'+escH(t.title)+'</h4><span>'+escH(t.location||'')+'</span>'+(t.detail_url?'<a href="'+escH(t.detail_url)+'" class="event-more">Mehr Infos →</a>':'')+'</div><div class="'+tagClass+'">'+stravaIcon+escH(t.tag||'Vereinsrennen')+'</div></div>';
+    var detailUrl = t.detail_url || (t.id ? '/termin/'+t.id : null);
+    return '<div class="event-row"><div class="event-date">'+mon+'<br><small>'+day+'.</small></div><div class="event-info"><h4>'+escH(t.title)+'</h4><span>'+escH(t.location||'')+'</span>'+(detailUrl?'<a href="'+escH(detailUrl)+'" class="event-more">Mehr Infos →</a>':'')+'</div><div class="'+tagClass+'">'+stravaIcon+escH(t.tag||'Vereinsrennen')+'</div></div>';
   }).join('');
 }).catch(function(){});
 

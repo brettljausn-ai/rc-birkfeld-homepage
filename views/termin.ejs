@@ -1,0 +1,90 @@
+<%- include('partials/head', { title: termin.title + ' – RC Birkfeld', description: termin.description || (termin.title + ' am ' + new Date(termin.date).toLocaleDateString('de-AT', {day:'2-digit',month:'long',year:'numeric'})) }) %>
+<%- include('partials/nav') %>
+
+<main style="padding:60px 0 100px;">
+  <div class="wrap" style="max-width:760px;">
+
+    <a href="/#termine" style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--rust);text-decoration:none;margin-bottom:40px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Alle Termine
+    </a>
+
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--rust);text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18" stroke="currentColor" stroke-width="2"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <%= new Date(termin.date).toLocaleDateString('de-AT', {weekday:'long', day:'2-digit', month:'long', year:'numeric'}) %>
+    </span>
+
+    <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;margin-bottom:32px;color:var(--chalk);">
+      <%= termin.title %>
+    </h1>
+
+    <!-- Meta-Infos -->
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:40px;">
+      <% if (termin.tag) { %>
+      <span style="background:var(--rust);color:#fff;font-size:0.75rem;font-weight:700;padding:4px 12px;border-radius:2px;letter-spacing:.05em;text-transform:uppercase;"><%= termin.tag %></span>
+      <% } %>
+      <% if (termin.location) { %>
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:#aaa;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+        <%= termin.location %>
+      </span>
+      <% } %>
+    </div>
+
+    <% if (termin.description) { %>
+    <div style="font-size:1.05rem;line-height:1.8;color:#ccc;white-space:pre-wrap;word-break:break-word;margin-bottom:40px;">
+      <%= termin.description %>
+    </div>
+    <% } %>
+
+    <!-- RSVP (nur für eingeloggte Mitglieder) -->
+    <% if (memberName) { %>
+    <div style="background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:24px;margin-bottom:40px;">
+      <p style="font-size:0.78rem;text-transform:uppercase;letter-spacing:.1em;color:#555;font-weight:700;margin-bottom:16px;">Ich bin dabei?</p>
+      <div style="display:flex;gap:10px;">
+        <form method="POST" action="/club/rsvp/<%= termin.id %>?redirect=/termin/<%= termin.id %>">
+          <input type="hidden" name="status" value="yes">
+          <button type="submit" style="background:<%= myRsvp==='yes'?'#1F7A34':'none' %>;border:1px solid <%= myRsvp==='yes'?'#1F7A34':'#2a2a2a' %>;color:<%= myRsvp==='yes'?'#fff':'#888' %>;padding:9px 22px;border-radius:6px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;">
+            ✓ Ja, ich bin dabei
+          </button>
+        </form>
+        <form method="POST" action="/club/rsvp/<%= termin.id %>?redirect=/termin/<%= termin.id %>">
+          <input type="hidden" name="status" value="no">
+          <button type="submit" style="background:<%= myRsvp==='no'?'#c62828':'none' %>;border:1px solid <%= myRsvp==='no'?'#c62828':'#2a2a2a' %>;color:<%= myRsvp==='no'?'#fff':'#888' %>;padding:9px 22px;border-radius:6px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;">
+            ✗ Ich kann nicht
+          </button>
+        </form>
+      </div>
+      <% if (yesNames.length || noNames.length) { %>
+      <div style="margin-top:18px;display:flex;gap:24px;flex-wrap:wrap;">
+        <% if (yesNames.length) { %>
+        <div>
+          <p style="font-size:0.72rem;color:#4CAF50;font-weight:700;margin-bottom:6px;">DABEI (<%= yesNames.length %>)</p>
+          <p style="font-size:0.85rem;color:#aaa;"><%= yesNames.join(', ') %></p>
+        </div>
+        <% } %>
+        <% if (noNames.length) { %>
+        <div>
+          <p style="font-size:0.72rem;color:#e57373;font-weight:700;margin-bottom:6px;">NICHT DABEI (<%= noNames.length %>)</p>
+          <p style="font-size:0.85rem;color:#aaa;"><%= noNames.join(', ') %></p>
+        </div>
+        <% } %>
+      </div>
+      <% } %>
+    </div>
+    <% } else { %>
+    <div style="background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:20px;margin-bottom:40px;font-size:0.9rem;color:#666;">
+      <a href="/club/login" style="color:var(--rust);font-weight:700;">Im Mitgliederbereich anmelden</a> um zu- oder absagen zu können.
+    </div>
+    <% } %>
+
+    <div style="padding-top:24px;border-top:1px solid #1e1e1e;">
+      <a href="/#termine" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--rust);text-decoration:none;font-weight:600;">
+        ← Alle Termine
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<%- include('partials/footer') %>

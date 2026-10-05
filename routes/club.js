@@ -197,7 +197,8 @@ router.post('/rsvp/:id', requireMember, async (req, res, next) => {
       'INSERT INTO event_rsvp (termine_id, member_name, status) VALUES (?,?,?) ON DUPLICATE KEY UPDATE status=?',
       [req.params.id, req.session.memberName, status, status]
     );
-    res.redirect('/club/termine');
+    const redirect = req.query.redirect || '/club/termine';
+    res.redirect(redirect);
   } catch (err) { next(err); }
 });
 

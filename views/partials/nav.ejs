@@ -16,7 +16,7 @@
           </a>
           <div class="dropdown">
             <% if (typeof termine !== 'undefined') { termine.forEach(t => { %>
-            <a href="<%= t.detail_url || '/#termine' %>">
+            <a href="<%= t.detail_url || ('/termin/' + t.id) %>">
               <span class="dd-date"><%= new Date(t.date).toLocaleDateString('de-AT', {day:'2-digit', month:'short', year:'numeric'}) %></span>
               <span class="dd-name"><%= t.title %></span>
             </a>

@@ -91,6 +91,39 @@ router.get('/bericht/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.get('/termin/:id', async (req, res, next) => {
+  try {
+    const [[rows], [contentRows]] = await Promise.all([
+      pool.query(`
+        SELECT t.*,
+          COALESCE(SUM(r.status='yes'),0) AS yes_count,
+          COALESCE(SUM(r.status='no'),0)  AS no_count,
+          GROUP_CONCAT(CASE WHEN r.status='yes' THEN r.member_name END ORDER BY r.updated_at SEPARATOR ',') AS yes_names,
+          GROUP_CONCAT(CASE WHEN r.status='no'  THEN r.member_name END ORDER BY r.updated_at SEPARATOR ',') AS no_names,
+          MAX(CASE WHEN r.member_name=? THEN r.status END) AS my_status
+        FROM termine t
+        LEFT JOIN event_rsvp r ON t.id = r.termine_id
+        WHERE t.id = ?
+        GROUP BY t.id
+      `, [req.session.memberName || '', req.params.id]),
+      pool.query('SELECT `key`, value FROM site_content'),
+    ]);
+    if (!rows.length) return res.status(404).render('404', { title: 'Termin nicht gefunden', termine: [] });
+    const t = rows[0];
+    const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
+    res.render('termin', {
+      termin: t,
+      yesNames: t.yes_names ? t.yes_names.split(',').filter(Boolean) : [],
+      noNames:  t.no_names  ? t.no_names.split(',').filter(Boolean)  : [],
+      myRsvp: t.my_status || null,
+      memberName: req.session.memberName || null,
+      termine: [],
+      content,
+      title: t.title,
+    });
+  } catch (err) { next(err); }
+});
+
 router.get('/laurenzibergrennen', (req, res) => {
   res.render('laurenzibergrennen');
 });
