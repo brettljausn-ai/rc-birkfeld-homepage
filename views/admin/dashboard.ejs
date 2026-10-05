@@ -465,38 +465,49 @@
 <!-- ══ GALERIE ══ -->
 <div id="panel-gallery" class="panel <%= activeTab==='gallery'?'active':'' %>">
   <div class="card">
-    <h2>Foto hochladen</h2>
-    <form method="POST" action="/admin/gallery" enctype="multipart/form-data">
-      <div class="form-row">
-        <div class="field"><label>Foto (JPG/PNG/WebP)</label><input type="file" name="photo" accept="image/*" required></div>
-        <div class="field"><label>Beschriftung</label><input name="caption"></div>
+    <h2>Fotos hochladen</h2>
+    <form method="POST" action="/admin/gallery" enctype="multipart/form-data" id="galleryUploadForm">
+      <div id="galleryDropZone" style="border:2px dashed #ddd;border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:16px;background:#fafafa;">
+        <input type="file" name="photos" id="galleryFileInput" accept="image/*" multiple style="display:none;">
+        <div id="galleryDropLabel">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="margin:0 auto 10px;display:block;color:#aaa"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <p style="font-weight:700;color:#444;margin-bottom:4px;">Fotos hierher ziehen oder klicken</p>
+          <p style="font-size:0.82rem;color:#aaa;">JPG, PNG oder WebP · max. 10 MB pro Bild · Mehrfachauswahl möglich</p>
+        </div>
+        <div id="galleryPreviewGrid" style="display:none;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
       </div>
-      <div class="field" style="max-width:160px;"><label>Reihenfolge</label><input type="number" name="sort_order" value="0"></div>
-      <button class="btn-save" type="submit">Hochladen</button>
+      <div class="form-row">
+        <div class="field" style="flex:1;"><label>Beschriftung (gilt für alle hochgeladenen Fotos)</label><input name="caption" placeholder="Optional"></div>
+      </div>
+      <button class="btn-save" type="submit" id="galleryUploadBtn" disabled style="opacity:.5;">Hochladen</button>
+      <span id="galleryUploadCount" style="font-size:0.82rem;color:#888;margin-left:12px;"></span>
     </form>
   </div>
 
   <div class="section-divider">Fotos (<%= gallery.length %>) – Reihenfolge per Drag & Drop</div>
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
     <button class="btn-save" id="btn-save-order" type="button">Reihenfolge speichern</button>
-    <span id="order-status" style="display:none;font-size:0.82rem;color:#1F7A34;">Gespeichert ✓</span>
+    <span id="order-status" style="display:none;font-size:0.82rem;color:#1F7A34;">✓ Gespeichert</span>
   </div>
-  <div id="sortable-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
+  <div id="sortable-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
     <% gallery.forEach(g => { %>
-    <div class="gallery-tile" draggable="true" data-id="<%= g.id %>" style="background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);cursor:grab;border:2px solid transparent;">
-      <img src="/images/galerie/<%= g.filename %>" alt="" style="width:100%;height:90px;object-fit:cover;display:block;pointer-events:none;">
-      <div style="padding:8px;">
-        <form method="POST" action="/admin/gallery/<%= g.id %>/caption" style="margin-bottom:8px;">
-          <div class="field"><label>Beschriftung</label><input name="caption" value="<%= g.caption||'' %>" placeholder="Kein Text"></div>
-          <button class="btn-save" type="submit" style="padding:5px 10px;font-size:0.78rem;">Speichern</button>
+    <div class="gallery-tile" draggable="true" data-id="<%= g.id %>" style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.1);cursor:grab;border:2px solid transparent;transition:box-shadow .15s,border-color .15s;">
+      <div style="position:relative;">
+        <img src="/images/galerie/<%= g.filename %>" alt="" style="width:100%;height:160px;object-fit:cover;display:block;pointer-events:none;">
+        <div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:0.68rem;font-family:monospace;padding:2px 7px;border-radius:4px;">#<%= g.id %></div>
+      </div>
+      <div style="padding:10px;">
+        <form method="POST" action="/admin/gallery/<%= g.id %>/caption" style="margin-bottom:8px;display:flex;gap:6px;">
+          <input name="caption" value="<%= g.caption||'' %>" placeholder="Beschriftung…" style="flex:1;font-size:0.82rem;padding:5px 8px;border:1px solid #ddd;border-radius:4px;">
+          <button class="btn-save" type="submit" style="padding:5px 10px;font-size:0.78rem;white-space:nowrap;">OK</button>
         </form>
         <form method="POST" action="/admin/gallery/<%= g.id %>/delete" onsubmit="return confirm('Foto löschen?')">
-          <button class="btn-del" style="width:100%;">Löschen</button>
+          <button class="btn-del" style="width:100%;font-size:0.82rem;">Löschen</button>
         </form>
       </div>
     </div>
     <% }); %>
-    <% if(gallery.length===0){%><p style="color:#999;font-size:0.9rem;grid-column:1/-1;">Noch keine Fotos.</p><%}%>
+    <% if(gallery.length===0){%><p style="color:#999;font-size:0.9rem;grid-column:1/-1;">Noch keine Fotos. Lade dein erstes Foto hoch.</p><%}%>
   </div>
 </div>
 
@@ -866,6 +877,49 @@ function initNewsDropZone(zone) {
   }
 }
 document.querySelectorAll('.news-drop').forEach(initNewsDropZone);
+
+/* Galerie Upload Drop Zone */
+(function(){
+  const zone = document.getElementById('galleryDropZone');
+  const input = document.getElementById('galleryFileInput');
+  const label = document.getElementById('galleryDropLabel');
+  const previewGrid = document.getElementById('galleryPreviewGrid');
+  const btn = document.getElementById('galleryUploadBtn');
+  const countSpan = document.getElementById('galleryUploadCount');
+  if(!zone) return;
+
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor='#1F7A34'; zone.style.background='#f0faf2'; });
+  zone.addEventListener('dragleave', () => { zone.style.borderColor='#ddd'; zone.style.background='#fafafa'; });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.style.borderColor='#ddd'; zone.style.background='#fafafa';
+    const dt = new DataTransfer();
+    Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(f => dt.items.add(f));
+    input.files = dt.files;
+    showPreviews(input.files);
+  });
+  input.addEventListener('change', () => showPreviews(input.files));
+
+  function showPreviews(files) {
+    if(!files || !files.length) { label.style.display=''; previewGrid.style.display='none'; btn.disabled=true; btn.style.opacity='.5'; countSpan.textContent=''; return; }
+    label.style.display = 'none';
+    previewGrid.style.display = 'flex';
+    previewGrid.innerHTML = '';
+    Array.from(files).forEach(f => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = document.createElement('img');
+        img.src = ev.target.result;
+        img.style.cssText = 'width:80px;height:60px;object-fit:cover;border-radius:4px;border:1px solid #ddd;';
+        previewGrid.appendChild(img);
+      };
+      reader.readAsDataURL(f);
+    });
+    btn.disabled = false; btn.style.opacity = '1';
+    countSpan.textContent = files.length + ' Foto' + (files.length>1?'s':'') + ' ausgewählt';
+  }
+})();
 
 /* Drag & Drop Galerie Reihenfolge */
 (function() {

@@ -145,17 +145,19 @@ router.post('/termine/:id/delete', requireAuth, async (req, res, next) => {
 });
 
 /* ── GALERIE ── */
-router.post('/gallery', requireAuth, upload.single('photo'), async (req, res, next) => {
+router.post('/gallery', requireAuth, upload.array('photos', 30), async (req, res, next) => {
   try {
-    const { caption, sort_order } = req.body;
-    const ext = path.extname(req.file.originalname) || '.jpg';
-    const filename = req.file.filename + ext;
-    fs.renameSync(req.file.path, path.join(path.dirname(req.file.path), filename));
-    await pool.query(
-      'INSERT INTO gallery (filename, caption, sort_order) VALUES (?,?,?)',
-      [filename, caption || null, parseInt(sort_order) || 0]
-    );
-    res.redirect('/admin?msg=Foto+hochgeladen');
+    if (!req.files || req.files.length === 0) return res.redirect('/admin?msg=Kein+Foto+ausgewählt&tab=gallery');
+    const caption = req.body.caption || null;
+    const [[maxRow]] = await pool.query('SELECT COALESCE(MAX(sort_order),0)+1 AS next FROM gallery');
+    let nextOrder = maxRow.next;
+    for (const file of req.files) {
+      const ext = path.extname(file.originalname) || '.jpg';
+      const filename = file.filename + ext;
+      fs.renameSync(file.path, path.join(path.dirname(file.path), filename));
+      await pool.query('INSERT INTO gallery (filename, caption, sort_order) VALUES (?,?,?)', [filename, caption || null, nextOrder++]);
+    }
+    res.redirect('/admin?msg=' + encodeURIComponent(req.files.length + ' Foto(s) hochgeladen') + '&tab=gallery');
   } catch (err) { next(err); }
 });
 
