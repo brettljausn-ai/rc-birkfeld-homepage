@@ -261,6 +261,52 @@ router.post('/routen/:id/delete', requireMember, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── POLLS ── */
+router.get('/polls', requireMember, async (req, res, next) => {
+  try {
+    const [polls] = await pool.query(
+      'SELECT * FROM club_polls WHERE active=1 AND (expires_at IS NULL OR expires_at > NOW()) ORDER BY created_at DESC LIMIT 10'
+    );
+    const [votes] = await pool.query(
+      'SELECT poll_id, option_idx FROM club_poll_votes WHERE member_name=?',
+      [req.session.memberName]
+    );
+    const myVotes = {};
+    votes.forEach(v => { myVotes[v.poll_id] = v.option_idx; });
+
+    const pollIds = polls.map(p => p.id);
+    let voteCounts = {};
+    if (pollIds.length) {
+      const [counts] = await pool.query(
+        'SELECT poll_id, option_idx, COUNT(*) AS cnt FROM club_poll_votes WHERE poll_id IN (?) GROUP BY poll_id, option_idx',
+        [pollIds]
+      );
+      counts.forEach(c => {
+        if (!voteCounts[c.poll_id]) voteCounts[c.poll_id] = {};
+        voteCounts[c.poll_id][c.option_idx] = c.cnt;
+      });
+    }
+
+    res.render('club/polls', { ...helpers, memberName: req.session.memberName, polls, myVotes, voteCounts, page: 'polls' });
+  } catch (err) { next(err); }
+});
+
+router.post('/polls/:id/vote', requireMember, async (req, res, next) => {
+  const optionIdx = parseInt(req.body.option_idx);
+  if (isNaN(optionIdx)) return res.redirect('/club/polls');
+  try {
+    const [rows] = await pool.query('SELECT options FROM club_polls WHERE id=? AND active=1', [req.params.id]);
+    if (!rows.length) return res.redirect('/club/polls');
+    const options = rows[0].options;
+    if (optionIdx < 0 || optionIdx >= options.length) return res.redirect('/club/polls');
+    await pool.query(
+      'INSERT INTO club_poll_votes (poll_id, member_name, option_idx) VALUES (?,?,?) ON DUPLICATE KEY UPDATE option_idx=VALUES(option_idx), voted_at=NOW()',
+      [req.params.id, req.session.memberName, optionIdx]
+    );
+    res.redirect('/club/polls');
+  } catch (err) { next(err); }
+});
+
 /* ── TRAININGSPLAN ── */
 router.get('/trainingsplan', requireMember, async (req, res, next) => {
   try {

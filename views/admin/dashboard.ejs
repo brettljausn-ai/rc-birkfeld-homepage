@@ -94,6 +94,7 @@
   <button class="tab <%= activeTab==='sponsors'?'active':'' %>"     onclick="showTab('sponsors',this)">Sponsoren</button>
   <button class="tab <%= activeTab==='challenges'?'active':'' %>"  onclick="showTab('challenges',this)">Challenges</button>
   <button class="tab <%= activeTab==='trainingsplan'?'active':'' %>" onclick="showTab('trainingsplan',this)">Trainingsplan</button>
+  <button class="tab <%= activeTab==='polls'?'active':'' %>"         onclick="showTab('polls',this)">Abstimmungen</button>
 </div>
 
 <% if (flash) { %>
@@ -617,6 +618,51 @@
     <% }); %>
     <% if(sponsors.length===0){%><p style="color:#999;font-size:0.9rem;grid-column:1/-1;">Noch keine Sponsoren.</p><%}%>
   </div>
+</div>
+
+<!-- ══ ABSTIMMUNGEN ══ -->
+<div id="panel-polls" class="panel <%= activeTab==='polls'?'active':'' %>">
+  <div class="card">
+    <h2>Neue Abstimmung erstellen</h2>
+    <form method="POST" action="/admin/polls">
+      <div class="field"><label>Frage</label><input type="text" name="question" placeholder="Wohin soll die nächste Samstagsausfahrt gehen?" required maxlength="300"></div>
+      <div class="field">
+        <label>Optionen <span style="font-weight:400;color:#bbb;">(eine pro Zeile, mind. 2)</span></label>
+        <textarea name="options" rows="5" placeholder="Laurentiberg&#10;Rabenwald&#10;Richtung Wechsel&#10;Gemeindeausfahrt Joglland" required></textarea>
+      </div>
+      <div class="field" style="max-width:220px;"><label>Läuft ab (optional)</label><input type="datetime-local" name="expires_at"></div>
+      <button class="btn-save" type="submit">Abstimmung starten</button>
+    </form>
+  </div>
+
+  <div class="section-divider">Abstimmungen (<%= polls.length %>)</div>
+  <% if (!polls.length) { %><p style="color:#999;font-size:0.9rem;">Noch keine Abstimmungen.</p>
+  <% } else { %>
+  <table>
+    <thead><tr><th>Status</th><th>Frage</th><th>Erstellt</th><th>Aktionen</th></tr></thead>
+    <tbody>
+    <% polls.forEach(function(p) { %>
+    <tr>
+      <td><span class="badge <%= p.active?'badge-member':'badge-new' %>"><%= p.active?'Aktiv':'Geschlossen' %></span></td>
+      <td style="font-weight:600;max-width:280px;"><%= p.question %></td>
+      <td style="font-size:0.8rem;color:#666;"><%= new Date(p.created_at).toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'}) %></td>
+      <td>
+        <div class="actions">
+          <% if (p.active) { %>
+          <form method="POST" action="/admin/polls/<%= p.id %>/close" style="display:inline;">
+            <button class="btn-cancel" type="submit">Schließen</button>
+          </form>
+          <% } %>
+          <form method="POST" action="/admin/polls/<%= p.id %>/delete" onsubmit="return confirm('Abstimmung löschen?')" style="display:inline;">
+            <button class="btn-del" type="submit">Löschen</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    <% }); %>
+    </tbody>
+  </table>
+  <% } %>
 </div>
 
 <!-- ══ TRAININGSPLAN ══ -->

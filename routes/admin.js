@@ -55,7 +55,7 @@ router.get('/logout', (req, res) => {
 
 router.get('/', requireAuth, async (req, res, next) => {
   try {
-    const [[news], [termine], [gallery], [members], [contentRows], [sponsors], [clubOauth], [clubMembersAuth], [challenges], [trainingsplaene]] = await Promise.all([
+    const [[news], [termine], [gallery], [members], [contentRows], [sponsors], [clubOauth], [clubMembersAuth], [challenges], [trainingsplaene], [polls]] = await Promise.all([
       pool.query('SELECT * FROM news ORDER BY published_at DESC'),
       pool.query('SELECT * FROM termine ORDER BY date ASC'),
       pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
@@ -66,10 +66,11 @@ router.get('/', requireAuth, async (req, res, next) => {
       pool.query('SELECT id, name, email, created_at FROM club_members_auth ORDER BY created_at DESC'),
       pool.query('SELECT * FROM club_challenges ORDER BY created_at DESC'),
       pool.query('SELECT * FROM club_trainingsplan ORDER BY week_start DESC LIMIT 12'),
+      pool.query('SELECT * FROM club_polls ORDER BY created_at DESC LIMIT 20'),
     ]);
     const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
     res.render('admin/dashboard', {
-      news, termine, gallery, members, content, sponsors, clubOauth, clubMembersAuth, challenges, trainingsplaene,
+      news, termine, gallery, members, content, sponsors, clubOauth, clubMembersAuth, challenges, trainingsplaene, polls,
       flash: req.query.msg || null,
       activeTab: req.query.tab || 'news',
     });
@@ -316,6 +317,36 @@ router.post('/page/content', requireAuth, async (req, res, next) => {
       }
     }
     res.redirect('/admin?msg=Gespeichert&tab=page');
+  } catch (err) { next(err); }
+});
+
+/* ── POLLS ── */
+router.post('/polls', requireAuth, async (req, res, next) => {
+  const question = (req.body.question || '').trim();
+  const options = (req.body.options || '').split('\n').map(o => o.trim()).filter(Boolean);
+  const expires_at = req.body.expires_at || null;
+  if (!question || options.length < 2) return res.redirect('/admin?msg=Mindestens+2+Optionen&tab=polls');
+  try {
+    await pool.query(
+      'INSERT INTO club_polls (question, options, expires_at) VALUES (?,?,?)',
+      [question, JSON.stringify(options), expires_at]
+    );
+    res.redirect('/admin?msg=Abstimmung+erstellt&tab=polls');
+  } catch (err) { next(err); }
+});
+
+router.post('/polls/:id/close', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('UPDATE club_polls SET active=0 WHERE id=?', [req.params.id]);
+    res.redirect('/admin?msg=Abstimmung+geschlossen&tab=polls');
+  } catch (err) { next(err); }
+});
+
+router.post('/polls/:id/delete', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM club_poll_votes WHERE poll_id=?', [req.params.id]);
+    await pool.query('DELETE FROM club_polls WHERE id=?', [req.params.id]);
+    res.redirect('/admin?msg=Abstimmung+gelöscht&tab=polls');
   } catch (err) { next(err); }
 });
 
