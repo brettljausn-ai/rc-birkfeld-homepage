@@ -231,6 +231,14 @@ router.post('/sponsors/:id/delete', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── CHAT LEEREN ── */
+router.post('/chat/clear', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM club_chat');
+    res.redirect('/admin?msg=Chat+geleert&tab=clubmembers');
+  } catch (err) { next(err); }
+});
+
 /* ── STRAVA CACHE CLEAR ── */
 router.post('/strava-cache/clear', requireAuth, async (req, res, next) => {
   try {

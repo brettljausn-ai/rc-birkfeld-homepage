@@ -531,6 +531,12 @@
 
 <!-- ══ MITGLIEDER ══ -->
 <div id="panel-clubmembers" class="panel <%= activeTab==='clubmembers'?'active':'' %>">
+  <div style="margin-bottom:20px;">
+    <form method="POST" action="/admin/chat/clear" onsubmit="return confirm('Chat wirklich komplett leeren?')">
+      <button class="btn-del" type="submit" style="padding:8px 18px;font-size:0.85rem;">Chat leeren</button>
+    </form>
+  </div>
+
   <div class="section-divider">E-Mail-Registrierung (<%= clubMembersAuth.length %>)</div>
   <table>
     <thead><tr><th>Beitritt</th><th>Name</th><th>E-Mail</th><th></th></tr></thead>
