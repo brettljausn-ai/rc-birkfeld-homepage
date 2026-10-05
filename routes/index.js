@@ -175,6 +175,32 @@ router.get('/kontakt', (req, res) => {
   res.render('kontakt', { content: {}, termine: [] });
 });
 
+router.get('/game', async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT player_name, score, created_at FROM game_scores ORDER BY score DESC LIMIT 10');
+    res.render('game', { content: {}, termine: [], leaderboard: rows });
+  } catch (err) { next(err); }
+});
+
+router.get('/api/game/leaderboard', async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT player_name, score, created_at FROM game_scores ORDER BY score DESC LIMIT 10');
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+router.post('/api/game/score', async (req, res, next) => {
+  try {
+    const name = String(req.body.name || '').trim().substring(0, 20);
+    const score = parseInt(req.body.score, 10);
+    if (!name || isNaN(score) || score <= 0 || score > 99999) {
+      return res.status(400).json({ error: 'Ungültige Eingabe' });
+    }
+    await pool.query('INSERT INTO game_scores (player_name, score) VALUES (?, ?)', [name, score]);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
 router.get('/laurenzibergrennen', (req, res) => {
   res.render('laurenzibergrennen');
 });

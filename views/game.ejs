@@ -1,0 +1,347 @@
+<%- include('partials/head', { title: 'Bergabfahrt – RC ASVÖ Birkfeld', description: 'Mini-Spiel: Radfahrer bergab, Hindernissen ausweichen. Bestenliste aller Spieler.' }) %>
+<%- include('partials/nav') %>
+
+<main style="padding:clamp(32px,6vw,60px) 0 clamp(48px,8vw,100px);">
+  <div class="wrap">
+
+    <div style="margin-bottom:28px;">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--rust);text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:block;margin-bottom:10px;">Mini-Spiel</span>
+      <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--ink);margin-bottom:8px;">Bergabfahrt</h1>
+      <p style="font-size:0.88rem;color:#888;font-family:'IBM Plex Mono',monospace;">LEERTASTE&nbsp;/&nbsp;TIPPEN&nbsp;=&nbsp;SPRINGEN&nbsp;·&nbsp;HINDERNISSEN AUSWEICHEN</p>
+    </div>
+
+    <div id="gameGrid" style="display:grid;grid-template-columns:1fr 280px;gap:28px;align-items:start;">
+
+      <!-- Canvas + score submit -->
+      <div>
+        <div style="position:relative;">
+          <canvas id="rcGame" style="display:block;width:100%;border-radius:12px;cursor:pointer;touch-action:none;" aria-label="Bergabfahrt Spiel"></canvas>
+          <!-- Score-submit overlay (shown after game over) -->
+          <div id="scoreForm" style="display:none;position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.88);border-radius:0 0 12px 12px;padding:14px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#aaa;white-space:nowrap;">In Bestenliste eintragen:</span>
+            <input id="scoreName" type="text" maxlength="20" placeholder="Dein Name"
+              style="flex:1;min-width:120px;background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:7px 12px;color:#fff;font-size:0.85rem;font-family:inherit;outline:none;">
+            <button id="scoreSubmitBtn"
+              style="background:#1F7A34;color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;">
+              Eintragen
+            </button>
+            <button id="scoreSkipBtn"
+              style="background:none;border:1px solid #333;color:#555;border-radius:6px;padding:8px 12px;font-size:0.78rem;cursor:pointer;font-family:inherit;">
+              Überspringen
+            </button>
+          </div>
+        </div>
+        <p id="submitMsg" style="font-size:0.82rem;margin-top:10px;min-height:1.2em;font-family:'IBM Plex Mono',monospace;"></p>
+      </div>
+
+      <!-- Leaderboard -->
+      <div style="background:var(--gravel-dark);border:1px solid var(--line);border-radius:12px;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.15rem;color:var(--ink);">Bestenliste</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#888;text-transform:uppercase;letter-spacing:.08em;">Top 10</span>
+        </div>
+        <div id="lbList" style="padding:8px 0;">
+          <% if (leaderboard.length === 0) { %>
+          <div style="padding:24px 20px;text-align:center;color:#888;font-size:0.85rem;">Noch keine Einträge.<br>Sei der Erste!</div>
+          <% } else { %>
+          <% leaderboard.forEach(function(row, i) { %>
+          <div style="display:flex;align-items:center;gap:12px;padding:9px 20px;border-bottom:1px solid var(--line);">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:700;min-width:22px;color:<%= i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'#555' %>;">
+              <%= i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1) %>
+            </span>
+            <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= row.player_name %></span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:0.88rem;font-weight:700;color:var(--rust);"><%=  row.score %></span>
+          </div>
+          <% }); %>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<style>
+@media(max-width:680px){
+  #gameGrid{grid-template-columns:1fr!important;}
+}
+</style>
+
+<script>
+(function(){
+  var cv = document.getElementById('rcGame');
+  var ctx = cv.getContext('2d');
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var W = 800, H = 240;
+  cv.width = W * DPR; cv.height = H * DPR;
+  ctx.scale(DPR, DPR);
+
+  var GND = 185, GRAV = 0.75, JUMP = -13, WR = 13;
+  var state = 'idle';
+  var score = 0, hi = +(localStorage.getItem('rcg_hi') || 0);
+  var spd, frame, bx1, bx2, bx3, obstacles, spawn;
+  var P = { x: 90, y: GND, vy: 0, ground: true };
+  var submitted = false;
+
+  function reset() {
+    score = 0; spd = 4.5; frame = 0;
+    bx1 = bx2 = bx3 = 0; obstacles = []; spawn = 90;
+    P.y = GND; P.vy = 0; P.ground = true;
+    submitted = false;
+    hideForm();
+    state = 'playing';
+  }
+
+  function jump() {
+    if (state !== 'playing') { reset(); P.vy = JUMP; P.ground = false; return; }
+    if (P.ground) { P.vy = JUMP; P.ground = false; }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.code !== 'Space') return;
+    var r = cv.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0) { e.preventDefault(); jump(); }
+  });
+  cv.addEventListener('click', jump);
+  cv.addEventListener('touchstart', function(e) { e.preventDefault(); jump(); }, { passive: false });
+
+  /* ── Drawing ── */
+  function sky() {
+    var g = ctx.createLinearGradient(0,0,0,GND);
+    g.addColorStop(0,'#0d1a10'); g.addColorStop(1,'#254030');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,GND);
+  }
+  function mtns(off,col,hs) {
+    var pw=420; ctx.fillStyle=col; var ox=off%pw;
+    for(var x=-ox-pw;x<W+pw;x+=pw){
+      ctx.beginPath();
+      ctx.moveTo(x,GND);
+      ctx.lineTo(x+pw*.13,GND-85*hs); ctx.lineTo(x+pw*.30,GND-120*hs);
+      ctx.lineTo(x+pw*.50,GND-75*hs); ctx.lineTo(x+pw*.70,GND-105*hs);
+      ctx.lineTo(x+pw*.88,GND-55*hs); ctx.lineTo(x+pw,GND);
+      ctx.fill();
+    }
+  }
+  function trees(off) {
+    var sp=55, ox=off%sp; ctx.fillStyle='#091409';
+    for(var i=-1;i<Math.ceil(W/sp)+2;i++){
+      var x=i*sp-ox;
+      var h=30+(((Math.floor(off/sp)+i)%3+3)%3)*9;
+      ctx.beginPath();
+      ctx.moveTo(x,GND);
+      ctx.lineTo(x-9,GND-h*.42); ctx.lineTo(x-5,GND-h*.42);
+      ctx.lineTo(x-11,GND-h*.72); ctx.lineTo(x-5,GND-h*.72);
+      ctx.lineTo(x,GND-h);
+      ctx.lineTo(x+5,GND-h*.72); ctx.lineTo(x+11,GND-h*.72);
+      ctx.lineTo(x+5,GND-h*.42); ctx.lineTo(x+9,GND-h*.42);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+  function drawGnd(off) {
+    var g=ctx.createLinearGradient(0,GND,0,H);
+    g.addColorStop(0,'#8a7450'); g.addColorStop(1,'#5a4830');
+    ctx.fillStyle=g; ctx.fillRect(0,GND,W,H-GND);
+    ctx.fillStyle='#9c8560'; ctx.fillRect(0,GND,W,3);
+    ctx.strokeStyle='rgba(255,255,255,.2)'; ctx.lineWidth=2;
+    ctx.setLineDash([22,18]); ctx.lineDashOffset=-(off*2.8)%40;
+    ctx.beginPath(); ctx.moveTo(0,GND+18); ctx.lineTo(W,GND+18); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  function bg(b1,b2,b3){ sky(); mtns(b1,'#122018',.75); mtns(b2,'#0c170e',1); trees(b3); drawGnd(b3); }
+
+  function rock(rx,rh) {
+    ctx.save(); ctx.translate(rx,GND);
+    ctx.fillStyle='#5c5c48'; ctx.strokeStyle='#3a3a28'; ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(-rh*.55,0); ctx.lineTo(-rh*.70,-rh*.50);
+    ctx.lineTo(-rh*.25,-rh*.92); ctx.lineTo(rh*.22,-rh*1.0);
+    ctx.lineTo(rh*.65,-rh*.72); ctx.lineTo(rh*.62,0);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.07)';
+    ctx.beginPath(); ctx.moveTo(-rh*.05,-rh*.45); ctx.lineTo(rh*.12,-rh*.88); ctx.lineTo(rh*.38,-rh*.62); ctx.fill();
+    ctx.restore();
+  }
+
+  function cyclist(px,py,af) {
+    var a=af*0.17;
+    ctx.save(); ctx.translate(px,py);
+    ctx.fillStyle='rgba(0,0,0,.18)';
+    ctx.beginPath(); ctx.ellipse(0,2,24,5,0,0,Math.PI*2); ctx.fill();
+    [-14,14].forEach(function(wx,i){
+      ctx.beginPath(); ctx.arc(wx,-WR,WR,0,Math.PI*2);
+      ctx.strokeStyle='#1F7A34'; ctx.lineWidth=2.5; ctx.stroke();
+      ctx.beginPath(); ctx.arc(wx,-WR,2,0,Math.PI*2); ctx.fillStyle='#1F7A34'; ctx.fill();
+      ctx.save(); ctx.translate(wx,-WR); ctx.rotate(a*(i?1:-1));
+      ctx.strokeStyle='rgba(31,122,52,.55)'; ctx.lineWidth=1;
+      for(var s=0;s<6;s++){var sa=s*Math.PI/3; ctx.beginPath(); ctx.moveTo(2*Math.cos(sa),2*Math.sin(sa)); ctx.lineTo((WR-1)*Math.cos(sa),(WR-1)*Math.sin(sa)); ctx.stroke();}
+      ctx.restore();
+    });
+    ctx.strokeStyle='#22a040'; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(-14,-WR); ctx.lineTo(-3,-32); ctx.lineTo(14,-WR); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-14,-WR); ctx.lineTo(6,-WR-4); ctx.lineTo(14,-WR); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(14,-WR); ctx.lineTo(17,-28); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(17,-28); ctx.lineTo(22,-24); ctx.lineTo(22,-18); ctx.stroke();
+    ctx.strokeStyle='#1F7A34'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(-3,-33); ctx.lineTo(9,-49); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(9,-49); ctx.lineTo(22,-24); ctx.stroke();
+    ctx.beginPath(); ctx.arc(11,-59,8,0,Math.PI*2); ctx.fillStyle='#e8e8e8'; ctx.fill();
+    ctx.beginPath(); ctx.arc(11,-62,8,Math.PI,0); ctx.fillStyle='#1F7A34'; ctx.fill();
+    var cx=1,cy=-WR-3,cr=10;
+    var p1x=cx+Math.cos(a)*cr,p1y=cy+Math.sin(a)*cr;
+    var p2x=cx+Math.cos(a+Math.PI)*cr,p2y=cy+Math.sin(a+Math.PI)*cr;
+    ctx.strokeStyle='#1F7A34'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(-3,-33); ctx.lineTo(p1x,p1y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-3,-33); ctx.lineTo(p2x,p2y); ctx.stroke();
+    ctx.strokeStyle='rgba(31,122,52,.4)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p1x,p1y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p2x,p2y); ctx.stroke();
+    ctx.restore();
+  }
+
+  function ui() {
+    ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(W-152,8,144,44);
+    ctx.fillStyle='#fff'; ctx.font='bold 15px "IBM Plex Mono",monospace';
+    ctx.textAlign='right'; ctx.fillText(String(score).padStart(5,'0'),W-14,28);
+    ctx.fillStyle='#4CAF50'; ctx.font='10px "IBM Plex Mono",monospace';
+    ctx.fillText('HI '+String(hi).padStart(5,'0'),W-14,44);
+    ctx.textAlign='left';
+  }
+
+  function ovl(title,l1,l2,tc) {
+    ctx.fillStyle='rgba(0,0,0,.62)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.fillStyle=tc||'#fff'; ctx.font='900 28px "Big Shoulders Display",sans-serif';
+    ctx.fillText(title,W/2,H/2-16);
+    ctx.fillStyle='#999'; ctx.font='11px "IBM Plex Mono",monospace';
+    ctx.fillText(l1,W/2,H/2+8);
+    if(l2){ctx.fillStyle='#4CAF50'; ctx.font='bold 11px "IBM Plex Mono",monospace'; ctx.fillText(l2,W/2,H/2+28);}
+    ctx.textAlign='left';
+  }
+
+  function hit() {
+    for(var i=0;i<obstacles.length;i++){
+      var o=obstacles[i];
+      if(P.x+20>o.x-o.h*.5&&P.x-12<o.x+o.h*.5&&P.y>GND-o.h) return true;
+    }
+    return false;
+  }
+
+  function update() {
+    frame++; bx1+=spd*.12; bx2+=spd*.28; bx3+=spd;
+    P.vy+=GRAV; P.y+=P.vy;
+    if(P.y>=GND){P.y=GND;P.vy=0;P.ground=true;}
+    if(--spawn<=0){
+      obstacles.push({x:W+30,h:20+Math.random()*22});
+      spawn=Math.max(55,85-(score/25|0))+(Math.random()*50|0);
+    }
+    for(var i=obstacles.length-1;i>=0;i--){obstacles[i].x-=spd;if(obstacles[i].x<-60)obstacles.splice(i,1);}
+    if(hit()){
+      if(score>hi){hi=score;localStorage.setItem('rcg_hi',hi);}
+      state='dead';
+      if(score>0&&!submitted) showForm();
+      return;
+    }
+    if(frame%5===0) score++;
+    spd=4.5+score*.008;
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H); bg(bx1,bx2,bx3);
+    obstacles.forEach(function(o){rock(o.x,o.h);}); cyclist(P.x,P.y,frame);
+  }
+
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(state==='playing'){update();draw();ui();}
+    else if(state==='idle'){
+      frame++;bx3+=1.5; ctx.clearRect(0,0,W,H); bg(0,0,bx3);
+      cyclist(P.x,GND,frame);
+      ovl('BERGABFAHRT','LEERTASTE · TIPPEN ZUM STARTEN',hi>0?'HIGHSCORE: '+hi:null);
+    } else {
+      draw();ui();
+      ovl('GESTÜRZT!',score+' PUNKTE  —  NOCHMAL?',score>=hi&&score>0?'🏆 NEUER HIGHSCORE!':'HIGHSCORE: '+hi,'#e05729');
+    }
+  })();
+
+  /* ── Score submit ── */
+  var scoreForm = document.getElementById('scoreForm');
+  var scoreNameEl = document.getElementById('scoreName');
+  var submitBtn = document.getElementById('scoreSubmitBtn');
+  var skipBtn = document.getElementById('scoreSkipBtn');
+  var submitMsg = document.getElementById('submitMsg');
+
+  // Pre-fill last used name
+  scoreNameEl.value = localStorage.getItem('rcg_name') || '';
+
+  function showForm() {
+    scoreForm.style.display = 'flex';
+    setTimeout(function(){ scoreNameEl.focus(); }, 50);
+  }
+  function hideForm() {
+    if(scoreForm) scoreForm.style.display = 'none';
+    if(submitMsg) submitMsg.textContent = '';
+  }
+
+  async function submitScore() {
+    var name = scoreNameEl.value.trim();
+    if (!name) { scoreNameEl.focus(); return; }
+    submitBtn.disabled = true;
+    submitBtn.textContent = '…';
+    try {
+      var res = await fetch('/api/game/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, score: score })
+      });
+      var data = await res.json();
+      if (data.ok) {
+        localStorage.setItem('rcg_name', name);
+        submitted = true;
+        hideForm();
+        submitMsg.style.color = '#1F7A34';
+        submitMsg.textContent = '✓ Eingetragen! Viel Erfolg beim nächsten Versuch.';
+        loadLeaderboard();
+      } else {
+        submitMsg.style.color = '#e05729';
+        submitMsg.textContent = data.error || 'Fehler beim Eintragen.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Eintragen';
+      }
+    } catch(e) {
+      submitMsg.style.color = '#e05729';
+      submitMsg.textContent = 'Verbindungsfehler.';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Eintragen';
+    }
+  }
+
+  submitBtn.addEventListener('click', submitScore);
+  scoreNameEl.addEventListener('keydown', function(e){ if(e.key==='Enter') submitScore(); });
+  skipBtn.addEventListener('click', function(){ submitted=true; hideForm(); });
+
+  /* ── Leaderboard ── */
+  var medals = ['🥇','🥈','🥉'];
+  function loadLeaderboard() {
+    fetch('/api/game/leaderboard').then(function(r){return r.json();}).then(function(rows){
+      var el = document.getElementById('lbList');
+      if(!rows.length){
+        el.innerHTML='<div style="padding:24px 20px;text-align:center;color:#888;font-size:0.85rem;">Noch keine Einträge.<br>Sei der Erste!</div>';
+        return;
+      }
+      el.innerHTML = rows.map(function(row,i){
+        var rank = i < 3 ? medals[i] : '#'+(i+1);
+        var rankColor = i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'#555';
+        return '<div style="display:flex;align-items:center;gap:12px;padding:9px 20px;border-bottom:1px solid var(--line);">'
+          +'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.75rem;font-weight:700;min-width:22px;color:'+rankColor+';">'+rank+'</span>'
+          +'<span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escH(row.player_name)+'</span>'
+          +'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.88rem;font-weight:700;color:var(--rust);">'+row.score+'</span>'
+          +'</div>';
+      }).join('');
+    }).catch(function(){});
+  }
+
+  function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+})();
+</script>
+
+<%- include('partials/footer') %>
