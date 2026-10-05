@@ -83,6 +83,27 @@ router.get('/api/strava-events', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── SITEMAP ── */
+router.get('/sitemap.xml', async (req, res, next) => {
+  try {
+    const [[berichte], [termine]] = await Promise.all([
+      pool.query('SELECT id, published_at FROM news ORDER BY published_at DESC'),
+      pool.query('SELECT id, date FROM termine ORDER BY date DESC LIMIT 100'),
+    ]);
+    const BASE = 'https://www.rc-birkfeld.at';
+    const url = (loc, lastmod, freq, pri) =>
+      `<url><loc>${loc}</loc>${lastmod?`<lastmod>${lastmod}</lastmod>`:''}<changefreq>${freq}</changefreq><priority>${pri}</priority></url>`;
+    const urls = [
+      url(`${BASE}/`, '', 'weekly', '1.0'),
+      url(`${BASE}/berichte`, '', 'weekly', '0.8'),
+      ...berichte.map(b => url(`${BASE}/bericht/${b.id}`, b.published_at ? new Date(b.published_at).toISOString().split('T')[0] : '', 'monthly', '0.7')),
+      ...termine.map(t => url(`${BASE}/termin/${t.id}`, t.date ? new Date(t.date).toISOString().split('T')[0] : '', 'monthly', '0.6')),
+    ];
+    res.set('Content-Type', 'application/xml; charset=utf-8');
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`);
+  } catch (err) { next(err); }
+});
+
 /* ── OTHER PAGES ── */
 
 router.get('/berichte', async (req, res, next) => {

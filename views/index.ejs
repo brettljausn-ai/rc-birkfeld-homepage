@@ -383,7 +383,7 @@ function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 
 fetch('/api/galerie').then(function(r){return r.json();}).then(function(items){
   document.getElementById('galerieGrid').innerHTML = items.map(function(i){
-    return '<div class="gallery-item"><img src="/images/galerie/'+escH(i.filename)+'" alt="'+escH(i.caption||'')+'" loading="lazy">'+(i.caption?'<span class="gallery-caption">'+escH(i.caption)+'</span>':'')+'</div>';
+    return '<div class="gallery-item" style="cursor:pointer;" title="'+(i.caption?escH(i.caption):'Bild vergrößern')+'"><img src="/images/galerie/'+escH(i.filename)+'" alt="'+escH(i.caption||'')+'" loading="lazy">'+(i.caption?'<span class="gallery-caption">'+escH(i.caption)+'</span>':'')+'</div>';
   }).join('');
 }).catch(function(){});
 
