@@ -55,7 +55,7 @@ router.get('/logout', (req, res) => {
 
 router.get('/', requireAuth, async (req, res, next) => {
   try {
-    const [[news], [termine], [gallery], [members], [contentRows], [sponsors], [clubOauth], [clubMembersAuth], [challenges]] = await Promise.all([
+    const [[news], [termine], [gallery], [members], [contentRows], [sponsors], [clubOauth], [clubMembersAuth], [challenges], [trainingsplaene]] = await Promise.all([
       pool.query('SELECT * FROM news ORDER BY published_at DESC'),
       pool.query('SELECT * FROM termine ORDER BY date ASC'),
       pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
@@ -65,10 +65,11 @@ router.get('/', requireAuth, async (req, res, next) => {
       pool.query('SELECT * FROM club_oauth ORDER BY created_at DESC'),
       pool.query('SELECT id, name, email, created_at FROM club_members_auth ORDER BY created_at DESC'),
       pool.query('SELECT * FROM club_challenges ORDER BY created_at DESC'),
+      pool.query('SELECT * FROM club_trainingsplan ORDER BY week_start DESC LIMIT 12'),
     ]);
     const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
     res.render('admin/dashboard', {
-      news, termine, gallery, members, content, sponsors, clubOauth, clubMembersAuth, challenges,
+      news, termine, gallery, members, content, sponsors, clubOauth, clubMembersAuth, challenges, trainingsplaene,
       flash: req.query.msg || null,
       activeTab: req.query.tab || 'news',
     });
@@ -315,6 +316,26 @@ router.post('/page/content', requireAuth, async (req, res, next) => {
       }
     }
     res.redirect('/admin?msg=Gespeichert&tab=page');
+  } catch (err) { next(err); }
+});
+
+/* ── TRAININGSPLAN ── */
+router.post('/trainingsplan', requireAuth, async (req, res, next) => {
+  const { week_start, title, content } = req.body;
+  if (!week_start || !title || !content) return res.redirect('/admin?msg=Fehlende+Felder&tab=trainingsplan');
+  try {
+    await pool.query(
+      'INSERT INTO club_trainingsplan (week_start, title, content) VALUES (?,?,?) ON DUPLICATE KEY UPDATE title=VALUES(title), content=VALUES(content)',
+      [week_start, title, content]
+    );
+    res.redirect('/admin?msg=Trainingsplan+gespeichert&tab=trainingsplan');
+  } catch (err) { next(err); }
+});
+
+router.post('/trainingsplan/:id/delete', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM club_trainingsplan WHERE id=?', [req.params.id]);
+    res.redirect('/admin?msg=Eintrag+gelöscht&tab=trainingsplan');
   } catch (err) { next(err); }
 });
 

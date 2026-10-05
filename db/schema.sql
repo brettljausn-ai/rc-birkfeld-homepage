@@ -224,3 +224,13 @@ ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_model        VARC
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_size         VARCHAR(20);
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS strava_athlete_id VARCHAR(50);
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS birthday          DATE;
+
+CREATE TABLE IF NOT EXISTS club_trainingsplan (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  week_start  DATE NOT NULL,
+  title       VARCHAR(200) NOT NULL,
+  content     TEXT NOT NULL,
+  created_by  VARCHAR(100) DEFAULT 'Admin',
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_week (week_start)
+);

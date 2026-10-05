@@ -261,6 +261,16 @@ router.post('/routen/:id/delete', requireMember, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── TRAININGSPLAN ── */
+router.get('/trainingsplan', requireMember, async (req, res, next) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM club_trainingsplan ORDER BY week_start DESC LIMIT 8'
+    );
+    res.render('club/trainingsplan', { ...helpers, memberName: req.session.memberName, plaene: rows, page: 'trainingsplan' });
+  } catch (err) { next(err); }
+});
+
 /* ── CHALLENGE ── */
 router.get('/challenge', requireMember, async (req, res, next) => {
   try {

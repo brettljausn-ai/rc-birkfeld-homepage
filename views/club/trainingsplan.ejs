@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/rcbirkfeld-logo.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trainingsplan – RC Birkfeld Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0D0D0D;color:#E8E8E8;font-family:'Public Sans',system-ui,sans-serif;min-height:100vh;}
+  a{color:inherit;text-decoration:none;}
+  .ch{background:#111;border-bottom:1px solid #1e1e1e;padding:0 20px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:200;}
+  .ch-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1rem;color:#4CAF50;letter-spacing:.06em;white-space:nowrap;margin-right:28px;}
+  .ch-tabs{display:flex;height:100%;flex:1;overflow-x:auto;}
+  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;white-space:nowrap;}
+  .ch-tab:hover{color:#aaa;} .ch-tab.active{color:#fff;border-bottom-color:#4CAF50;}
+  .ch-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+  .ch-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .ch-name{font-size:0.82rem;color:#888;white-space:nowrap;}
+  .ch-logout{font-size:0.75rem;color:#555;border:1px solid #2a2a2a;padding:4px 10px;border-radius:4px;text-decoration:none;}
+  .ch-logout:hover{color:#aaa;border-color:#444;}
+  .ch-profile-link{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;}
+  @media(max-width:600px){.ch-name{display:none;}.ch-brand{margin-right:12px;}.ch-tab{padding:0 10px;font-size:0.78rem;}}
+  /* trainingsplan */
+  .wrap{max-width:720px;margin:0 auto;padding:24px 16px;}
+  .page-title{font-family:'Big Shoulders Display',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:4px;}
+  .page-sub{font-size:0.82rem;color:#555;margin-bottom:28px;font-family:'IBM Plex Mono',monospace;}
+  .week-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:18px;}
+  .week-card.current{border-color:#1F7A34;}
+  .week-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #1a1a1a;gap:12px;flex-wrap:wrap;}
+  .week-badge{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:10px;font-weight:600;}
+  .week-badge.current{background:#0d2a10;color:#4CAF50;}
+  .week-badge.past{background:#1a1a1a;color:#444;}
+  .week-title{font-size:1rem;font-weight:700;color:#E8E8E8;}
+  .week-dates{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:#555;}
+  .week-content{padding:18px 20px;font-size:0.92rem;line-height:1.75;color:#C0C0C0;white-space:pre-wrap;word-break:break-word;}
+  .week-content.formatted ul{padding-left:20px;margin:8px 0;}
+  .week-content.formatted li{margin-bottom:4px;}
+  .week-meta{padding:10px 20px;border-top:1px solid #111;font-size:0.72rem;color:#333;font-family:'IBM Plex Mono',monospace;}
+  .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
+  .empty svg{display:block;margin:0 auto 14px;color:#2a2a2a;}
+</style>
+</head>
+<body>
+<%- include('_nav') %>
+<div class="wrap">
+  <h1 class="page-title">Trainingsplan</h1>
+  <p class="page-sub">Wochenpläne vom Trainer – was diese Woche ansteht.</p>
+
+  <% if (!plaene || plaene.length === 0) { %>
+  <div class="empty">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    Noch kein Trainingsplan verfügbar.<br>Der Admin wird bald einen eintragen.
+  </div>
+  <% } else {
+    var now = new Date();
+    now.setHours(0,0,0,0);
+    plaene.forEach(function(p) {
+      var ws = new Date(p.week_start);
+      var we = new Date(ws); we.setDate(we.getDate()+6);
+      var isCurrent = now >= ws && now <= we;
+      var wsStr = ws.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit'});
+      var weStr = we.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  %>
+  <div class="week-card <%= isCurrent?'current':'' %>">
+    <div class="week-header">
+      <div>
+        <div class="week-title"><%= p.title %></div>
+        <div class="week-dates"><%= wsStr %> – <%= weStr %></div>
+      </div>
+      <span class="week-badge <%= isCurrent?'current':'past' %>"><%= isCurrent?'Diese Woche':'Vergangen' %></span>
+    </div>
+    <div class="week-content"><%= p.content %></div>
+    <div class="week-meta">von <%= p.created_by %></div>
+  </div>
+  <% }); } %>
+</div>
+</body>
+</html>
