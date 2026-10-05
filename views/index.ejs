@@ -313,6 +313,22 @@
           <ul>
             <% (content.join_list||'Organisierte Ausfahrten – Rennrad und MTB\nClubdressen zu Mitgliederpreisen\nTechnikschulungen für Nachwuchsfahrer:innen\nJahreslizenz des ÖTRV').split('\n').filter(function(s){return s.trim();}).forEach(function(item){ %><li><%= item.trim() %></li><% }); %>
           </ul>
+          <h3 style="font-size:1.4rem;margin-top:28px;">Mitgliedsbeitrag</h3>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(31,122,52,0.08);border-radius:6px;border:1px solid rgba(31,122,52,0.2);">
+              <span style="font-weight:600;font-size:0.95rem;">Schüler</span>
+              <span style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.2rem;color:#1F7A34;">30 €</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(31,122,52,0.08);border-radius:6px;border:1px solid rgba(31,122,52,0.2);">
+              <span style="font-weight:600;font-size:0.95rem;">Erwachsene</span>
+              <span style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.2rem;color:#1F7A34;">40 €</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(31,122,52,0.08);border-radius:6px;border:1px solid rgba(31,122,52,0.2);">
+              <span style="font-weight:600;font-size:0.95rem;">Familie</span>
+              <span style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.2rem;color:#1F7A34;">60 €</span>
+            </div>
+          </div>
+          <p style="font-size:0.78rem;color:#888;margin-top:8px;">Jahresbeitrag · einmalige Zahlung</p>
         </div>
         <form id="joinForm" novalidate>
           <div class="field">
