@@ -1,5 +1,4 @@
 <%- include('partials/head', { title: 'RC ASVÖ Birkfeld' }) %>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <%- include('partials/nav') %>
 
 <main id="top">
@@ -107,18 +106,6 @@
         <p><%= content.verein_text||'Der RC ASVÖ Birkfeld ist Treffpunkt für Hobbyfahrer:innen und Rennsportler:innen aus dem Joglland.' %></p>
       </div>
     </div>
-  </section>
-
-  <!-- KARTE -->
-  <section id="karte" style="background:var(--ink);padding:0;">
-    <div class="wrap" style="padding-top:52px;padding-bottom:0;">
-      <div class="section-head fade-in" style="color:var(--chalk);">
-        <span class="kicker" style="color:var(--gold);">Unser Revier</span>
-        <h2 style="color:var(--chalk);">Birkfeld &amp; das Joglland.</h2>
-        <p style="color:#888;">Treffpunkt Samstag 13:00 · Friesis Bikery, Edelseestraße 27.</p>
-      </div>
-    </div>
-    <div id="vereinsKarte" style="width:100%;height:420px;"></div>
   </section>
 
   <!-- GALERIE -->
@@ -484,60 +471,5 @@ fetch('/api/strava-stats').then(function(r){return r.json();}).then(function(s){
 })();
 </script>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<script>
-(function(){
-  var el = document.getElementById('vereinsKarte');
-  if(!el) return;
-
-  // Voyager-Tiles: sauber, modern, gut lesbar
-  var map = L.map('vereinsKarte', {scrollWheelZoom:false, zoomControl:true}).setView([47.3697, 15.4989], 13);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-    attribution:'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-    maxZoom:18
-  }).addTo(map);
-
-  // Haupt-Pin: Treffpunkt
-  var mainIcon = L.divIcon({
-    html:'<div style="width:22px;height:22px;background:#4CAF50;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35),0 0 0 4px rgba(76,175,80,.25);display:flex;align-items:center;justify-content:center;"></div>',
-    className:'', iconSize:[22,22], iconAnchor:[11,11], popupAnchor:[0,-14]
-  });
-  // Sekundär-Pins
-  function secIcon(color){
-    return L.divIcon({
-      html:'<div style="width:14px;height:14px;background:'+color+';border-radius:50%;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.3);"></div>',
-      className:'', iconSize:[14,14], iconAnchor:[7,7], popupAnchor:[0,-10]
-    });
-  }
-  function popup(content){
-    return '<div style="font-family:\'Public Sans\',sans-serif;font-size:13px;line-height:1.5;min-width:170px;">'+content+'</div>';
-  }
-
-  L.marker([47.3697, 15.4989], {icon:mainIcon}).addTo(map)
-   .bindPopup(popup('<b style="font-size:14px;">📍 Friesis Bikery</b><br>Edelseestraße 27, Birkfeld<br><span style="color:#1F7A34;font-weight:700;">Sa 13:00 · Clubtreffpunkt</span>'))
-   .openPopup();
-
-  var spots = [
-    {lat:47.417, lng:15.558, color:'#e05729', label:'🚵 Laurentiberg', sub:'Vereinsrennen-Strecke'},
-    {lat:47.352, lng:15.621, color:'#1565C0', label:'⛰ Königskogel',   sub:'Bergzeitfahren'},
-    {lat:47.448, lng:15.398, color:'#7B1FA2', label:'🌲 Rabenwald',    sub:'MTB-Trails Joglland'},
-  ];
-  spots.forEach(function(s){
-    L.marker([s.lat, s.lng], {icon:secIcon(s.color)}).addTo(map)
-     .bindPopup(popup('<b>'+s.label+'</b><br><span style="color:#666;">'+s.sub+'</span>'));
-  });
-
-  el.addEventListener('touchstart', function(){map.scrollWheelZoom.enable();}, {passive:true});
-})();
-</script>
-<style>
-.leaflet-popup-content-wrapper{background:#fff;color:#111;border:none;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.18);padding:0;}
-.leaflet-popup-content{margin:12px 16px;}
-.leaflet-popup-tip{background:#fff;}
-.leaflet-popup-close-button{color:#999!important;font-size:18px!important;top:6px!important;right:8px!important;}
-.leaflet-control-zoom a{background:#fff!important;color:#333!important;border-color:#ddd!important;font-size:16px!important;}
-.leaflet-control-zoom a:hover{background:#f5f5f5!important;}
-.leaflet-control-attribution{background:rgba(255,255,255,.8)!important;color:#999!important;font-size:10px!important;}
-</style>
 
 <%- include('partials/footer') %>
