@@ -19,15 +19,15 @@
       <%= new Date(bericht.published_at).toLocaleDateString('de-AT',{day:'2-digit',month:'long',year:'numeric'}) %>
     </span>
 
-    <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;margin:10px 0 24px;color:var(--chalk);">
+    <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;margin:10px 0 24px;color:var(--ink);">
       <%= bericht.title %>
     </h1>
 
-    <div style="font-size:1.05rem;line-height:1.8;color:#ccc;white-space:pre-wrap;word-break:break-word;">
+    <div style="font-size:1.05rem;line-height:1.8;color:var(--ink);white-space:pre-wrap;word-break:break-word;">
       <%= bericht.content %>
     </div>
 
-    <div style="margin-top:48px;padding-top:24px;border-top:1px solid #1e1e1e;">
+    <div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--line);">
       <a href="/#berichte" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--rust);text-decoration:none;font-weight:600;">
         ← Zurück zu allen Berichten
       </a>
