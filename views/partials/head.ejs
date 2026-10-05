@@ -6,6 +6,17 @@
 <title><%= title || 'RC ASVÖ Birkfeld' %></title>
 <meta name="description" content="<%= typeof description !== 'undefined' ? description : 'Radsportverein RC ASVÖ Birkfeld – Rennrad, MTB und Gravel im Joglland, Oststeiermark.' %>">
 <meta name="theme-color" content="#4CAF50">
+<meta property="og:type" content="<%= typeof ogType !== 'undefined' ? ogType : 'website' %>">
+<meta property="og:title" content="<%= title || 'RC ASVÖ Birkfeld' %>">
+<meta property="og:description" content="<%= typeof description !== 'undefined' ? description : 'Radsportverein RC ASVÖ Birkfeld – Rennrad, MTB und Gravel im Joglland, Oststeiermark.' %>">
+<meta property="og:url" content="https://www.rc-birkfeld.at<%= typeof ogPath !== 'undefined' ? ogPath : '' %>">
+<meta property="og:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : 'https://www.rc-birkfeld.at/images/rcbirkfeld-logo.png' %>">
+<meta property="og:site_name" content="RC ASVÖ Birkfeld">
+<meta property="og:locale" content="de_AT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= title || 'RC ASVÖ Birkfeld' %>">
+<meta name="twitter:description" content="<%= typeof description !== 'undefined' ? description : 'Radsportverein RC ASVÖ Birkfeld – Rennrad, MTB und Gravel im Joglland, Oststeiermark.' %>">
+<meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : 'https://www.rc-birkfeld.at/images/rcbirkfeld-logo.png' %>">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

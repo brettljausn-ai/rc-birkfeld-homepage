@@ -1,4 +1,28 @@
-<%- include('partials/head', { title: 'RC ASVÖ Birkfeld' }) %>
+<%- include('partials/head', { title: 'RC ASVÖ Birkfeld – Radsportverein im Joglland', description: 'Radsportverein RC ASVÖ Birkfeld – Rennrad, MTB und Gravel im Joglland, Oststeiermark. Wöchentliche Ausfahrten, Jugendteam und Rennsport seit 1993.' }) %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsClub",
+  "name": "RC ASVÖ Birkfeld",
+  "alternateName": "Radsportclub ASVÖ Birkfeld",
+  "description": "Radsportverein für Rennrad, MTB und Gravel im Joglland, Oststeiermark. Wöchentliche Ausfahrten, Jugendteam (U13–Junioren) und Rennsport seit 1993.",
+  "url": "https://www.rc-birkfeld.at",
+  "logo": "https://www.rc-birkfeld.at/images/rcbirkfeld-logo.png",
+  "image": "https://www.rc-birkfeld.at/images/rcbirkfeld-logo.png",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Edelseestraße 27",
+    "addressLocality": "Birkfeld",
+    "postalCode": "8190",
+    "addressRegion": "Steiermark",
+    "addressCountry": "AT"
+  },
+  "geo": { "@type": "GeoCoordinates", "latitude": 47.3697, "longitude": 15.4989 },
+  "sport": "Cycling",
+  "foundingDate": "1993",
+  "sameAs": ["https://www.strava.com/clubs/300701"]
+}
+</script>
 <%- include('partials/nav') %>
 
 <main id="top">
@@ -203,6 +227,9 @@
         </div>
         <% } %>
       </div>
+      <div style="text-align:center;margin-top:36px;">
+        <a href="/berichte" style="display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line,#2a2a2a);padding:12px 28px;border-radius:8px;font-size:0.88rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--chalk,#E8E8E8);text-decoration:none;transition:border-color .15s;">Alle Berichte ansehen →</a>
+      </div>
     </div>
   </section>
 
@@ -241,25 +268,34 @@
 
   <!-- SPONSOREN -->
   <% if (sponsors && sponsors.length > 0) { %>
-  <section id="sponsoren" class="sponsors-section">
+  <section id="sponsoren" class="sponsors-section" style="overflow:hidden;">
     <div class="wrap">
       <div class="section-head fade-in">
         <span class="kicker">Unsere Partner</span>
         <h2>Sponsoren.</h2>
       </div>
-      <div class="sponsors-grid fade-in">
-        <% sponsors.forEach(s => { %>
+    </div>
+    <div class="sponsors-marquee-wrap">
+      <div class="sponsors-marquee">
+        <% var allSponsors = sponsors.concat(sponsors); allSponsors.forEach(s => { %>
         <% if (s.website_url) { %>
         <a href="<%= s.website_url %>" target="_blank" rel="noopener" class="sponsor-tile" title="<%= s.name %>">
         <% } else { %>
-        <div class="sponsor-tile" title="<%= s.name %>">
+        <div class="sponsor-tile">
         <% } %>
-          <img src="<%= s.logo %>" alt="<%= s.name %>">
+          <img src="<%= s.logo %>" alt="<%= s.name %>" loading="lazy" width="120" height="60">
         <% if (s.website_url) { %></a><% } else { %></div><% } %>
-        <% }); %>
       </div>
     </div>
   </section>
+  <style>
+  .sponsors-marquee-wrap{width:100%;overflow:hidden;padding:20px 0 40px;}
+  .sponsors-marquee{display:flex;gap:40px;width:max-content;animation:marquee-scroll 30s linear infinite;}
+  .sponsors-marquee:hover{animation-play-state:paused;}
+  @keyframes marquee-scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+  .sponsor-tile{display:flex;align-items:center;justify-content:center;min-width:140px;height:70px;padding:10px 16px;background:#fff;border-radius:8px;flex-shrink:0;}
+  .sponsor-tile img{max-width:120px;max-height:50px;object-fit:contain;display:block;}
+  </style>
   <% } %>
 
   <!-- JOIN -->
@@ -354,8 +390,8 @@ fetch('/api/news').then(function(r){return r.json();}).then(function(items){
   el.innerHTML = items.map(function(n){
     var date = new Date(n.published_at).toLocaleDateString('de-AT',{month:'long',year:'numeric'});
     var preview = n.content.length>160 ? n.content.substring(0,160)+'…' : n.content;
-    var img = n.image_url ? '<img src="'+escH(n.image_url)+'" alt="'+escH(n.title)+'" onerror="this.style.display=\'none\'">' : '<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><path d="M10,60 L28,30 L44,48 L56,24 L70,60 Z" fill="white" opacity="0.25"/><path d="M10,60 L28,30 L44,48 L56,24 L70,60" stroke="white" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>';
-    return '<div class="news-card"><div class="news-card-img">'+img+'</div><div class="news-card-body"><span class="news-date">'+date+'</span><h4>'+escH(n.title)+'</h4><p>'+escH(preview)+'</p><a href="/bericht/'+n.id+'" class="news-read-more">Bericht lesen →</a></div></div>';
+    var img = n.image_url ? '<img src="'+escH(n.image_url)+'" alt="'+escH(n.title)+'" loading="lazy" onerror="this.parentNode.style.background=\'#1a1a1a\';this.style.display=\'none\'">' : '<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><path d="M10,60 L28,30 L44,48 L56,24 L70,60 Z" fill="white" opacity="0.25"/><path d="M10,60 L28,30 L44,48 L56,24 L70,60" stroke="white" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>';
+    return '<div class="news-card"><a href="/bericht/'+n.id+'" style="display:block;text-decoration:none;color:inherit;"><div class="news-card-img">'+img+'</div></a><div class="news-card-body"><span class="news-date">'+date+'</span><h4><a href="/bericht/'+n.id+'" style="color:inherit;text-decoration:none;">'+escH(n.title)+'</a></h4><p>'+escH(preview)+'</p><a href="/bericht/'+n.id+'" class="news-read-more">Bericht lesen →</a></div></div>';
   }).join('');
 }).catch(function(){});
 

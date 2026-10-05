@@ -1,10 +1,33 @@
-<%- include('partials/head', { title: bericht.title, description: bericht.content.substring(0,160).replace(/\n/g,' ') }) %>
+<%- include('partials/head', { title: bericht.title + ' – RC Birkfeld', description: bericht.content.substring(0,160).replace(/\n/g,' '), ogType: 'article', ogPath: '/bericht/' + bericht.id, ogImage: bericht.image_url || undefined }) %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "<%- bericht.title.replace(/"/g,'&quot;') %>",
+  "datePublished": "<%= new Date(bericht.published_at).toISOString() %>",
+  "author": {
+    "@type": "Organization",
+    "name": "RC ASVÖ Birkfeld"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "RC ASVÖ Birkfeld",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.rc-birkfeld.at/images/rcbirkfeld-logo.png"
+    }
+  },
+  "description": "<%= bericht.content.substring(0,160).replace(/\n/g,' ').replace(/"/g,'&quot;') %>",
+  "url": "https://www.rc-birkfeld.at/bericht/<%= bericht.id %>"<% if (bericht.image_url) { %>,
+  "image": "<%= bericht.image_url %>"<% } %>
+}
+</script>
 <%- include('partials/nav') %>
 
 <main style="padding:60px 0 80px;">
   <div class="wrap" style="max-width:760px;">
 
-    <a href="/#berichte" style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--rust);text-decoration:none;margin-bottom:32px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">
+    <a href="/berichte" style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--rust);text-decoration:none;margin-bottom:32px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Alle Berichte
     </a>
@@ -28,7 +51,7 @@
     </div>
 
     <div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--line);">
-      <a href="/#berichte" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--rust);text-decoration:none;font-weight:600;">
+      <a href="/berichte" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--rust);text-decoration:none;font-weight:600;">
         ← Zurück zu allen Berichten
       </a>
     </div>

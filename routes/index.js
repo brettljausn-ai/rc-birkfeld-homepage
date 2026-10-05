@@ -85,6 +85,23 @@ router.get('/api/strava-events', async (req, res, next) => {
 
 /* ── OTHER PAGES ── */
 
+router.get('/berichte', async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 12;
+    const offset = (page - 1) * limit;
+    const [[rows], [countRows], [contentRows]] = await Promise.all([
+      pool.query('SELECT id, title, content, image_url, published_at FROM news ORDER BY published_at DESC LIMIT ? OFFSET ?', [limit, offset]),
+      pool.query('SELECT COUNT(*) AS total FROM news'),
+      pool.query('SELECT `key`, value FROM site_content'),
+    ]);
+    const total = countRows[0].total;
+    const totalPages = Math.ceil(total / limit);
+    const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
+    res.render('berichte', { berichte: rows, page, totalPages, total, content });
+  } catch (err) { next(err); }
+});
+
 router.get('/bericht/:id', async (req, res, next) => {
   try {
     const [[rows], [dbTermine], [contentRows]] = await Promise.all([

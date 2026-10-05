@@ -2,7 +2,33 @@
   var isPast = new Date(termin.date) < new Date();
   var pageTitle = isPast ? ('Rückblick: ' + termin.title) : termin.title;
 %>
-<%- include('partials/head', { title: pageTitle + ' – RC Birkfeld', description: termin.description || (termin.title + ' am ' + new Date(termin.date).toLocaleDateString('de-AT', {day:'2-digit',month:'long',year:'numeric'})) }) %>
+<%- include('partials/head', { title: pageTitle + ' – RC Birkfeld', description: termin.description || (termin.title + ' am ' + new Date(termin.date).toLocaleDateString('de-AT', {day:'2-digit',month:'long',year:'numeric'})), ogType: 'event', ogPath: '/termin/' + termin.id }) %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsEvent",
+  "name": "<%- termin.title.replace(/"/g,'&quot;') %>",
+  "startDate": "<%= new Date(termin.date).toISOString().split('T')[0] %>",
+  "eventStatus": "https://schema.org/Event<%= new Date(termin.date) < new Date() ? 'Completed' : 'Scheduled' %>",
+  "location": {
+    "@type": "Place",
+    "name": "<%= (termin.location || 'Birkfeld, Steiermark').replace(/"/g,'') %>",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Birkfeld",
+      "addressRegion": "Steiermark",
+      "addressCountry": "AT"
+    }
+  },
+  "organizer": {
+    "@type": "SportsClub",
+    "name": "RC ASVÖ Birkfeld",
+    "url": "https://www.rc-birkfeld.at"
+  },
+  "url": "https://www.rc-birkfeld.at/termin/<%= termin.id %>",
+  "sport": "Cycling"
+}
+</script>
 <%- include('partials/nav') %>
 
 <main style="padding:60px 0 100px;">
