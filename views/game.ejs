@@ -7,7 +7,7 @@
     <div style="margin-bottom:28px;">
       <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--rust);text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:block;margin-bottom:10px;">Mini-Spiel</span>
       <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--ink);margin-bottom:8px;">Bergabfahrt</h1>
-      <p style="font-size:0.88rem;color:#888;font-family:'IBM Plex Mono',monospace;">LEERTASTE&nbsp;=&nbsp;SPRINGEN&nbsp;·&nbsp;2×&nbsp;=&nbsp;BACKFLIP&nbsp;·&nbsp;★&nbsp;STERN&nbsp;=&nbsp;UNVERWUNDBAR&nbsp;·&nbsp;🚰&nbsp;BIDON&nbsp;=&nbsp;+100&nbsp;PTS</p>
+      <p style="font-size:0.88rem;color:#888;font-family:'IBM Plex Mono',monospace;">SPRINGEN&nbsp;·&nbsp;2×&nbsp;=&nbsp;BACKFLIP&nbsp;·&nbsp;3×&nbsp;=&nbsp;DOUBLE&nbsp;·&nbsp;4×&nbsp;=&nbsp;TRIPLE&nbsp;·&nbsp;IN&nbsp;FOLGE&nbsp;=&nbsp;COMBO&nbsp;MULTIPLIER</p>
     </div>
 
     <div id="gameGrid" style="display:grid;grid-template-columns:1fr 280px;gap:28px;align-items:start;">
@@ -83,6 +83,8 @@
   var P = { x: 90, y: GND, vy: 0, ground: true };
   var submitted = false;
   var flipping = false, flipAngle = 0, lastJumpTime = 0;
+  var flipCount = 0, totalFlipTarget = 0, currentTrickPts = 0;
+  var trickCombo = 0, trickText = null;
   var logoImg = new Image(); logoImg.src = '/images/rcbirkfeld-logo.png';
   var logoItems = [], lastMilestone = 0, milestoneText = null;
   var invincible = false, invincibleFrames = 0;
@@ -155,6 +157,26 @@
     } catch(e) {}
   }
 
+  function playTrickLand(n) {
+    var a=getAudio(); if(!a) return;
+    try {
+      var len=(a.sampleRate*0.12)|0,buf=a.createBuffer(1,len,a.sampleRate),d=buf.getChannelData(0);
+      for(var i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2)*0.5;
+      var src=a.createBufferSource(),gn=a.createGain(),f=a.createBiquadFilter();
+      src.buffer=buf; f.type='lowpass'; f.frequency.value=220;
+      src.connect(f); f.connect(gn); gn.connect(a.destination); gn.gain.value=0.55; src.start();
+    } catch(e){}
+    try {
+      [[330,0],[550,0.06],[880,0.12]].slice(0,Math.min(n,3)).forEach(function(nf){
+        var o=a.createOscillator(),g=a.createGain(); o.type='triangle';
+        o.connect(g); g.connect(a.destination); o.frequency.value=nf[0];
+        var t=a.currentTime+nf[1];
+        g.gain.setValueAtTime(0.13,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+        o.start(t); o.stop(t+0.22);
+      });
+    } catch(e){}
+  }
+
   function playCheckpoint() {
     var a=getAudio(); if(!a) return; try {
       [[523,0],[659,0.07],[784,0.14],[1047,0.21],[1318,0.28]].forEach(function(nf){
@@ -191,6 +213,8 @@
     lightning = null; lightningTimer = 200;
     checkpointText = null; screenFlash = 0;
     flipping = false; flipAngle = 0; lastJumpTime = 0;
+    flipCount = 0; totalFlipTarget = 0; currentTrickPts = 0;
+    trickCombo = 0; trickText = null;
     logoItems = []; lastMilestone = 0; milestoneText = null;
     invincible = false; invincibleFrames = 0;
     nightProgress = 0;
@@ -201,10 +225,22 @@
   function jump() {
     var now = Date.now();
     if (state !== 'playing') { reset(); P.vy = JUMP; P.ground = false; lastJumpTime = now; playJump(); return; }
-    if (!P.ground && !flipping && now - lastJumpTime < 320) {
-      flipping = true; flipAngle = 0; P.vy = Math.min(P.vy, JUMP * 0.6); playFlip();
+    if (!P.ground && now - lastJumpTime < 350) {
+      if (!flipping) {
+        flipping = true; flipAngle = 0; flipCount = 1;
+        totalFlipTarget = Math.PI * 2; currentTrickPts = 50;
+        P.vy = Math.min(P.vy, JUMP * 0.62); playFlip();
+      } else if (flipCount < 3 && flipAngle < totalFlipTarget - 0.5) {
+        flipCount++;
+        totalFlipTarget = flipCount * Math.PI * 2;
+        currentTrickPts = 50 * flipCount * (flipCount + 1) / 2;
+        P.vy = Math.min(P.vy, JUMP * 0.55); playFlip();
+      }
     } else if (P.ground) {
-      P.vy = JUMP; P.ground = false; flipping = false; flipAngle = 0; playJump();
+      P.vy = JUMP; P.ground = false;
+      flipping = false; flipAngle = 0; flipCount = 0;
+      totalFlipTarget = 0; currentTrickPts = 0;
+      playJump();
     }
     lastJumpTime = now;
   }
@@ -508,7 +544,19 @@
     P.vy+=GRAV; P.y+=P.vy;
     if(P.y>=GND){
       if(wasAir&&P.vy>3) spawnDust(P.x,GND);
+      if(wasAir&&currentTrickPts>0){
+        trickCombo++;
+        var earned=currentTrickPts*trickCombo;
+        score+=earned;
+        var names=['','BACKFLIP','DOUBLE FLIP','TRIPLE FLIP'];
+        var nm=names[Math.min(flipCount,3)];
+        trickText={txt:nm+(trickCombo>1?' x'+trickCombo:'')+' +'+earned,a:2.4};
+        playTrickLand(flipCount);
+      } else if(wasAir){
+        trickCombo=0;
+      }
       P.y=GND;P.vy=0;P.ground=true;flipping=false;flipAngle=0;
+      flipCount=0;totalFlipTarget=0;currentTrickPts=0;
     }
     if(--spawn<=0){
       var types=['rock','rock','rock','log','log','cone'];
@@ -546,6 +594,7 @@
     if(hit()){
       if(score>hi){hi=score;localStorage.setItem('rcg_hi',hi);}
       coinCombo=0; comboTimer=0;
+      flipCount=0; currentTrickPts=0; trickCombo=0;
       crashX=P.x; crashY=P.y; crashVx=2.5; crashVy=-7;
       crashFrames=0; flipping=true; flipAngle=0;
       spawnCrash(P.x,P.y); playCrash();
@@ -579,7 +628,12 @@
     if(lightning){lightning.a-=0.1;if(lightning.a<=0)lightning=null;}
     if(screenFlash>0) screenFlash-=0.022;
     if(checkpointText){checkpointText.a-=0.016;if(checkpointText.a<=0)checkpointText=null;}
-    if(flipping){flipAngle+=Math.PI/14;if(flipAngle>=Math.PI*2){flipping=false;flipAngle=0;}}
+    if(flipping){
+      var fs=Math.PI/Math.max(6,15-flipCount*3);
+      flipAngle+=fs;
+      if(flipAngle>=totalFlipTarget){flipping=false;flipAngle=0;}
+    }
+    if(trickText){trickText.a-=0.018;if(trickText.a<=0)trickText=null;}
     var ms=Math.floor(score/500);
     if(ms>lastMilestone){
       lastMilestone=ms;
@@ -624,6 +678,14 @@
       ctx.drawImage(logoImg,item.x-28,item.y-28,56,56);
       ctx.restore();
     });
+    if(trickText&&trickText.a>0){
+      ctx.save(); ctx.globalAlpha=Math.min(1,trickText.a);
+      var tc=trickCombo>2?'#FF6B35':trickCombo>1?'#FFD700':'#fff';
+      ctx.fillStyle=tc; ctx.font='900 22px "Big Shoulders Display",sans-serif';
+      ctx.textAlign='center'; ctx.shadowColor=tc; ctx.shadowBlur=18;
+      ctx.fillText(trickText.txt,W/2,52);
+      ctx.restore();
+    }
     if(checkpointText&&checkpointText.a>0){
       ctx.save(); ctx.globalAlpha=Math.min(1,checkpointText.a);
       ctx.fillStyle='#fff'; ctx.font='900 26px "Big Shoulders Display",sans-serif';
