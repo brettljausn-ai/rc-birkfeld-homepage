@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/rcbirkfeld-logo.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seitenstatistik – RC Birkfeld</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#f0f0f0;font-family:system-ui,sans-serif;color:#111;}
+  .admin-header{background:#0A0A0A;color:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  .admin-header h1{font-size:1.1rem;font-weight:700;}
+  .admin-header a{color:#4CAF50;text-decoration:none;font-size:0.85rem;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:32px;}
+  .kpi{background:#fff;border-radius:8px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .kpi-val{font-size:2rem;font-weight:700;color:#0A0A0A;line-height:1;}
+  .kpi-lbl{font-size:0.75rem;color:#888;margin-top:5px;text-transform:uppercase;letter-spacing:.04em;}
+  .card{background:#fff;border-radius:8px;padding:22px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:24px;}
+  .card h2{font-size:0.95rem;font-weight:700;margin-bottom:18px;color:#111;}
+  table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+  th{text-align:left;font-size:0.72rem;text-transform:uppercase;letter-spacing:.05em;color:#888;padding:0 0 8px;border-bottom:1px solid #eee;}
+  td{padding:8px 0;border-bottom:1px solid #f2f2f2;vertical-align:middle;}
+  td:last-child,th:last-child{text-align:right;}
+  .bar-wrap{height:6px;background:#f0f0f0;border-radius:3px;width:140px;display:inline-block;vertical-align:middle;margin-right:8px;}
+  .bar-fill{height:100%;border-radius:3px;background:#4CAF50;}
+  .chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:4px;}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .bar-col-bar{width:100%;background:#4CAF50;border-radius:3px 3px 0 0;min-height:2px;}
+  .bar-col-lbl{font-size:0.6rem;color:#999;white-space:nowrap;}
+  .page-label{font-family:monospace;font-size:0.82rem;color:#444;}
+  .note{font-size:0.78rem;color:#aaa;margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="admin-header">
+  <h1>📊 Seitenstatistik</h1>
+  <a href="/admin">← Dashboard</a>
+</div>
+
+<div class="wrap">
+
+  <!-- KPI -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-val"><%= totals.today || 0 %></div>
+      <div class="kpi-lbl">Heute</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val"><%= totals.week7 || 0 %></div>
+      <div class="kpi-lbl">Letzte 7 Tage</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val"><%= totals.month30 || 0 %></div>
+      <div class="kpi-lbl">Letzte 30 Tage</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val"><%= totals.alltime || 0 %></div>
+      <div class="kpi-lbl">Gesamt</div>
+    </div>
+  </div>
+
+  <!-- Daily chart -->
+  <div class="card">
+    <h2>Tägliche Aufrufe – letzte 14 Tage</h2>
+    <% if (daily.length === 0) { %>
+      <p style="color:#aaa;font-size:0.85rem;">Noch keine Daten.</p>
+    <% } else {
+      var maxDay = Math.max.apply(null, daily.map(function(d){return d.total;}));
+    %>
+    <div class="chart">
+      <% daily.forEach(function(d) {
+        var pct = maxDay > 0 ? Math.round((d.total / maxDay) * 100) : 0;
+        var dt = new Date(d.view_date);
+        var lbl = (dt.getDate()) + '.' + (dt.getMonth()+1) + '.';
+      %>
+      <div class="bar-col">
+        <div class="bar-col-bar" style="height:<%= pct %>%;"></div>
+        <div class="bar-col-lbl"><%= lbl %></div>
+      </div>
+      <% }); %>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Per page -->
+  <div class="card">
+    <h2>Top-Seiten – letzte 30 Tage</h2>
+    <% if (byPage.length === 0) { %>
+      <p style="color:#aaa;font-size:0.85rem;">Noch keine Daten.</p>
+    <% } else {
+      var maxPage = byPage[0].total;
+    %>
+    <table>
+      <tr><th>Seite</th><th>Aufrufe</th></tr>
+      <% byPage.forEach(function(row) { %>
+      <tr>
+        <td><span class="page-label"><%= row.page %></span></td>
+        <td>
+          <span class="bar-wrap"><span class="bar-fill" style="width:<%= Math.round(row.total/maxPage*100) %>%;"></span></span>
+          <strong><%= row.total %></strong>
+        </td>
+      </tr>
+      <% }); %>
+    </table>
+    <% } %>
+  </div>
+
+  <p class="note">Gezählt werden nur öffentliche Seiten (keine Admin/Club-Bereich, keine API-Calls, keine statischen Assets). Keine Cookies, keine IP-Adressen – DSGVO-konform.</p>
+
+</div>
+</body>
+</html>

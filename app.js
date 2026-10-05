@@ -6,6 +6,7 @@ const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
 const { pool, callbackPool } = require('./lib/db');
 const { migrate } = require('./lib/migrate');
+const { trackView } = require('./lib/analytics');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 
+app.use(trackView);
 app.use('/', require('./routes/index'));
 app.use('/contact', require('./routes/contact'));
 app.use('/admin', require('./routes/admin'));

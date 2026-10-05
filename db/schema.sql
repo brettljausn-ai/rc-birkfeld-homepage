@@ -312,3 +312,11 @@ CREATE TABLE IF NOT EXISTS game_scores (
   score       INT NOT NULL,
   created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS page_views (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  page       VARCHAR(100) NOT NULL,
+  view_date  DATE NOT NULL,
+  count      INT NOT NULL DEFAULT 0,
+  UNIQUE KEY uq_page_date (page, view_date)
+);

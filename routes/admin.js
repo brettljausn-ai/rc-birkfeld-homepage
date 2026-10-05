@@ -460,4 +460,33 @@ router.post('/gallery/reorder', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── STATS ── */
+router.get('/stats', requireAuth, async (req, res, next) => {
+  try {
+    const [[byPage], [daily], [totals]] = await Promise.all([
+      pool.query(`
+        SELECT page, SUM(count) AS total
+        FROM page_views
+        WHERE view_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        GROUP BY page ORDER BY total DESC LIMIT 20
+      `),
+      pool.query(`
+        SELECT view_date, SUM(count) AS total
+        FROM page_views
+        WHERE view_date >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)
+        GROUP BY view_date ORDER BY view_date ASC
+      `),
+      pool.query(`
+        SELECT
+          SUM(CASE WHEN view_date = CURDATE() THEN count ELSE 0 END) AS today,
+          SUM(CASE WHEN view_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN count ELSE 0 END) AS week7,
+          SUM(CASE WHEN view_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN count ELSE 0 END) AS month30,
+          SUM(count) AS alltime
+        FROM page_views
+      `),
+    ]);
+    res.render('admin/stats', { byPage, daily, totals: totals[0] });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;
