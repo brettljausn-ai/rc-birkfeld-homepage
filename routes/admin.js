@@ -191,6 +191,47 @@ router.post('/sponsors', requireAuth, uploadSponsor.single('logo'), async (req, 
   } catch (err) { next(err); }
 });
 
+function csvEscape(v) {
+  if (v == null) return '';
+  var s = String(v);
+  if (s.includes('"') || s.includes(',') || s.includes('\n')) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+function csvRow(cols) { return cols.map(csvEscape).join(','); }
+
+router.get('/members/export.csv', requireAuth, async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM members ORDER BY created_at DESC');
+    const lines = [
+      csvRow(['Datum', 'Name', 'E-Mail', 'Interesse', 'Status']),
+      ...rows.map(m => csvRow([
+        new Date(m.created_at).toLocaleDateString('de-AT'),
+        m.name, m.email, m.interesse || '', m.status
+      ]))
+    ];
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="beitrittsanfragen.csv"');
+    res.send('﻿' + lines.join('\r\n'));
+  } catch (err) { next(err); }
+});
+
+router.get('/club-members/export.csv', requireAuth, async (req, res, next) => {
+  try {
+    const [[email], [oauth]] = await Promise.all([
+      pool.query('SELECT name, email, created_at FROM club_members_auth ORDER BY created_at DESC'),
+      pool.query('SELECT member_name, email, provider, created_at FROM club_oauth ORDER BY created_at DESC'),
+    ]);
+    const lines = [
+      csvRow(['Datum', 'Name', 'E-Mail', 'Anmeldetyp']),
+      ...email.map(m => csvRow([new Date(m.created_at).toLocaleDateString('de-AT'), m.name, m.email, 'E-Mail'])),
+      ...oauth.map(m => csvRow([new Date(m.created_at).toLocaleDateString('de-AT'), m.member_name, m.email || '', m.provider])),
+    ];
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="clubmitglieder.csv"');
+    res.send('﻿' + lines.join('\r\n'));
+  } catch (err) { next(err); }
+});
+
 router.post('/members/:id/status', requireAuth, async (req, res, next) => {
   try {
     await pool.query('UPDATE members SET status=? WHERE id=?', [req.body.status, req.params.id]);

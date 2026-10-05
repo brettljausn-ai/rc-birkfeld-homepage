@@ -502,6 +502,9 @@
 
 <!-- ══ BEITRITTE ══ -->
 <div id="panel-members" class="panel <%= activeTab==='members'?'active':'' %>">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+    <a href="/admin/members/export.csv" style="background:#1F7A34;color:#fff;padding:7px 16px;border-radius:6px;font-size:0.82rem;font-weight:700;text-decoration:none;">↓ CSV exportieren</a>
+  </div>
   <table>
     <thead><tr><th>Datum</th><th>Name</th><th>E-Mail</th><th>Interesse</th><th>Status</th><th></th></tr></thead>
     <tbody>
@@ -534,10 +537,11 @@
 
 <!-- ══ MITGLIEDER ══ -->
 <div id="panel-clubmembers" class="panel <%= activeTab==='clubmembers'?'active':'' %>">
-  <div style="margin-bottom:20px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
     <form method="POST" action="/admin/chat/clear" onsubmit="return confirm('Chat wirklich komplett leeren?')">
       <button class="btn-del" type="submit" style="padding:8px 18px;font-size:0.85rem;">Chat leeren</button>
     </form>
+    <a href="/admin/club-members/export.csv" style="background:#1F7A34;color:#fff;padding:7px 16px;border-radius:6px;font-size:0.82rem;font-weight:700;text-decoration:none;">↓ CSV exportieren</a>
   </div>
 
   <div class="section-divider">E-Mail-Registrierung (<%= clubMembersAuth.length %>)</div>
