@@ -274,6 +274,27 @@ CREATE TABLE IF NOT EXISTS club_ai_trainingsplan (
   created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS club_gruppenfahrten (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  author        VARCHAR(100) NOT NULL,
+  title         VARCHAR(200) NOT NULL,
+  ride_date     DATETIME NOT NULL,
+  meeting_point VARCHAR(200),
+  distance_km   DECIMAL(5,1),
+  elevation_m   INT,
+  description   TEXT,
+  max_riders    INT NULL,
+  created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS club_gruppenfahrt_rsvp (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  fahrt_id    INT NOT NULL,
+  member_name VARCHAR(100) NOT NULL,
+  joined_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_fahrt_member (fahrt_id, member_name)
+);
+
 CREATE TABLE IF NOT EXISTS club_strava_tokens (
   member_name   VARCHAR(100) PRIMARY KEY,
   athlete_id    BIGINT NOT NULL,

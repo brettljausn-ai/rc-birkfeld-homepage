@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/rcbirkfeld-logo.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ausfahrten – RC Birkfeld Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0D0D0D;color:#E8E8E8;font-family:'Public Sans',system-ui,sans-serif;min-height:100vh;}
+  a{color:inherit;text-decoration:none;}
+  .ch{background:#111;border-bottom:1px solid #1e1e1e;padding:0 20px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:200;}
+  .ch-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1rem;color:#4CAF50;letter-spacing:.06em;white-space:nowrap;margin-right:28px;}
+  .ch-tabs{display:flex;height:100%;flex:1;overflow-x:auto;}
+  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;white-space:nowrap;}
+  .ch-tab:hover{color:#aaa;} .ch-tab.active{color:#fff;border-bottom-color:#4CAF50;}
+  .ch-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+  .ch-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .ch-name{font-size:0.82rem;color:#888;white-space:nowrap;}
+  .ch-logout{font-size:0.75rem;color:#555;border:1px solid #2a2a2a;padding:4px 10px;border-radius:4px;text-decoration:none;}
+  .ch-logout:hover{color:#aaa;border-color:#444;}
+  .ch-profile-link{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;}
+  @media(max-width:600px){.ch-name{display:none;}.ch-brand{margin-right:12px;}.ch-tab{padding:0 10px;font-size:0.78rem;}}
+
+  .wrap{max-width:720px;margin:0 auto;padding:24px 16px;}
+  .page-title{font-family:'Big Shoulders Display',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:4px;}
+  .page-sub{font-size:0.82rem;color:#555;margin-bottom:28px;font-family:'IBM Plex Mono',monospace;}
+
+  /* Create form */
+  .create-card{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:20px;margin-bottom:32px;}
+  .create-card h2{font-size:1rem;font-weight:700;margin-bottom:16px;color:#E8E8E8;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .form-grid .full{grid-column:1/-1;}
+  .form-label{font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:5px;font-family:'IBM Plex Mono',monospace;}
+  .form-input{width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:7px;padding:9px 12px;color:#E8E8E8;font-size:0.88rem;font-family:'Public Sans',sans-serif;outline:none;}
+  .form-input:focus{border-color:#1F7A34;}
+  .form-input::placeholder{color:#444;}
+  textarea.form-input{resize:vertical;min-height:72px;line-height:1.5;}
+  .btn-create{background:#1F7A34;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Public Sans',sans-serif;margin-top:4px;}
+  .btn-create:hover{background:#2a9a44;}
+  @media(max-width:540px){.form-grid{grid-template-columns:1fr;}.form-grid .full{grid-column:1;}}
+
+  /* Section heading */
+  .section-title{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;font-weight:700;color:#333;text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px;}
+
+  /* Ride card */
+  .ride-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:14px;transition:border-color .15s;}
+  .ride-card:hover{border-color:#2a2a2a;}
+  .ride-card.mine{border-color:#1F7A34;}
+  .ride-card.full{opacity:.7;}
+  .ride-header{padding:16px 18px 12px;border-bottom:1px solid #1a1a1a;}
+  .ride-date-badge{display:inline-flex;align-items:center;gap:6px;background:#1a1a1a;border-radius:6px;padding:4px 10px;font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:#888;margin-bottom:10px;}
+  .ride-date-badge svg{flex-shrink:0;}
+  .ride-title{font-size:1.05rem;font-weight:700;margin-bottom:6px;}
+  .ride-meta-row{display:flex;gap:16px;flex-wrap:wrap;font-size:0.8rem;color:#666;}
+  .ride-meta-item{display:flex;align-items:center;gap:5px;}
+  .ride-body{padding:12px 18px 14px;}
+  .ride-desc{font-size:0.88rem;color:#999;line-height:1.6;margin-bottom:12px;}
+  .riders-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .rider-chip{display:flex;align-items:center;gap:6px;background:#1a1a1a;border-radius:20px;padding:4px 10px 4px 4px;font-size:0.78rem;color:#C0C0C0;}
+  .rider-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .rider-count{font-size:0.78rem;color:#555;font-family:'IBM Plex Mono',monospace;}
+  .max-badge{font-size:0.75rem;color:#e05729;font-family:'IBM Plex Mono',monospace;}
+  .ride-actions{padding:10px 18px;border-top:1px solid #111;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .btn-join{background:#1F7A34;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Public Sans',sans-serif;}
+  .btn-join:hover{background:#2a9a44;}
+  .btn-leave{background:none;border:1px solid #1F7A34;color:#4CAF50;border-radius:7px;padding:7px 16px;font-size:0.82rem;cursor:pointer;font-family:'Public Sans',sans-serif;}
+  .btn-leave:hover{background:#0d2a10;}
+  .btn-del-ride{background:none;border:none;color:#333;font-size:0.78rem;cursor:pointer;padding:6px 10px;border-radius:6px;font-family:'Public Sans',sans-serif;margin-left:auto;}
+  .btn-del-ride:hover{color:#e05729;background:#1e0a00;}
+  .joined-label{font-size:0.78rem;color:#4CAF50;font-weight:600;}
+
+  /* Past */
+  .past-toggle{background:none;border:none;color:#555;font-size:0.82rem;cursor:pointer;padding:6px 0;font-family:'Public Sans',sans-serif;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+  .past-toggle:hover{color:#aaa;}
+  .past-section{display:none;}
+  .past-section.open{display:block;}
+  .ride-card.past{opacity:.5;}
+  .ride-card.past:hover{opacity:.7;}
+
+  .empty{text-align:center;color:#333;padding:48px 0;font-size:0.9rem;}
+  .empty svg{display:block;margin:0 auto 14px;color:#2a2a2a;}
+</style>
+</head>
+<body>
+<%- include('_nav') %>
+<div class="wrap">
+  <h1 class="page-title">Ausfahrten</h1>
+  <p class="page-sub">Gruppenfahrten planen · anmelden · losradeln.</p>
+
+  <!-- Create form -->
+  <div class="create-card">
+    <h2>Neue Ausfahrt erstellen</h2>
+    <form method="POST" action="/club/gruppenfahrten">
+      <div class="form-grid">
+        <div class="full">
+          <label class="form-label">Titel</label>
+          <input class="form-input" type="text" name="title" placeholder="z.B. Samstagsausfahrt Laurentiberg" required>
+        </div>
+        <div>
+          <label class="form-label">Datum</label>
+          <input class="form-input" type="date" name="ride_date" required>
+        </div>
+        <div>
+          <label class="form-label">Uhrzeit</label>
+          <input class="form-input" type="time" name="ride_time" value="13:00">
+        </div>
+        <div class="full">
+          <label class="form-label">Treffpunkt</label>
+          <input class="form-input" type="text" name="meeting_point" placeholder="Friesis Bikery, Edelseestraße 27">
+        </div>
+        <div>
+          <label class="form-label">Distanz (km)</label>
+          <input class="form-input" type="number" name="distance_km" placeholder="85" step="0.1" min="0">
+        </div>
+        <div>
+          <label class="form-label">Höhenmeter</label>
+          <input class="form-input" type="number" name="elevation_m" placeholder="1200" min="0">
+        </div>
+        <div>
+          <label class="form-label">Max. Teilnehmer (optional)</label>
+          <input class="form-input" type="number" name="max_riders" placeholder="keine Begrenzung" min="1">
+        </div>
+        <div class="full">
+          <label class="form-label">Beschreibung (optional)</label>
+          <textarea class="form-input" name="description" placeholder="Tempo, Strecke, Besonderheiten…"></textarea>
+        </div>
+      </div>
+      <button class="btn-create" type="submit" style="margin-top:14px;">Ausfahrt erstellen</button>
+    </form>
+  </div>
+
+  <!-- Upcoming -->
+  <div class="section-title">Bevorstehend (<%= upcoming.length %>)</div>
+
+  <% if (upcoming.length === 0) { %>
+  <div class="empty">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    Noch keine Ausfahrten geplant.<br>Erstell die erste!
+  </div>
+  <% } %>
+
+  <%
+  var AVATAR_COLORS = ['#1F7A34','#1565C0','#7B1FA2','#E65100','#00838F','#C62828'];
+  function ac(name){ var h=0; for(var c of String(name)) h=(h*31+c.charCodeAt(0))&0xFFFF; return AVATAR_COLORS[h%AVATAR_COLORS.length]; }
+  function ini(name){ return String(name).split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2); }
+
+  upcoming.forEach(function(f) {
+    var riders = f.riders ? f.riders.split('||') : [];
+    var isMine = f.author === memberName;
+    var isJoined = riders.indexOf(memberName) !== -1;
+    var isFull = f.max_riders && riders.length >= f.max_riders;
+    var dt = new Date(f.ride_date);
+    var dateStr = dt.toLocaleDateString('de-AT',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
+    var timeStr = dt.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+  %>
+  <div class="ride-card <%= isMine?'mine':'' %> <%= isFull&&!isJoined?'full':'' %>">
+    <div class="ride-header">
+      <div class="ride-date-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <%= dateStr %> · <%= timeStr %> Uhr
+      </div>
+      <div class="ride-title"><%= f.title %></div>
+      <div class="ride-meta-row">
+        <% if (f.meeting_point) { %>
+        <span class="ride-meta-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+          <%= f.meeting_point %>
+        </span>
+        <% } %>
+        <% if (f.distance_km) { %>
+        <span class="ride-meta-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 17c3-3 5-5 9-5s6 2 9-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <%= f.distance_km %> km
+        </span>
+        <% } %>
+        <% if (f.elevation_m) { %>
+        <span class="ride-meta-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 20l7-12 4 6 3-4 4 10H3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          <%= f.elevation_m %> hm
+        </span>
+        <% } %>
+        <span class="ride-meta-item" style="color:#555;">von <%= f.author %></span>
+      </div>
+    </div>
+    <div class="ride-body">
+      <% if (f.description) { %><div class="ride-desc"><%= f.description %></div><% } %>
+      <div class="riders-row">
+        <% riders.forEach(function(r) { %>
+        <div class="rider-chip">
+          <div class="rider-avatar" style="background:<%= ac(r) %>"><%= ini(r) %></div>
+          <%= r %>
+        </div>
+        <% }); %>
+        <% if (riders.length === 0) { %><span class="rider-count">Noch niemand angemeldet</span><% } %>
+        <% if (f.max_riders) { %>
+        <span class="<%= isFull?'max-badge':'rider-count' %>"><%= riders.length %>/<%= f.max_riders %></span>
+        <% } else if (riders.length > 0) { %>
+        <span class="rider-count"><%= riders.length %> <%= riders.length===1?'Fahrer':'Fahrer' %></span>
+        <% } %>
+      </div>
+    </div>
+    <div class="ride-actions">
+      <% if (isJoined) { %>
+        <span class="joined-label">✓ Angemeldet</span>
+        <form method="POST" action="/club/gruppenfahrten/<%= f.id %>/leave">
+          <button class="btn-leave">Abmelden</button>
+        </form>
+      <% } else if (!isFull) { %>
+        <form method="POST" action="/club/gruppenfahrten/<%= f.id %>/join">
+          <button class="btn-join">Anmelden</button>
+        </form>
+      <% } else { %>
+        <span style="font-size:0.8rem;color:#e05729;">Ausgebucht</span>
+      <% } %>
+      <% if (isMine) { %>
+        <form method="POST" action="/club/gruppenfahrten/<%= f.id %>/delete" onsubmit="return confirm('Ausfahrt löschen?')">
+          <button class="btn-del-ride">Löschen</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+  <% }); %>
+
+  <!-- Past rides -->
+  <% if (past.length > 0) { %>
+  <button class="past-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'▴ Vergangene ausblenden':'▾ Vergangene anzeigen ('+<%= past.length %>+')';">
+    ▾ Vergangene anzeigen (<%= past.length %>)
+  </button>
+  <div class="past-section">
+    <% past.forEach(function(f) {
+      var riders = f.riders ? f.riders.split('||') : [];
+      var dt = new Date(f.ride_date);
+      var dateStr = dt.toLocaleDateString('de-AT',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
+      var timeStr = dt.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+    %>
+    <div class="ride-card past">
+      <div class="ride-header">
+        <div class="ride-date-badge"><%= dateStr %> · <%= timeStr %> Uhr</div>
+        <div class="ride-title"><%= f.title %></div>
+        <div class="ride-meta-row">
+          <% if (f.distance_km) { %><span class="ride-meta-item"><%= f.distance_km %> km</span><% } %>
+          <% if (f.elevation_m) { %><span class="ride-meta-item"><%= f.elevation_m %> hm</span><% } %>
+          <span class="ride-meta-item"><%= riders.length %> Fahrer</span>
+        </div>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+  <% } %>
+</div>
+</body>
+</html>

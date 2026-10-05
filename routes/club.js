@@ -611,4 +611,65 @@ router.post('/chat', requireMember, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── GRUPPENFAHRTEN ── */
+router.get('/gruppenfahrten', requireMember, async (req, res, next) => {
+  try {
+    const memberName = req.session.memberName;
+    const [fahrten] = await pool.query(
+      `SELECT f.*,
+        (SELECT COUNT(*) FROM club_gruppenfahrt_rsvp r WHERE r.fahrt_id=f.id) AS rider_count,
+        (SELECT GROUP_CONCAT(r.member_name ORDER BY r.joined_at SEPARATOR '||') FROM club_gruppenfahrt_rsvp r WHERE r.fahrt_id=f.id) AS riders
+       FROM club_gruppenfahrten f
+       ORDER BY f.ride_date ASC`
+    );
+    const now = new Date();
+    const upcoming = fahrten.filter(f => new Date(f.ride_date) >= now);
+    const past     = fahrten.filter(f => new Date(f.ride_date) <  now).reverse();
+    res.render('club/gruppenfahrten', { ...helpers, memberName, upcoming, past, page: 'gruppenfahrten' });
+  } catch (err) { next(err); }
+});
+
+router.post('/gruppenfahrten', requireMember, async (req, res, next) => {
+  try {
+    const { title, ride_date, ride_time, meeting_point, distance_km, elevation_m, description, max_riders } = req.body;
+    const dt = ride_date && ride_time ? `${ride_date} ${ride_time}:00` : ride_date;
+    await pool.query(
+      'INSERT INTO club_gruppenfahrten (author, title, ride_date, meeting_point, distance_km, elevation_m, description, max_riders) VALUES (?,?,?,?,?,?,?,?)',
+      [req.session.memberName, title, dt, meeting_point||null, distance_km||null, elevation_m||null, description||null, max_riders||null]
+    );
+    res.redirect('/club/gruppenfahrten');
+  } catch (err) { next(err); }
+});
+
+router.post('/gruppenfahrten/:id/join', requireMember, async (req, res) => {
+  try {
+    await pool.query(
+      'INSERT IGNORE INTO club_gruppenfahrt_rsvp (fahrt_id, member_name) VALUES (?,?)',
+      [req.params.id, req.session.memberName]
+    );
+  } catch (e) {}
+  res.redirect('/club/gruppenfahrten');
+});
+
+router.post('/gruppenfahrten/:id/leave', requireMember, async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM club_gruppenfahrt_rsvp WHERE fahrt_id=? AND member_name=?',
+      [req.params.id, req.session.memberName]
+    );
+  } catch (e) {}
+  res.redirect('/club/gruppenfahrten');
+});
+
+router.post('/gruppenfahrten/:id/delete', requireMember, async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM club_gruppenfahrten WHERE id=? AND author=?',
+      [req.params.id, req.session.memberName]
+    );
+    await pool.query('DELETE FROM club_gruppenfahrt_rsvp WHERE fahrt_id=?', [req.params.id]);
+  } catch (e) {}
+  res.redirect('/club/gruppenfahrten');
+});
+
 module.exports = router;
