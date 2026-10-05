@@ -7,7 +7,7 @@
     <div style="margin-bottom:28px;">
       <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--rust);text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:block;margin-bottom:10px;">Mini-Spiel</span>
       <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--ink);margin-bottom:8px;">Bergabfahrt</h1>
-      <p style="font-size:0.88rem;color:#888;font-family:'IBM Plex Mono',monospace;">LEERTASTE&nbsp;/&nbsp;TIPPEN&nbsp;=&nbsp;SPRINGEN&nbsp;·&nbsp;HINDERNISSEN AUSWEICHEN</p>
+      <p style="font-size:0.88rem;color:#888;font-family:'IBM Plex Mono',monospace;">LEERTASTE&nbsp;/&nbsp;TIPPEN&nbsp;=&nbsp;SPRINGEN&nbsp;·&nbsp;2×&nbsp;=&nbsp;BACKFLIP&nbsp;·&nbsp;HINDERNISSEN AUSWEICHEN</p>
     </div>
 
     <div id="gameGrid" style="display:grid;grid-template-columns:1fr 280px;gap:28px;align-items:start;">
@@ -82,19 +82,31 @@
   var spd, frame, bx1, bx2, bx3, obstacles, spawn;
   var P = { x: 90, y: GND, vy: 0, ground: true };
   var submitted = false;
+  var flipping = false, flipAngle = 0, lastJumpTime = 0;
+  var logoImg = new Image(); logoImg.src = '/images/rcbirkfeld-logo.png';
+  var logoItems = [], lastMilestone = 0, milestoneText = null;
 
   function reset() {
     score = 0; spd = 4.5; frame = 0;
     bx1 = bx2 = bx3 = 0; obstacles = []; spawn = 90;
     P.y = GND; P.vy = 0; P.ground = true;
     submitted = false;
+    flipping = false; flipAngle = 0; lastJumpTime = 0;
+    logoItems = []; lastMilestone = 0; milestoneText = null;
     hideForm();
     state = 'playing';
   }
 
   function jump() {
-    if (state !== 'playing') { reset(); P.vy = JUMP; P.ground = false; return; }
-    if (P.ground) { P.vy = JUMP; P.ground = false; }
+    var now = Date.now();
+    if (state !== 'playing') { reset(); P.vy = JUMP; P.ground = false; lastJumpTime = now; return; }
+    if (!P.ground && !flipping && now - lastJumpTime < 320) {
+      flipping = true; flipAngle = 0;
+      P.vy = Math.min(P.vy, JUMP * 0.6);
+    } else if (P.ground) {
+      P.vy = JUMP; P.ground = false; flipping = false; flipAngle = 0;
+    }
+    lastJumpTime = now;
   }
 
   document.addEventListener('keydown', function(e) {
@@ -165,6 +177,7 @@
   function cyclist(px,py,af) {
     var a=af*0.17;
     ctx.save(); ctx.translate(px,py);
+    if(flipping){ctx.translate(0,-38);ctx.rotate(flipAngle);ctx.translate(0,38);}
     ctx.fillStyle='rgba(0,0,0,.18)';
     ctx.beginPath(); ctx.ellipse(0,2,24,5,0,0,Math.PI*2); ctx.fill();
     [-14,14].forEach(function(wx,i){
@@ -237,17 +250,43 @@
     for(var i=obstacles.length-1;i>=0;i--){obstacles[i].x-=spd;if(obstacles[i].x<-60)obstacles.splice(i,1);}
     if(hit()){
       if(score>hi){hi=score;localStorage.setItem('rcg_hi',hi);}
+      flipping = false; flipAngle = 0;
       state='dead';
       if(score>0&&!submitted) showForm();
       return;
     }
     if(frame%5===0) score++;
     spd=4.5+score*.008;
+    if(flipping){
+      flipAngle+=Math.PI/14;
+      if(flipAngle>=Math.PI*2){flipping=false;flipAngle=0;}
+    }
+    var ms=Math.floor(score/500);
+    if(ms>lastMilestone){
+      lastMilestone=ms;
+      logoItems.push({x:W+60,y:30+Math.random()*(GND-90)});
+      milestoneText={txt:(ms*500)+' Punkte!',a:2.0};
+    }
+    if(milestoneText){milestoneText.a-=0.018;if(milestoneText.a<=0)milestoneText=null;}
+    for(var li=logoItems.length-1;li>=0;li--){logoItems[li].x-=spd*.5;if(logoItems[li].x<-80)logoItems.splice(li,1);}
   }
 
   function draw() {
     ctx.clearRect(0,0,W,H); bg(bx1,bx2,bx3);
     obstacles.forEach(function(o){rock(o.x,o.h);}); cyclist(P.x,P.y,frame);
+    logoItems.forEach(function(item){
+      if(!logoImg.complete||!logoImg.naturalWidth) return;
+      ctx.save(); ctx.shadowColor='#4CAF50'; ctx.shadowBlur=22;
+      ctx.drawImage(logoImg,item.x-28,item.y-28,56,56);
+      ctx.restore();
+    });
+    if(milestoneText&&milestoneText.a>0){
+      ctx.save(); ctx.globalAlpha=Math.min(1,milestoneText.a);
+      ctx.fillStyle='#4CAF50'; ctx.font='900 32px "Big Shoulders Display",sans-serif';
+      ctx.textAlign='center'; ctx.shadowColor='#4CAF50'; ctx.shadowBlur=24;
+      ctx.fillText(milestoneText.txt,W/2,H/2-8);
+      ctx.restore();
+    }
   }
 
   (function loop(){
