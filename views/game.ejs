@@ -87,6 +87,8 @@
   var logoItems = [], lastMilestone = 0, milestoneText = null;
   var invincible = false, invincibleFrames = 0;
   var nightProgress = 0;
+  var particles = [];
+  var crashX, crashY, crashVx, crashVy, crashFrames;
 
   /* ── Sound (Web Audio API) ── */
   var AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -144,6 +146,7 @@
     powerups = []; powerSpawn = 200;
     P.y = GND; P.vy = 0; P.ground = true;
     submitted = false;
+    particles = [];
     flipping = false; flipAngle = 0; lastJumpTime = 0;
     logoItems = []; lastMilestone = 0; milestoneText = null;
     invincible = false; invincibleFrames = 0;
@@ -281,6 +284,37 @@
     ctx.restore();
   }
 
+  /* ── Particles ── */
+  function spawnCrash(x,y) {
+    for(var i=0;i<16;i++){
+      particles.push({x:x+(Math.random()-0.5)*16,y:y,
+        vx:(Math.random()-0.5)*9,vy:-(Math.random()*8+2),
+        r:1.5+Math.random()*3.5,col:Math.random()<0.5?'#8a7450':'#5c5c48',life:1});
+    }
+  }
+  function spawnDust(x,y) {
+    for(var i=0;i<6;i++){
+      particles.push({x:x+(Math.random()-0.5)*22,y:y,
+        vx:(Math.random()-0.5)*3.5,vy:-(Math.random()*1.5+0.5),
+        r:1.5+Math.random()*2,col:'rgba(180,150,100,0.9)',life:0.55});
+    }
+  }
+  function updateParticles() {
+    for(var i=particles.length-1;i>=0;i--){
+      var p=particles[i];
+      p.vy+=GRAV*0.38; p.x+=p.vx; p.y+=p.vy;
+      if(p.y>GND){p.y=GND;p.vy*=-0.22;p.vx*=0.6;}
+      p.life-=0.022; if(p.life<=0) particles.splice(i,1);
+    }
+  }
+  function drawParticles() {
+    particles.forEach(function(p){
+      ctx.save(); ctx.globalAlpha=Math.max(0,p.life);
+      ctx.fillStyle=p.col; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+  }
+
   /* ── Cyclist ── */
   function cyclist(px,py,af) {
     var a=af*0.17;
@@ -389,8 +423,12 @@
   /* ── Game loop ── */
   function update() {
     frame++; bx1+=spd*.12; bx2+=spd*.28; bx3+=spd;
+    var wasAir=!P.ground;
     P.vy+=GRAV; P.y+=P.vy;
-    if(P.y>=GND){P.y=GND;P.vy=0;P.ground=true;flipping=false;flipAngle=0;}
+    if(P.y>=GND){
+      if(wasAir&&P.vy>3) spawnDust(P.x,GND);
+      P.y=GND;P.vy=0;P.ground=true;flipping=false;flipAngle=0;
+    }
     if(--spawn<=0){
       var types=['rock','rock','rock','log','log','cone'];
       var t=types[Math.floor(Math.random()*types.length)];
@@ -406,10 +444,10 @@
     checkPowerups();
     if(hit()){
       if(score>hi){hi=score;localStorage.setItem('rcg_hi',hi);}
-      flipping=false;flipAngle=0;
-      playCrash();
-      state='dead';
-      if(score>0&&!submitted) showForm();
+      crashX=P.x; crashY=P.y; crashVx=2.5; crashVy=-7;
+      crashFrames=0; flipping=true; flipAngle=0;
+      spawnCrash(P.x,P.y); playCrash();
+      state='crashing';
       return;
     }
     if(invincible){if(--invincibleFrames<=0){invincible=false;}}
@@ -426,6 +464,7 @@
     }
     if(milestoneText){milestoneText.a-=0.018;if(milestoneText.a<=0)milestoneText=null;}
     for(var k=logoItems.length-1;k>=0;k--){logoItems[k].x-=spd*.5;if(logoItems[k].x<-80)logoItems.splice(k,1);}
+    updateParticles();
   }
 
   function draw() {
@@ -440,6 +479,7 @@
       else drawBidon(pu.x,pu.y);
     });
     cyclist(P.x,P.y,frame);
+    drawParticles();
     headlight();
     logoItems.forEach(function(item){
       if(!logoImg.complete||!logoImg.naturalWidth) return;
@@ -463,6 +503,26 @@
       frame++;bx3+=1.5; ctx.clearRect(0,0,W,H); bg(0,0,bx3);
       cyclist(P.x,GND,frame);
       ovl('BERGABFAHRT','LEERTASTE · TIPPEN ZUM STARTEN',hi>0?'HIGHSCORE: '+hi:null);
+    } else if(state==='crashing'){
+      crashFrames++;
+      crashVy+=GRAV; crashX+=crashVx; crashY+=crashVy;
+      if(crashY>=GND){crashY=GND;crashVy*=-0.28;crashVx*=0.6;}
+      crashVx*=0.97; flipAngle+=0.2;
+      bx3+=spd*0.12;
+      updateParticles();
+      ctx.clearRect(0,0,W,H); bg(bx1,bx2,bx3);
+      obstacles.forEach(function(o){
+        if(o.type==='log') drawLog(o.x,o.h);
+        else if(o.type==='cone') drawCone(o.x);
+        else rock(o.x,o.h);
+      });
+      drawParticles();
+      cyclist(crashX,crashY,frame);
+      headlight(); ui();
+      if(crashFrames>105){
+        state='dead';
+        if(score>0&&!submitted) showForm();
+      }
     } else {
       draw();ui();
       ovl('GESTÜRZT!',score+' PUNKTE  —  NOCHMAL?',score>=hi&&score>0?'🏆 NEUER HIGHSCORE!':'HIGHSCORE: '+hi,'#e05729');
