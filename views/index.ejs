@@ -79,6 +79,24 @@
     </div>
   </div>
 
+  <!-- WETTER -->
+  <div id="wetterWidget" style="display:none;background:#111;border-bottom:1px solid #1e1e1e;">
+    <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;padding-top:18px;padding-bottom:18px;gap:24px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div id="wCurIcon" style="font-size:2rem;line-height:1;"></div>
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:.1em;color:#555;margin-bottom:2px;">Birkfeld, jetzt</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span id="wCurTemp" style="font-family:'Big Shoulders Display',sans-serif;font-size:1.8rem;font-weight:900;color:#fff;line-height:1;"></span>
+            <span id="wCurDesc" style="font-size:0.82rem;color:#888;"></span>
+          </div>
+          <div id="wCurMeta" style="font-size:0.72rem;color:#555;font-family:'IBM Plex Mono',monospace;margin-top:2px;"></div>
+        </div>
+      </div>
+      <div id="wForecast" style="display:flex;gap:6px;"></div>
+    </div>
+  </div>
+
   <!-- VEREIN -->
   <section id="verein">
     <div class="wrap">
@@ -359,6 +377,57 @@ Promise.all([
     '<div class="strava-tags"><span>Rennrad</span><span>Gravel</span><span>Mountainbike</span><span>E-Bike</span><span>E-MTB</span><span>Handbike</span><span>Velomobil</span><span>Rolle / Virtual</span></div>'+
     '<a href="https://www.strava.com/clubs/300701" target="_blank" rel="noopener" class="btn btn-outline-dark">Club auf Strava ansehen →</a>';
 }).catch(function(){document.getElementById('stravaCard').closest('section').style.display='none';});
+
+// ── Wetter-Widget (Open-Meteo, kein API-Key nötig) ──
+(function(){
+  var DAYS = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  var MONTHS = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  function wmoIcon(code){
+    if(code===0) return '☀️';
+    if(code<=2) return '⛅';
+    if(code===3) return '☁️';
+    if(code<=48) return '🌫';
+    if(code<=55) return '🌦';
+    if(code<=65) return '🌧';
+    if(code<=75) return '🌨';
+    if(code<=82) return '🌦';
+    return '⛈';
+  }
+  function wmoText(code){
+    if(code===0) return 'Sonnig';
+    if(code<=2) return 'Leicht bewölkt';
+    if(code===3) return 'Bedeckt';
+    if(code<=48) return 'Nebelig';
+    if(code<=55) return 'Nieselregen';
+    if(code<=65) return 'Regen';
+    if(code<=75) return 'Schneefall';
+    if(code<=82) return 'Schauer';
+    return 'Gewitter';
+  }
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=47.37&longitude=15.50&current=temperature_2m,weathercode,windspeed_10m,relative_humidity_2m&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FVienna&forecast_days=4')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var cur = d.current;
+      var daily = d.daily;
+      document.getElementById('wCurIcon').textContent = wmoIcon(cur.weathercode);
+      document.getElementById('wCurTemp').textContent = Math.round(cur.temperature_2m)+'°';
+      document.getElementById('wCurDesc').textContent = wmoText(cur.weathercode);
+      document.getElementById('wCurMeta').textContent = '💨 '+Math.round(cur.windspeed_10m)+' km/h · 💧 '+cur.relative_humidity_2m+'%';
+      // forecast: skip today (index 0), show next 3 days
+      var fHtml = '';
+      for(var i=1;i<4;i++){
+        var dt = new Date(daily.time[i]);
+        fHtml += '<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 12px;text-align:center;min-width:62px;">'
+          +'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.62rem;color:#555;text-transform:uppercase;margin-bottom:3px;">'+DAYS[dt.getDay()]+'</div>'
+          +'<div style="font-size:1.2rem;margin-bottom:3px;">'+wmoIcon(daily.weathercode[i])+'</div>'
+          +'<div style="font-size:0.78rem;font-weight:700;color:#fff;">'+Math.round(daily.temperature_2m_max[i])+'°</div>'
+          +'<div style="font-size:0.72rem;color:#555;">'+Math.round(daily.temperature_2m_min[i])+'°</div>'
+          +'</div>';
+      }
+      document.getElementById('wForecast').innerHTML = fHtml;
+      document.getElementById('wetterWidget').style.display = 'block';
+    }).catch(function(){});
+})();
 </script>
 
 <%- include('partials/footer') %>
