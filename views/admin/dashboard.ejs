@@ -406,9 +406,34 @@
       <td><%= t.tag %></td>
       <td><div class="actions">
         <button class="btn-edit" onclick="toggleEdit('termin-<%= t.id %>')">Bearbeiten</button>
+        <% if (new Date(t.date) < new Date()) { %>
+        <button class="btn-edit" style="background:#7B1FA2;" onclick="toggleEdit('bericht-from-<%= t.id %>')">+ Bericht</button>
+        <% } %>
         <form method="POST" action="/admin/termine/<%= t.id %>/delete" onsubmit="return confirm('Löschen?')"><button class="btn-del">Löschen</button></form>
       </div></td>
     </tr>
+    <tr><td colspan="5" style="padding:0;">
+      <div class="edit-form" id="bericht-from-<%= t.id %>" style="border-top-color:#7B1FA2;">
+        <form method="POST" action="/admin/news">
+          <input type="hidden" name="termin_id" value="<%= t.id %>">
+          <div class="form-row">
+            <div class="field"><label>Titel</label><input name="title" value="Rückblick: <%= t.title %>" required></div>
+            <div class="field"><label>Datum</label><input type="date" name="published_at" value="<%= new Date(t.date).toISOString().split('T')[0] %>"></div>
+          </div>
+          <div class="field"><label>Bericht (Text)</label><textarea name="content" style="min-height:120px;" placeholder="Schreibe hier den Rückblick zum Event…"><%= t.description||'' %></textarea></div>
+          <div class="field">
+            <label>Bild (optional)</label>
+            <div class="news-drop" id="drop-bt-<%= t.id %>" data-target="image_url_bt_<%= t.id %>">
+              <input type="file" accept="image/*">↑ Bild ablegen oder klicken
+              <div class="news-drop-preview"><img src="" alt=""><button class="news-drop-remove" type="button">×</button></div>
+              <div class="news-upload-status"></div>
+            </div>
+            <input type="hidden" name="image_url" id="image_url_bt_<%= t.id %>">
+          </div>
+          <div class="actions"><button class="btn-save" type="submit" style="background:#7B1FA2;">Bericht speichern</button><button class="btn-cancel" type="button" onclick="toggleEdit('bericht-from-<%= t.id %>')">Abbrechen</button></div>
+        </form>
+      </div>
+    </td></tr>
     <tr><td colspan="5" style="padding:0;">
       <div class="edit-form" id="termin-<%= t.id %>">
         <form method="POST" action="/admin/termine/<%= t.id %>/edit">

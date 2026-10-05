@@ -93,7 +93,7 @@ router.get('/bericht/:id', async (req, res, next) => {
 
 router.get('/termin/:id', async (req, res, next) => {
   try {
-    const [[rows], [contentRows]] = await Promise.all([
+    const [[rows], [contentRows], [berichtRows]] = await Promise.all([
       pool.query(`
         SELECT t.*,
           COALESCE(SUM(r.status='yes'),0) AS yes_count,
@@ -107,6 +107,7 @@ router.get('/termin/:id', async (req, res, next) => {
         GROUP BY t.id
       `, [req.session.memberName || '', req.params.id]),
       pool.query('SELECT `key`, value FROM site_content'),
+      pool.query('SELECT id, title FROM news WHERE termin_id = ? LIMIT 1', [req.params.id]),
     ]);
     if (!rows.length) return res.status(404).render('404', { title: 'Termin nicht gefunden', termine: [] });
     const t = rows[0];
@@ -117,6 +118,7 @@ router.get('/termin/:id', async (req, res, next) => {
       noNames:  t.no_names  ? t.no_names.split(',').filter(Boolean)  : [],
       myRsvp: t.my_status || null,
       memberName: req.session.memberName || null,
+      linkedBericht: berichtRows[0] || null,
       termine: [],
       content,
       title: t.title,

@@ -133,6 +133,7 @@ DELETE FROM gallery WHERE filename IN ('foto-5.jpg', 'foto-6.jpg');
 
 ALTER TABLE club_posts MODIFY COLUMN image_url MEDIUMTEXT NULL;
 ALTER TABLE news MODIFY COLUMN image_url MEDIUMTEXT NULL;
+ALTER TABLE news ADD COLUMN IF NOT EXISTS termin_id INT NULL;
 ALTER TABLE site_content MODIFY COLUMN value MEDIUMTEXT NOT NULL;
 
 INSERT IGNORE INTO site_content (`key`, value) VALUES

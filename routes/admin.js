@@ -83,11 +83,11 @@ router.post('/upload-news-image', requireAuth, uploadNews.single('image'), (req,
 
 /* ── NEWS ── */
 router.post('/news', requireAuth, async (req, res, next) => {
-  const { title, content, image_url, published_at } = req.body;
+  const { title, content, image_url, published_at, termin_id } = req.body;
   try {
     await pool.query(
-      'INSERT INTO news (title, content, image_url, published_at) VALUES (?,?,?,?)',
-      [title, content, image_url || null, published_at || new Date()]
+      'INSERT INTO news (title, content, image_url, published_at, termin_id) VALUES (?,?,?,?,?)',
+      [title, content, image_url || null, published_at || new Date(), termin_id || null]
     );
     res.redirect('/admin?msg=Bericht+gespeichert');
   } catch (err) { next(err); }
