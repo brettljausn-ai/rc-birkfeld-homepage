@@ -7,7 +7,7 @@
     <div style="margin-bottom:28px;">
       <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--rust);text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:block;margin-bottom:10px;">Mini-Spiel</span>
       <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;color:var(--ink);margin-bottom:8px;">Bergabfahrt</h1>
-      <p style="font-size:0.88rem;color:#888;font-family:'IBM Plex Mono',monospace;">SPRINGEN&nbsp;·&nbsp;2×&nbsp;=&nbsp;BACKFLIP&nbsp;·&nbsp;3×&nbsp;=&nbsp;DOUBLE&nbsp;·&nbsp;4×&nbsp;=&nbsp;TRIPLE&nbsp;·&nbsp;IN&nbsp;FOLGE&nbsp;=&nbsp;COMBO&nbsp;MULTIPLIER</p>
+      <p id="gameHint" style="font-size:0.88rem;color:#888;font-family:'IBM Plex Mono',monospace;">SPRINGEN&nbsp;·&nbsp;2×&nbsp;=&nbsp;BACKFLIP&nbsp;·&nbsp;3×&nbsp;=&nbsp;DOUBLE&nbsp;·&nbsp;4×&nbsp;=&nbsp;TRIPLE&nbsp;·&nbsp;IN&nbsp;FOLGE&nbsp;=&nbsp;COMBO</p>
     </div>
 
     <div id="gameGrid" style="display:grid;grid-template-columns:1fr 280px;gap:28px;align-items:start;">
@@ -32,6 +32,10 @@
           </div>
         </div>
         <p id="submitMsg" style="font-size:0.82rem;margin-top:10px;min-height:1.2em;font-family:'IBM Plex Mono',monospace;"></p>
+        <!-- Mobile jump button -->
+        <button id="jumpBtn" aria-label="Springen" style="display:none;width:100%;margin-top:10px;padding:16px;background:#1F7A34;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:.05em;touch-action:manipulation;">
+          TIPPEN&nbsp;=&nbsp;SPRINGEN&nbsp;&nbsp;·&nbsp;&nbsp;2× SCHNELL&nbsp;=&nbsp;FLIP
+        </button>
       </div>
 
       <!-- Leaderboard -->
@@ -65,6 +69,13 @@
 @media(max-width:680px){
   #gameGrid{grid-template-columns:1fr!important;}
 }
+@media(hover:none),(pointer:coarse){
+  #jumpBtn{display:block!important;}
+  #gameHint{display:none;}
+  #scoreForm{flex-direction:column!important;gap:8px!important;}
+  #scoreForm input{width:100%!important;min-width:0!important;}
+  #scoreForm span{display:none!important;}
+}
 </style>
 
 <script>
@@ -72,15 +83,17 @@
   var cv = document.getElementById('rcGame');
   var ctx = cv.getContext('2d');
   var DPR = Math.min(window.devicePixelRatio || 1, 2);
-  var W = 800, H = 240;
+  var isTouch = ('ontouchstart' in window) || window.innerWidth < 640;
+  var W = 800, H = isTouch ? 320 : 240;
   cv.width = W * DPR; cv.height = H * DPR;
   ctx.scale(DPR, DPR);
 
-  var GND = 185, GRAV = 0.75, JUMP = -13, WR = 13;
+  var GND = Math.round(H * (185/240)); // scales with H: 185 desktop, 247 mobile
+  var GRAV = 0.75, JUMP = isTouch ? -14 : -13, WR = 13;
   var state = 'idle';
   var score = 0, hi = +(localStorage.getItem('rcg_hi') || 0);
   var spd, frame, bx1, bx2, bx3, obstacles, spawn, powerups, powerSpawn;
-  var P = { x: 90, y: GND, vy: 0, ground: true };
+  var P = { x: isTouch ? 100 : 90, y: GND, vy: 0, ground: true };
   var submitted = false;
   var flipping = false, flipAngle = 0, lastJumpTime = 0;
   var flipCount = 0, totalFlipTarget = 0, currentTrickPts = 0;
@@ -225,7 +238,8 @@
   function jump() {
     var now = Date.now();
     if (state !== 'playing') { reset(); P.vy = JUMP; P.ground = false; lastJumpTime = now; playJump(); return; }
-    if (!P.ground && now - lastJumpTime < 350) {
+    var tapWin = isTouch ? 420 : 350;
+    if (!P.ground && now - lastJumpTime < tapWin) {
       if (!flipping) {
         flipping = true; flipAngle = 0; flipCount = 1;
         totalFlipTarget = Math.PI * 2; currentTrickPts = 50;
@@ -252,6 +266,8 @@
   });
   cv.addEventListener('click', jump);
   cv.addEventListener('touchstart', function(e) { e.preventDefault(); jump(); }, { passive: false });
+  var jumpBtn = document.getElementById('jumpBtn');
+  if (jumpBtn) jumpBtn.addEventListener('touchstart', function(e) { e.preventDefault(); jump(); }, { passive: false });
 
   /* ── Drawing helpers ── */
   function sky() {
