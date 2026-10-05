@@ -60,19 +60,49 @@
 
       <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.3rem;margin:32px 0 14px;">Erhebung und Verarbeitung persönlicher Daten</h2>
 
-      <p>Wenn Sie unsere Internet-Seiten besuchen, speichert der Webserver standardmäßig den Domänennamen (DNS-Namen) beziehungsweise die IP-Adresse (diese letztgenannte Angabe wird allerdings anonymisiert) Ihres Rechners, den Browser, das Protokoll und das Betriebssystem, das Sie verwenden, die Webseite, von der aus Sie uns besuchen, die Webseite, die Sie bei uns besuchen, den Fehlercode der Anfrage, die übertragene Datenmenge sowie das Datum und die Uhrzeit des Besuches. Diese Informationen geben uns Aufschluss über allgemeine Interessen und über die Präferenzen unserer Besucher. Die gespeicherten Daten werden ausschließlich zu statistischen Zwecken ausgewertet und nicht an Dritte weitergeleitet.</p>
+      <p>Wenn Sie unsere Webseite besuchen, speichert der Webserver automatisch Server-Logfiles (IP-Adresse in anonymisierter Form, Browser, Betriebssystem, Referrer, aufgerufene Seite, Datum und Uhrzeit). Diese Daten werden ausschließlich für technische Zwecke (Fehlerdiagnose, Sicherheit) ausgewertet, nicht an Dritte weitergegeben und nach 30 Tagen gelöscht. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse).</p>
 
-      <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.3rem;margin:32px 0 14px;">Google Analytics</h2>
+      <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.3rem;margin:32px 0 14px;">Cookies und Session</h2>
 
-      <p style="margin-bottom:16px;">Diese Website verwendet Google Analytics 4, einen Webanalysedienst der Google Ireland Limited, Building Gordon House, 4 Barrow St, Dublin, D04 E5W5, Irland – für Benutzer aus der EU/EWR und der Schweiz zuständig. Google Analytics 4 praktiziert standardmäßig die IP-Anonymisierung: Ihre IP-Adresse wird innerhalb der EU noch vor der Übertragung an Google-Server gekürzt und kann so keiner bestimmten Person zugeordnet werden.</p>
+      <p>Diese Webseite verwendet technisch notwendige Session-Cookies ausschließlich im Mitgliederbereich nach Login. Das Cookie speichert keine personenbezogenen Daten – nur eine anonyme Session-ID. Es wird beim Schließen des Browsers oder nach 7 Tagen automatisch gelöscht. Eine Einwilligung ist für technisch notwendige Cookies nach Art. 6 Abs. 1 lit. b DSGVO nicht erforderlich.</p>
 
-      <p style="margin-bottom:16px;">Google Analytics verwendet Cookies, um die Nutzung der Website zu analysieren. Die durch den Cookie erzeugten Informationen über Ihre Benutzung dieser Website (einschließlich der gekürzten IP-Adresse) werden an einen Server von Google in der EU übertragen und dort gespeichert. Google wird diese Informationen nutzen, um Ihre Nutzung der Website auszuwerten, um Reports über die Websiteaktivitäten zusammenzustellen und um weitere mit der Websitenutzung und der Internetnutzung verbundene Dienstleistungen zu erbringen.</p>
+      <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.3rem;margin:32px 0 14px;">Mitgliederbereich</h2>
 
-      <p style="margin-bottom:16px;">Sie können die Erfassung durch Google Analytics verhindern, indem Sie in Ihrem Browser ein entsprechendes Opt-out-Cookie setzen oder das <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener" style="color:var(--rust);">Browser-Add-on von Google</a> installieren. Weitere Informationen finden Sie in der <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="color:var(--rust);">Datenschutzerklärung von Google</a>.</p>
+      <p style="margin-bottom:16px;">Registrierte Mitglieder können sich mit einem Benutzernamen und Passwort anmelden. Das Passwort wird ausschließlich als bcrypt-Hash (keine Klartextspeicherung) in unserer Datenbank gespeichert. Mitglieder können im Mitgliederbereich ihre Zu- und Absagen zu Vereinsterminen eintragen. Diese Daten werden nur für vereinsinterne Zwecke verwendet und nicht an Dritte weitergegeben.</p>
+
+      <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung / Mitgliedschaft). Daten können jederzeit durch Kontakt mit dem Obmann gelöscht werden.</p>
+
+      <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.3rem;margin:32px 0 14px;">Strava-Integration</h2>
+
+      <p style="margin-bottom:16px;">Mitglieder können ihr Strava-Konto freiwillig mit dem Mitgliederbereich verbinden. In diesem Fall werden ein OAuth-Access-Token, der Name des Strava-Profils und die Strava-Athleten-ID in unserer Datenbank gespeichert. Diese Daten werden genutzt, um Vereinsveranstaltungen und Aktivitäten aus Strava im Mitgliederbereich anzuzeigen sowie dem KI-Trainingscoach als Kontext bereitzustellen.</p>
+
+      <p style="margin-bottom:16px;">Die Verbindung kann jederzeit im Mitgliederbereich getrennt werden, wodurch Token und Strava-Daten gelöscht werden. Strava ist ein Dienst von Strava, Inc., 208 Utah St., Suite 400, San Francisco, CA 94103, USA. Weitere Informationen: <a href="https://www.strava.com/legal/privacy" target="_blank" rel="noopener" style="color:var(--rust);">Datenschutzrichtlinie von Strava</a>.</p>
+
+      <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung).</p>
+
+      <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.3rem;margin:32px 0 14px;">KI-Trainingsplan (Anthropic Claude)</h2>
+
+      <p style="margin-bottom:16px;">Im Mitgliederbereich steht ein KI-gestützter Trainingscoach zur Verfügung. Wenn Sie diesen nutzen, werden Ihre eingegebenen Textnachrichten sowie ggf. hochgeladene Bilder (z. B. Strava-Screenshots) an die API von Anthropic, Inc., 548 Market St., PMB 90375, San Francisco, CA 94104, USA übermittelt und dort zur Generierung von Antworten verarbeitet.</p>
+
+      <p style="margin-bottom:16px;">Es werden keine Chatverläufe dauerhaft bei Anthropic gespeichert. Gespeicherte Trainingspläne werden in unserer eigenen Datenbank abgelegt und können im Mitgliederbereich jederzeit gelöscht werden.</p>
+
+      <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung – Nutzung ist freiwillig). Weitere Informationen: <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener" style="color:var(--rust);">Datenschutzrichtlinie von Anthropic</a>.</p>
+
+      <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.3rem;margin:32px 0 14px;">Schriftarten</h2>
+
+      <p>Diese Webseite verwendet ausschließlich lokal auf unserem Server gespeicherte Schriftarten (Big Shoulders Display, Public Sans, IBM Plex Mono). Es werden keine Schriftarten von externen Servern geladen.</p>
+
+      <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.3rem;margin:32px 0 14px;">Ihre Rechte</h2>
+
+      <p style="margin-bottom:16px;">Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Soweit die Verarbeitung auf einer Einwilligung beruht, haben Sie das Recht, diese jederzeit zu widerrufen (Art. 7 Abs. 3 DSGVO).</p>
+
+      <p style="margin-bottom:16px;">Zur Ausübung Ihrer Rechte wenden Sie sich bitte an: <a href="mailto:rcbirkfeld@gmail.com" style="color:var(--rust);">rcbirkfeld@gmail.com</a></p>
+
+      <p>Sie haben außerdem das Recht, Beschwerde bei der österreichischen Datenschutzbehörde einzulegen: Datenschutzbehörde, Barichgasse 40–42, 1030 Wien, <a href="https://www.dsb.gv.at" target="_blank" rel="noopener" style="color:var(--rust);">www.dsb.gv.at</a>.</p>
 
       <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.3rem;margin:32px 0 14px;">Links zu anderen Webseiten</h2>
 
-      <p>Unser Online-Angebot enthält Links zu anderen Websites. Wir übernehmen keine Verantwortung für die Inhalte von Websites, die über Links erreicht werden können. Die Links werden bei Aufnahme nur kursorisch angesehen und bewertet. Eine kontinuierliche Prüfung der Inhalte ist weder beabsichtigt noch möglich. Wir distanzieren uns ausdrücklich von allen Inhalten, die möglicherweise straf- oder haftungsrechtlich relevant sind oder gegen die guten Sitten verstoßen.</p>
+      <p>Unser Online-Angebot enthält Links zu anderen Websites. Wir übernehmen keine Verantwortung für die Inhalte dieser Websites. Wir distanzieren uns ausdrücklich von allen Inhalten, die möglicherweise straf- oder haftungsrechtlich relevant sind oder gegen die guten Sitten verstoßen.</p>
 
     </div>
 
