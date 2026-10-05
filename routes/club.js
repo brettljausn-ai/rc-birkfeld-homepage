@@ -149,13 +149,13 @@ router.get('/api/birthdays', requireMember, async (req, res, next) => {
     );
     const today = new Date();
     const todayMD = (today.getMonth() + 1) * 100 + today.getDate();
-    const upcoming = rows.map(r => {
+    const all = rows.map(r => {
       const b = new Date(r.birthday);
       const md = (b.getMonth() + 1) * 100 + b.getDate();
       const diff = md >= todayMD ? md - todayMD : 10000 + md - todayMD;
       return { name: r.member_name, birthday: r.birthday, diff, day: b.getDate(), month: b.getMonth() + 1 };
-    }).sort((a, b) => a.diff - b.diff).slice(0, 5);
-    res.json(upcoming);
+    }).sort((a, b) => a.diff - b.diff);
+    res.json(req.query.all === '1' ? all : all.slice(0, 5));
   } catch (err) { next(err); }
 });
 

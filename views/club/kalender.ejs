@@ -56,6 +56,10 @@
   .ev-body .ev-loc{font-size:0.78rem;color:#555;}
   .ev-tag{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:.07em;color:#444;margin-bottom:2px;display:block;}
   .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
+  .cal-event.tag-bday{background:#7a5c00;color:#FFD700;}
+  .ev-row.bday-row .ev-day{color:#FFD700;}
+  .ev-row.bday-row .ev-mon{color:#FFD700;}
+  .ev-row.bday-row .ev-tag{color:#7a5c00;}
 </style>
 </head>
 <body>
@@ -86,11 +90,17 @@
 </div>
 <script>
 var TERMINE = <%- JSON.stringify(termine.map(function(t){return{id:t.id,title:t.title,date:t.date,tag:t.tag,location:t.location,detail_url:t.detail_url};})) %>;
+var BIRTHDAYS = [];
 
 var today = new Date();
 today.setHours(0,0,0,0);
 var curYear = today.getFullYear();
 var curMonth = today.getMonth();
+
+fetch('/club/api/birthdays?all=1').then(function(r){return r.json();}).then(function(list){
+  BIRTHDAYS = list;
+  render();
+}).catch(function(){});
 
 function tagClass(tag){
   if(!tag) return '';
@@ -119,11 +129,17 @@ function render(){
     var cls = 'cal-cell' + (!isThisMonth?' other-month':'') + (isToday?' today':'');
     var ymd = day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
     var eventsOnDay = TERMINE.filter(function(t){ return t.date && t.date.substring(0,10) === ymd; });
+    var bdaysOnDay = BIRTHDAYS.filter(function(b){
+      return b.month === (day.getMonth()+1) && b.day === day.getDate();
+    });
     var evHtml = eventsOnDay.map(function(t){
       var href = t.detail_url || '/termin/'+t.id;
       return '<a href="'+href+'" class="cal-event '+tagClass(t.tag)+'" title="'+escH(t.title)+'">'+escH(t.title)+'</a>';
     }).join('');
-    cells += '<div class="'+cls+'"><div class="cal-num">'+day.getDate()+'</div>'+evHtml+'</div>';
+    var bdayHtml = bdaysOnDay.map(function(b){
+      return '<div class="cal-event tag-bday" title="🎂 '+escH(b.name)+'">🎂 '+escH(b.name)+'</div>';
+    }).join('');
+    cells += '<div class="'+cls+'"><div class="cal-num">'+day.getDate()+'</div>'+evHtml+bdayHtml+'</div>';
     day.setDate(day.getDate()+1);
   }
   document.getElementById('calCells').innerHTML = cells;
@@ -134,19 +150,34 @@ function render(){
     return d.getFullYear()===curYear && d.getMonth()===curMonth;
   }).sort(function(a,b){return new Date(a.date)-new Date(b.date);});
 
-  if(!monthTermine.length){
+  var daysInMonth = new Date(curYear, curMonth+1, 0).getDate();
+  var monthBdays = [];
+  for(var di=1; di<=daysInMonth; di++){
+    BIRTHDAYS.filter(function(b){ return b.month===(curMonth+1) && b.day===di; }).forEach(function(b){
+      monthBdays.push({day:di,name:b.name});
+    });
+  }
+
+  if(!monthTermine.length && !monthBdays.length){
     document.getElementById('eventList').innerHTML = '<div class="empty">Keine Termine in diesem Monat.</div>';
     return;
   }
-  document.getElementById('eventList').innerHTML = monthTermine.map(function(t){
+  var MON = ['JAN','FEB','MÄR','APR','MAI','JUN','JUL','AUG','SEP','OKT','NOV','DEZ'];
+  var terHtml = monthTermine.map(function(t){
     var d = new Date(t.date);
-    var mon = ['JAN','FEB','MÄR','APR','MAI','JUN','JUL','AUG','SEP','OKT','NOV','DEZ'][d.getMonth()];
     var href = t.detail_url || '/termin/'+t.id;
     return '<a href="'+href+'" class="ev-row" style="text-decoration:none;color:inherit;display:flex;">'
-      +'<div class="ev-date"><div class="ev-day">'+d.getDate()+'</div><div class="ev-mon">'+mon+'</div></div>'
+      +'<div class="ev-date"><div class="ev-day">'+d.getDate()+'</div><div class="ev-mon">'+MON[d.getMonth()]+'</div></div>'
       +'<div class="ev-body"><span class="ev-tag">'+escH(t.tag||'Vereinsrennen')+'</span><div class="ev-title">'+escH(t.title)+'</div>'+(t.location?'<div class="ev-loc">'+escH(t.location)+'</div>':'')+'</div>'
       +'</a>';
   }).join('');
+  var bdayHtml = monthBdays.map(function(b){
+    return '<div class="ev-row bday-row" style="display:flex;">'
+      +'<div class="ev-date"><div class="ev-day">'+b.day+'</div><div class="ev-mon">'+MON[curMonth]+'</div></div>'
+      +'<div class="ev-body"><span class="ev-tag">🎂 Geburtstag</span><div class="ev-title">'+escH(b.name)+'</div></div>'
+      +'</div>';
+  }).join('');
+  document.getElementById('eventList').innerHTML = terHtml + bdayHtml;
 }
 
 function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
