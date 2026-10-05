@@ -14,7 +14,7 @@
       <%= new Date(termin.date).toLocaleDateString('de-AT', {weekday:'long', day:'2-digit', month:'long', year:'numeric'}) %>
     </span>
 
-    <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;margin-bottom:32px;color:var(--chalk);">
+    <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;margin-bottom:32px;color:var(--ink);">
       <%= termin.title %>
     </h1>
 
@@ -24,7 +24,7 @@
       <span style="background:var(--rust);color:#fff;font-size:0.75rem;font-weight:700;padding:4px 12px;border-radius:2px;letter-spacing:.05em;text-transform:uppercase;"><%= termin.tag %></span>
       <% } %>
       <% if (termin.location) { %>
-      <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:#aaa;">
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:#555;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
         <%= termin.location %>
       </span>
@@ -32,15 +32,15 @@
     </div>
 
     <% if (termin.description) { %>
-    <div style="font-size:1.05rem;line-height:1.8;color:#ccc;white-space:pre-wrap;word-break:break-word;margin-bottom:40px;">
+    <div style="font-size:1.05rem;line-height:1.8;color:var(--ink);white-space:pre-wrap;word-break:break-word;margin-bottom:40px;">
       <%= termin.description %>
     </div>
     <% } %>
 
     <!-- RSVP (nur für eingeloggte Mitglieder) -->
     <% if (memberName) { %>
-    <div style="background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:24px;margin-bottom:40px;">
-      <p style="font-size:0.78rem;text-transform:uppercase;letter-spacing:.1em;color:#555;font-weight:700;margin-bottom:16px;">Ich bin dabei?</p>
+    <div style="background:var(--gravel-dark);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:40px;">
+      <p style="font-size:0.78rem;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:700;margin-bottom:16px;">Ich bin dabei?</p>
       <div style="display:flex;gap:10px;">
         <form method="POST" action="/club/rsvp/<%= termin.id %>?redirect=/termin/<%= termin.id %>">
           <input type="hidden" name="status" value="yes">
@@ -59,21 +59,21 @@
       <div style="margin-top:18px;display:flex;gap:24px;flex-wrap:wrap;">
         <% if (yesNames.length) { %>
         <div>
-          <p style="font-size:0.72rem;color:#4CAF50;font-weight:700;margin-bottom:6px;">DABEI (<%= yesNames.length %>)</p>
-          <p style="font-size:0.85rem;color:#aaa;"><%= yesNames.join(', ') %></p>
+          <p style="font-size:0.72rem;color:#1F7A34;font-weight:700;margin-bottom:6px;">DABEI (<%= yesNames.length %>)</p>
+          <p style="font-size:0.85rem;color:var(--ink);"><%= yesNames.join(', ') %></p>
         </div>
         <% } %>
         <% if (noNames.length) { %>
         <div>
-          <p style="font-size:0.72rem;color:#e57373;font-weight:700;margin-bottom:6px;">NICHT DABEI (<%= noNames.length %>)</p>
-          <p style="font-size:0.85rem;color:#aaa;"><%= noNames.join(', ') %></p>
+          <p style="font-size:0.72rem;color:#c62828;font-weight:700;margin-bottom:6px;">NICHT DABEI (<%= noNames.length %>)</p>
+          <p style="font-size:0.85rem;color:var(--ink);"><%= noNames.join(', ') %></p>
         </div>
         <% } %>
       </div>
       <% } %>
     </div>
     <% } else { %>
-    <div style="background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:20px;margin-bottom:40px;font-size:0.9rem;color:#666;">
+    <div style="background:var(--gravel-dark);border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:40px;font-size:0.9rem;color:#666;">
       <a href="/club/login" style="color:var(--rust);font-weight:700;">Im Mitgliederbereich anmelden</a> um zu- oder absagen zu können.
     </div>
     <% } %>
