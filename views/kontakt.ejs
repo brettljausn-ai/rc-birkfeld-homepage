@@ -1,0 +1,100 @@
+<%- include('partials/head', { title: 'Kontakt – RC ASVÖ Birkfeld', description: 'Kontaktiere den RC ASVÖ Birkfeld – Radsportverein im Joglland, Steiermark. Obmann, Telefon, E-Mail und Adresse.', ogPath: '/kontakt' }) %>
+<%- include('partials/nav') %>
+
+<main style="padding:60px 0 100px;">
+  <div class="wrap" style="max-width:760px;">
+
+    <a href="/" style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;color:#1F7A34;text-decoration:none;margin-bottom:40px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Zurück zur Startseite
+    </a>
+
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#1F7A34;text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:block;margin-bottom:10px;">Kontakt</span>
+    <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.05;margin-bottom:40px;color:var(--ink);">Schreib uns.</h1>
+
+    <!-- Kontaktdaten -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:48px;">
+
+      <a href="mailto:rcbirkfeld@gmail.com" style="display:flex;align-items:flex-start;gap:14px;padding:20px;background:var(--gravel-dark);border:1px solid var(--line);border-radius:10px;text-decoration:none;color:inherit;transition:border-color .15s;" onmouseover="this.style.borderColor='#1F7A34'" onmouseout="this.style.borderColor=''">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:2px;color:#1F7A34"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/><path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2"/></svg>
+        <div>
+          <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:700;margin-bottom:4px;">E-Mail</p>
+          <p style="font-size:0.92rem;font-weight:600;color:#1F7A34;">rcbirkfeld@gmail.com</p>
+        </div>
+      </a>
+
+      <a href="tel:+436642517920" style="display:flex;align-items:flex-start;gap:14px;padding:20px;background:var(--gravel-dark);border:1px solid var(--line);border-radius:10px;text-decoration:none;color:inherit;transition:border-color .15s;" onmouseover="this.style.borderColor='#1F7A34'" onmouseout="this.style.borderColor=''">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:2px;color:#1F7A34"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.46 12 19.79 19.79 0 01.38 3.38 2 2 0 012.36 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.35a16 16 0 006.29 6.29l1.71-1.71a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2"/></svg>
+        <div>
+          <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:700;margin-bottom:4px;">Telefon</p>
+          <p style="font-size:0.92rem;font-weight:600;color:#1F7A34;">+43 664 2517920</p>
+        </div>
+      </a>
+
+      <div style="display:flex;align-items:flex-start;gap:14px;padding:20px;background:var(--gravel-dark);border:1px solid var(--line);border-radius:10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:2px;color:#1F7A34"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+        <div>
+          <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:700;margin-bottom:4px;">Adresse</p>
+          <p style="font-size:0.92rem;font-weight:600;color:var(--ink);">Berggasse 2<br>8190 Birkfeld, Steiermark</p>
+        </div>
+      </div>
+
+      <a href="https://www.strava.com/clubs/300701" target="_blank" rel="noopener" style="display:flex;align-items:flex-start;gap:14px;padding:20px;background:var(--gravel-dark);border:1px solid var(--line);border-radius:10px;text-decoration:none;color:inherit;transition:border-color .15s;" onmouseover="this.style.borderColor='#FC4C02'" onmouseout="this.style.borderColor=''">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:2px;color:#FC4C02"><path d="M13.5 2L6 15h4.5L9 22l7.5-13H12l1.5-7z" fill="currentColor"/></svg>
+        <div>
+          <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:700;margin-bottom:4px;">Strava</p>
+          <p style="font-size:0.92rem;font-weight:600;color:#FC4C02;">RC ASVÖ Birkfeld →</p>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Vorstand -->
+    <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.6rem;margin-bottom:20px;color:var(--ink);">Vorstand</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:48px;">
+
+      <div style="background:var(--gravel-dark);border:1px solid var(--line);border-radius:10px;padding:24px;">
+        <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:700;margin-bottom:8px;">Obmann</p>
+        <p style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.25rem;color:var(--ink);margin-bottom:14px;">Johannes Wildt</p>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <a href="tel:+436642517920" style="display:inline-flex;align-items:center;gap:8px;font-size:0.88rem;color:#1F7A34;text-decoration:none;font-weight:600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.46 12 19.79 19.79 0 01.38 3.38 2 2 0 012.36 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.35a16 16 0 006.29 6.29l1.71-1.71a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2"/></svg>
+            +43 664 2517920
+          </a>
+          <a href="mailto:johannes.wildt@andritz.com" style="display:inline-flex;align-items:center;gap:8px;font-size:0.88rem;color:#1F7A34;text-decoration:none;font-weight:600;word-break:break-all;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/><path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2"/></svg>
+            johannes.wildt@andritz.com
+          </a>
+        </div>
+      </div>
+
+      <div style="background:var(--gravel-dark);border:1px solid var(--line);border-radius:10px;padding:24px;">
+        <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:#888;font-weight:700;margin-bottom:8px;">Obmann-Stellvertreter</p>
+        <p style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.25rem;color:var(--ink);margin-bottom:14px;">Andreas Bäumel</p>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <a href="tel:+436509925939" style="display:inline-flex;align-items:center;gap:8px;font-size:0.88rem;color:#1F7A34;text-decoration:none;font-weight:600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.46 12 19.79 19.79 0 01.38 3.38 2 2 0 012.36 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.35a16 16 0 006.29 6.29l1.71-1.71a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2"/></svg>
+            +43 650 9925939
+          </a>
+          <a href="mailto:baeumela@msn.com" style="display:inline-flex;align-items:center;gap:8px;font-size:0.88rem;color:#1F7A34;text-decoration:none;font-weight:600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/><path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2"/></svg>
+            baeumela@msn.com
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Mitglied werden CTA -->
+    <div style="background:linear-gradient(135deg,rgba(31,122,52,0.08) 0%,rgba(31,122,52,0.03) 100%);border:1px solid rgba(31,122,52,0.25);border-radius:12px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div>
+        <p style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.3rem;color:var(--ink);margin-bottom:4px;">Möchtest du Mitglied werden?</p>
+        <p style="font-size:0.9rem;color:#666;">Füll das Formular aus – wir melden uns innerhalb weniger Tage.</p>
+      </div>
+      <a href="/#mitglied" style="background:#1F7A34;color:#fff;padding:12px 24px;border-radius:6px;font-size:0.9rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">Join the Club →</a>
+    </div>
+
+  </div>
+</main>
+
+<%- include('partials/footer') %>

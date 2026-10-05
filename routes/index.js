@@ -171,6 +171,10 @@ router.get('/termin/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.get('/kontakt', (req, res) => {
+  res.render('kontakt', { content: {}, termine: [] });
+});
+
 router.get('/laurenzibergrennen', (req, res) => {
   res.render('laurenzibergrennen');
 });
