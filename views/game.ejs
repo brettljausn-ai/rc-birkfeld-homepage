@@ -89,6 +89,8 @@
   var nightProgress = 0;
   var particles = [];
   var crashX, crashY, crashVx, crashVy, crashFrames;
+  var coins = [], coinSpawn = 100;
+  var coinCombo = 0, comboTimer = 0, comboText = null;
 
   /* ── Sound (Web Audio API) ── */
   var AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -140,6 +142,16 @@
     } catch(e) {}
   }
 
+  function playCoin() {
+    var a=getAudio(); if(!a) return; try {
+      var o=a.createOscillator(),g=a.createGain(); o.connect(g); g.connect(a.destination);
+      var base=700+Math.min(coinCombo,8)*60;
+      o.frequency.setValueAtTime(base,a.currentTime); o.frequency.exponentialRampToValueAtTime(base*1.5,a.currentTime+0.06);
+      g.gain.setValueAtTime(0.09,a.currentTime); g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.1);
+      o.start(); o.stop(a.currentTime+0.1);
+    } catch(e) {}
+  }
+
   function reset() {
     score = 0; spd = 4.5; frame = 0;
     bx1 = bx2 = bx3 = 0; obstacles = []; spawn = 90;
@@ -147,6 +159,8 @@
     P.y = GND; P.vy = 0; P.ground = true;
     submitted = false;
     particles = [];
+    coins = []; coinSpawn = 100;
+    coinCombo = 0; comboTimer = 0; comboText = null;
     flipping = false; flipAngle = 0; lastJumpTime = 0;
     logoItems = []; lastMilestone = 0; milestoneText = null;
     invincible = false; invincibleFrames = 0;
@@ -281,6 +295,19 @@
     ctx.beginPath(); ctx.rect(-4,-27,8,6); ctx.fill();
     ctx.fillStyle='#fff'; ctx.font='bold 6px sans-serif'; ctx.textAlign='center';
     ctx.fillText('RC',-1,-9);
+    ctx.restore();
+  }
+
+  function drawCoin(x,y) {
+    var r=7+Math.sin(frame*0.12)*0.8;
+    ctx.save(); ctx.translate(x,y);
+    ctx.shadowColor='#FFD700'; ctx.shadowBlur=10;
+    ctx.fillStyle='#FFD700';
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FFA500';
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.45)';
+    ctx.beginPath(); ctx.arc(-r*.28,-r*.28,r*.38,0,Math.PI*2); ctx.fill();
     ctx.restore();
   }
 
@@ -442,8 +469,29 @@
     for(var i=obstacles.length-1;i>=0;i--){obstacles[i].x-=spd;if(obstacles[i].x<-60)obstacles.splice(i,1);}
     for(var j=powerups.length-1;j>=0;j--){powerups[j].x-=spd*.75;if(powerups[j].x<-40)powerups.splice(j,1);}
     checkPowerups();
+    if(--coinSpawn<=0){
+      var count=1+(Math.random()*4|0);
+      var coinY=Math.random()<0.55?GND-22:GND-52-Math.random()*30;
+      for(var ci=0;ci<count;ci++) coins.push({x:W+20+ci*36,y:coinY});
+      coinSpawn=70+(Math.random()*80|0);
+    }
+    for(var ci=coins.length-1;ci>=0;ci--){
+      coins[ci].x-=spd;
+      if(coins[ci].x<-20){coins.splice(ci,1);continue;}
+      var cdx=P.x-coins[ci].x, cdy=(P.y-22)-coins[ci].y;
+      if(cdx*cdx+cdy*cdy<28*28){
+        coinCombo++; comboTimer=110;
+        var pts=10*coinCombo;
+        score+=pts;
+        comboText={txt:coinCombo>1?'x'+coinCombo+'  +'+pts:'+10',x:coins[ci].x,y:coins[ci].y-8,a:1.8,vy:-1.4};
+        playCoin(); coins.splice(ci,1);
+      }
+    }
+    if(comboTimer>0){comboTimer--;}else{coinCombo=0;}
+    if(comboText){comboText.a-=0.025;comboText.y+=comboText.vy;if(comboText.a<=0)comboText=null;}
     if(hit()){
       if(score>hi){hi=score;localStorage.setItem('rcg_hi',hi);}
+      coinCombo=0; comboTimer=0;
       crashX=P.x; crashY=P.y; crashVx=2.5; crashVy=-7;
       crashFrames=0; flipping=true; flipAngle=0;
       spawnCrash(P.x,P.y); playCrash();
@@ -474,6 +522,7 @@
       else if(o.type==='cone') drawCone(o.x);
       else rock(o.x,o.h);
     });
+    coins.forEach(function(c){ drawCoin(c.x,c.y); });
     powerups.forEach(function(pu){
       if(pu.type==='star') drawStar(pu.x,pu.y,11,'#FFD700');
       else drawBidon(pu.x,pu.y);
@@ -487,6 +536,14 @@
       ctx.drawImage(logoImg,item.x-28,item.y-28,56,56);
       ctx.restore();
     });
+    if(comboText&&comboText.a>0){
+      ctx.save(); ctx.globalAlpha=Math.min(1,comboText.a);
+      ctx.fillStyle=coinCombo>2?'#FF8C00':'#FFD700';
+      ctx.font='bold 13px "IBM Plex Mono",monospace';
+      ctx.textAlign='center'; ctx.shadowColor='#FFD700'; ctx.shadowBlur=8;
+      ctx.fillText(comboText.txt,comboText.x,comboText.y);
+      ctx.restore();
+    }
     if(milestoneText&&milestoneText.a>0){
       ctx.save(); ctx.globalAlpha=Math.min(1,milestoneText.a);
       ctx.fillStyle='#4CAF50'; ctx.font='900 32px "Big Shoulders Display",sans-serif';
