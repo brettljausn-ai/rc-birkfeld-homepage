@@ -108,6 +108,18 @@
     </div>
   </section>
 
+  <!-- KARTE -->
+  <section id="karte" style="background:var(--ink);padding:0;overflow:hidden;">
+    <div class="wrap" style="padding-top:52px;padding-bottom:0;">
+      <div class="section-head fade-in" style="color:var(--chalk);">
+        <span class="kicker" style="color:var(--gold);">Unser Revier</span>
+        <h2 style="color:var(--chalk);">Birkfeld &amp; das Joglland.</h2>
+        <p style="color:#888;">Treffpunkt Samstag 13:00 · Friesis Bikery, Edelseestraße 27.</p>
+      </div>
+    </div>
+    <div id="vereinsKarte" style="width:100%;height:420px;"></div>
+  </section>
+
   <!-- GALERIE -->
   <section id="galerie" style="background:var(--gravel-dark);">
     <div class="wrap">
@@ -470,5 +482,53 @@ fetch('/api/strava-stats').then(function(r){return r.json();}).then(function(s){
     }).catch(function(){});
 })();
 </script>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLEg=" crossorigin=""></script>
+<script>
+(function(){
+  var el = document.getElementById('vereinsKarte');
+  if(!el) return;
+  var map = L.map('vereinsKarte', {scrollWheelZoom:false, zoomControl:true}).setView([47.370, 15.499], 11);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:'abcd', maxZoom:19
+  }).addTo(map);
+
+  var greenIcon = L.divIcon({
+    html:'<div style="width:14px;height:14px;background:#4CAF50;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 3px rgba(76,175,80,.3);"></div>',
+    className:'', iconAnchor:[7,7], popupAnchor:[0,-10]
+  });
+  var whiteIcon = L.divIcon({
+    html:'<div style="width:10px;height:10px;background:#E8E8E8;border-radius:50%;border:2px solid #4CAF50;"></div>',
+    className:'', iconAnchor:[5,5], popupAnchor:[0,-8]
+  });
+
+  var markers = [
+    {lat:47.3697, lng:15.4989, icon:greenIcon, title:'Friesis Bikery',   desc:'<b>Treffpunkt Samstag 13:00</b><br>Edelseestraße 27, Birkfeld<br><small style="color:#888;">Start aller Clubausfahrten</small>'},
+    {lat:47.4100, lng:15.5500, icon:whiteIcon, title:'Laurentiberg',     desc:'<b>Laurentibergrennen</b><br>Vereinsrennen-Strecke<br><small style="color:#888;">Bergwertung Joglland</small>'},
+    {lat:47.3400, lng:15.6200, icon:whiteIcon, title:'Königskogelgebiet',desc:'<b>Königskogelkogelkönig</b><br>Bergzeitfahren Strecke<br><small style="color:#888;">Ü50 Klasse</small>'},
+    {lat:47.4500, lng:15.4000, icon:whiteIcon, title:'Rabenwald',        desc:'<b>MTB-Trails Rabenwald</b><br>Joglland MTB-Revier<br><small style="color:#888;">Technische Singletrails</small>'},
+    {lat:47.3300, lng:15.4400, icon:whiteIcon, title:'Feistritz am Wechsel', desc:'<b>Gravel-Route Süd</b><br>Richtung Wechsel<br><small style="color:#888;">Gravel &amp; Rennrad</small>'},
+  ];
+
+  markers.forEach(function(m){
+    L.marker([m.lat,m.lng],{icon:m.icon})
+     .addTo(map)
+     .bindPopup('<div style="font-family:\'Public Sans\',sans-serif;min-width:160px;">'+m.desc+'</div>',{className:'rc-popup'});
+  });
+
+  // disable scroll zoom on mobile, re-enable on click
+  el.addEventListener('touchstart',function(){map.scrollWheelZoom.enable();},{passive:true});
+})();
+</script>
+<style>
+.leaflet-popup-content-wrapper{background:#1a1a1a;color:#E8E8E8;border:1px solid #2a2a2a;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.5);}
+.leaflet-popup-tip{background:#1a1a1a;}
+.leaflet-popup-close-button{color:#666!important;}
+.leaflet-control-zoom a{background:#1a1a1a!important;color:#E8E8E8!important;border-color:#2a2a2a!important;}
+.leaflet-control-attribution{background:rgba(10,10,10,.7)!important;color:#444!important;font-size:10px!important;}
+.leaflet-control-attribution a{color:#666!important;}
+</style>
 
 <%- include('partials/footer') %>
