@@ -213,6 +213,16 @@
         <span class="kicker"><%= content.strava_kicker||'Live von Strava' %></span>
         <h2><%= content.strava_title||'Unser Club, auf der Straße.' %></h2>
       </div>
+      <div id="jahresrueckblick" style="display:none;background:linear-gradient(135deg,#0d1a0d 0%,#111 100%);border:1px solid #1e1e1e;border-radius:16px;padding:28px 32px;margin-bottom:24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:.12em;color:#4CAF50;font-weight:600;margin-bottom:6px;" id="jrLabel"></div>
+        <h3 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.6rem;color:#fff;margin-bottom:20px;line-height:1.1;">Was wir gemeinsam gefahren sind.</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-bottom:20px;" id="jrStats"></div>
+        <div style="background:#0a0a0a;border-radius:10px;overflow:hidden;height:8px;margin-top:4px;" id="jrBarWrap" style="display:none;">
+          <div id="jrBar" style="height:100%;background:linear-gradient(90deg,#1F7A34,#4CAF50);border-radius:10px;transition:width 1s ease;width:0%;"></div>
+        </div>
+        <div id="jrBarLabel" style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:#444;margin-top:6px;"></div>
+      </div>
+
       <div class="strava-card" id="stravaCard">
         <div class="strava-card-main">
           <span class="skel" style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.09);flex-shrink:0;animation:skel-shine 1.5s linear infinite;"></span>
@@ -377,6 +387,37 @@ Promise.all([
     '<div class="strava-tags"><span>Rennrad</span><span>Gravel</span><span>Mountainbike</span><span>E-Bike</span><span>E-MTB</span><span>Handbike</span><span>Velomobil</span><span>Rolle / Virtual</span></div>'+
     '<a href="https://www.strava.com/clubs/300701" target="_blank" rel="noopener" class="btn btn-outline-dark">Club auf Strava ansehen →</a>';
 }).catch(function(){document.getElementById('stravaCard').closest('section').style.display='none';});
+
+// ── Strava Jahresrückblick ──
+fetch('/api/strava-stats').then(function(r){return r.json();}).then(function(s){
+  if(!s) return;
+  var year = new Date().getFullYear();
+  var ytd = s.ytd_ride_totals;
+  var rec = s.recent_ride_totals;
+  if(!ytd || !ytd.count) return;
+  function fmtKm(m){return (m/1000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+  function fmtHm(m){return Math.round(m).toLocaleString('de-AT');}
+  function fmtTime(s){var h=Math.floor(s/3600);return h.toLocaleString('de-AT');}
+  document.getElementById('jrLabel').textContent = 'Jahresrückblick '+year+' · YTD';
+  var stats = [
+    {num: fmtKm(ytd.distance)+' km', lbl: 'Gefahrene Kilometer'},
+    {num: fmtHm(ytd.elevation_gain)+' hm', lbl: 'Höhenmeter'},
+    {num: ytd.count, lbl: 'Aktivitäten'},
+    {num: fmtTime(ytd.moving_time)+' h', lbl: 'Bewegungszeit'},
+  ];
+  document.getElementById('jrStats').innerHTML = stats.map(function(st){
+    return '<div><div style="font-family:\'Big Shoulders Display\',sans-serif;font-weight:900;font-size:2rem;color:#4CAF50;line-height:1;margin-bottom:4px;">'+escH(String(st.num))+'</div>'
+      +'<div style="font-size:0.78rem;color:#666;font-family:\'IBM Plex Mono\',monospace;">'+escH(st.lbl)+'</div></div>';
+  }).join('');
+  // progress bar: recent km vs ytd km as % of rough annual target
+  if(rec && rec.distance && ytd.distance){
+    var pct = Math.min(100, Math.round((rec.distance/ytd.distance)*100));
+    document.getElementById('jrBarWrap').style.display='block';
+    setTimeout(function(){document.getElementById('jrBar').style.width=pct+'%';},100);
+    document.getElementById('jrBarLabel').textContent = 'Letzte 4 Wochen: '+fmtKm(rec.distance)+' km · '+rec.count+' Aktivitäten';
+  }
+  document.getElementById('jahresrueckblick').style.display='block';
+}).catch(function(){});
 
 // ── Wetter-Widget (Open-Meteo, kein API-Key nötig) ──
 (function(){

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../lib/db');
-const { getStravaData } = require('../lib/strava');
+const { getStravaData, getClubStats } = require('../lib/strava');
 
 const CLUB_ID = '300701';
 
@@ -57,6 +57,13 @@ router.get('/api/strava', async (req, res, next) => {
   try {
     const data = await getStravaData();
     res.json(data.club || null);
+  } catch (err) { next(err); }
+});
+
+router.get('/api/strava-stats', async (req, res, next) => {
+  try {
+    const stats = await getClubStats();
+    res.json(stats);
   } catch (err) { next(err); }
 });
 

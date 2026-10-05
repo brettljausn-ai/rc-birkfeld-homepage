@@ -243,7 +243,7 @@ router.post('/chat/clear', requireAuth, async (req, res, next) => {
 /* ── STRAVA CACHE CLEAR ── */
 router.post('/strava-cache/clear', requireAuth, async (req, res, next) => {
   try {
-    await pool.query("DELETE FROM strava_cache WHERE `key` IN ('club','events')");
+    await pool.query("DELETE FROM strava_cache WHERE `key` IN ('club','events','club_stats','activities')");
     res.redirect('/admin?msg=Strava-Cache+geleert&tab=page');
   } catch (err) { next(err); }
 });
