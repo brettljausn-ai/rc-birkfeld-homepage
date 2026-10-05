@@ -13,8 +13,8 @@
   a{color:inherit;text-decoration:none;}
   .ch{background:#111;border-bottom:1px solid #1e1e1e;padding:0 20px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:200;}
   .ch-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1rem;color:#4CAF50;letter-spacing:.06em;white-space:nowrap;margin-right:28px;}
-  .ch-tabs{display:flex;height:100%;flex:1;}
-  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;}
+  .ch-tabs{display:flex;height:100%;flex:1;overflow-x:auto;}
+  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;white-space:nowrap;}
   .ch-tab:hover{color:#aaa;} .ch-tab.active{color:#fff;border-bottom-color:#4CAF50;}
   .ch-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
   .ch-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0;}
@@ -154,6 +154,10 @@
       <div class="field">
         <label>Strava-Profil <span style="font-weight:400;color:#333;">– URL oder Athleten-ID (strava.com/athletes/<em>12345678</em>)</span></label>
         <input type="text" name="strava_athlete_id" value="<%= (profile && profile.strava_athlete_id) || '' %>" placeholder="https://www.strava.com/athletes/12345678">
+      </div>
+      <div class="field">
+        <label>Geburtstag <span style="font-weight:400;color:#333;">– erscheint nur im Vereins-Feed</span></label>
+        <input type="date" name="birthday" value="<%= (profile && profile.birthday) ? String(profile.birthday).substring(0,10) : '' %>" style="background:#0d0d0d;border:1px solid #2a2a2a;color:#E8E8E8;border-radius:8px;padding:10px 12px;font-size:0.9rem;font-family:inherit;outline:none;width:100%;color-scheme:dark;">
       </div>
       <button type="submit" class="btn-save">Speichern</button>
     </form>

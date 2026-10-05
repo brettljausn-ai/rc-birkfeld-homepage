@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/rcbirkfeld-logo.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Strecken – RC Birkfeld Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0D0D0D;color:#E8E8E8;font-family:'Public Sans',system-ui,sans-serif;min-height:100vh;}
+  a{color:inherit;text-decoration:none;}
+  .ch{background:#111;border-bottom:1px solid #1e1e1e;padding:0 20px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:200;}
+  .ch-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1rem;color:#4CAF50;letter-spacing:.06em;white-space:nowrap;margin-right:28px;}
+  .ch-tabs{display:flex;height:100%;flex:1;overflow-x:auto;}
+  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;white-space:nowrap;}
+  .ch-tab:hover{color:#aaa;} .ch-tab.active{color:#fff;border-bottom-color:#4CAF50;}
+  .ch-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+  .ch-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .ch-name{font-size:0.82rem;color:#888;white-space:nowrap;}
+  .ch-logout{font-size:0.75rem;color:#555;border:1px solid #2a2a2a;padding:4px 10px;border-radius:4px;text-decoration:none;}
+  .ch-logout:hover{color:#aaa;border-color:#444;}
+  .ch-profile-link{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;}
+  @media(max-width:600px){.ch-name{display:none;}.ch-brand{margin-right:12px;}.ch-tab{padding:0 10px;font-size:0.78rem;}}
+  /* routen */
+  .wrap{max-width:720px;margin:0 auto;padding:24px 16px;}
+  .page-title{font-family:'Big Shoulders Display',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:4px;}
+  .page-sub{font-size:0.82rem;color:#555;margin-bottom:24px;font-family:'IBM Plex Mono',monospace;}
+  .add-form{background:#141414;border:1px solid #1e1e1e;border-radius:12px;padding:20px;margin-bottom:28px;}
+  .add-form h3{font-size:0.95rem;font-weight:700;margin-bottom:14px;color:#aaa;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+  .form-group{display:flex;flex-direction:column;gap:4px;}
+  .form-group label{font-size:0.75rem;color:#555;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em;}
+  .form-group input,.form-group select,.form-group textarea{background:#0d0d0d;border:1px solid #2a2a2a;color:#E8E8E8;border-radius:6px;padding:8px 10px;font-size:0.88rem;font-family:inherit;outline:none;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#4CAF50;}
+  .form-group select option{background:#1a1a1a;}
+  .form-group textarea{resize:vertical;min-height:60px;}
+  .btn-add{background:#1F7A34;color:#fff;border:none;padding:9px 22px;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;}
+  .btn-add:hover{background:#145C27;}
+  .route-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;padding:18px 20px;margin-bottom:14px;}
+  .route-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;}
+  .route-name{font-size:1rem;font-weight:700;}
+  .route-author{font-size:0.75rem;color:#555;margin-top:2px;}
+  .route-stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;}
+  .route-stat{display:flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#888;}
+  .route-stat svg{color:#4CAF50;flex-shrink:0;}
+  .route-desc{font-size:0.85rem;color:#888;line-height:1.55;margin-bottom:10px;}
+  .route-link{display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;color:#4CAF50;font-weight:600;}
+  .route-link:hover{color:#6FCF7C;}
+  .diff-badge{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:.07em;padding:2px 8px;border-radius:10px;font-weight:600;}
+  .diff-leicht{background:#0d2a10;color:#4CAF50;}
+  .diff-mittel{background:#2a1d0d;color:#FF9800;}
+  .diff-schwer{background:#2a0d0d;color:#e57373;}
+  .btn-del{background:none;border:none;color:#333;font-size:0.75rem;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:4px;}
+  .btn-del:hover{color:#e57373;background:#1e1010;}
+  .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
+  @media(max-width:520px){.form-row,.form-row-3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<%- include('_nav') %>
+<div class="wrap">
+  <h1 class="page-title">Streckenempfehlungen</h1>
+  <p class="page-sub">Routen von Vereinsmitgliedern – Rennrad, MTB und Gravel.</p>
+
+  <div class="add-form">
+    <h3>Neue Strecke empfehlen</h3>
+    <form method="POST" action="/club/routen">
+      <div class="form-row">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label>Name der Strecke</label>
+          <input type="text" name="name" placeholder="z.B. Laurentiberg Classic" required maxlength="200">
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Distanz (km)</label>
+          <input type="number" name="distance_km" placeholder="65" step="0.1" min="0">
+        </div>
+        <div class="form-group">
+          <label>Höhenmeter</label>
+          <input type="number" name="elevation_m" placeholder="1200" min="0">
+        </div>
+        <div class="form-group">
+          <label>Schwierigkeit</label>
+          <select name="difficulty">
+            <option value="leicht">Leicht</option>
+            <option value="mittel" selected>Mittel</option>
+            <option value="schwer">Schwer</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label>Beschreibung (optional)</label>
+          <textarea name="description" placeholder="Kurze Beschreibung, Besonderheiten, Tipps…" maxlength="500"></textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label>Link (Strava, Komoot, GPX…)</label>
+          <input type="url" name="link_url" placeholder="https://www.strava.com/routes/…">
+        </div>
+      </div>
+      <button type="submit" class="btn-add">Strecke hinzufügen</button>
+    </form>
+  </div>
+
+  <% if (routen.length === 0) { %>
+  <div class="empty">Noch keine Strecken. Sei der Erste!</div>
+  <% } else { routen.forEach(function(r) { %>
+  <div class="route-card">
+    <div class="route-header">
+      <div>
+        <div class="route-name"><%= r.name %></div>
+        <div class="route-author">von <%= r.author %> · <%= new Date(r.created_at).toLocaleDateString('de-AT',{day:'2-digit',month:'short',year:'numeric'}) %></div>
+      </div>
+      <span class="diff-badge diff-<%= r.difficulty %>"><%= r.difficulty %></span>
+    </div>
+    <div class="route-stats">
+      <% if (r.distance_km) { %>
+      <div class="route-stat">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/></svg>
+        <%= r.distance_km %> km
+      </div>
+      <% } %>
+      <% if (r.elevation_m) { %>
+      <div class="route-stat">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-8 4 5 3-4 5 7H3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <%= r.elevation_m %> hm
+      </div>
+      <% } %>
+    </div>
+    <% if (r.description) { %>
+    <div class="route-desc"><%= r.description %></div>
+    <% } %>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <% if (r.link_url) { %>
+      <a href="<%= r.link_url %>" target="_blank" class="route-link">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="15 3 21 3 21 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Strecke öffnen
+      </a>
+      <% } else { %><span></span><% } %>
+      <% if (r.author === memberName) { %>
+      <form method="POST" action="/club/routen/<%= r.id %>/delete" onsubmit="return confirm('Strecke löschen?')">
+        <button class="btn-del" type="submit">Löschen</button>
+      </form>
+      <% } %>
+    </div>
+  </div>
+  <% }); } %>
+</div>
+</body>
+</html>

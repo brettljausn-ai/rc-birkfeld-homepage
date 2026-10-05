@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/rcbirkfeld-logo.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kalender – RC Birkfeld Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0D0D0D;color:#E8E8E8;font-family:'Public Sans',system-ui,sans-serif;min-height:100vh;}
+  a{color:inherit;text-decoration:none;}
+  .ch{background:#111;border-bottom:1px solid #1e1e1e;padding:0 20px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:200;}
+  .ch-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1rem;color:#4CAF50;letter-spacing:.06em;white-space:nowrap;margin-right:28px;}
+  .ch-tabs{display:flex;height:100%;flex:1;overflow-x:auto;}
+  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;white-space:nowrap;}
+  .ch-tab:hover{color:#aaa;} .ch-tab.active{color:#fff;border-bottom-color:#4CAF50;}
+  .ch-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+  .ch-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0;}
+  .ch-name{font-size:0.82rem;color:#888;white-space:nowrap;}
+  .ch-logout{font-size:0.75rem;color:#555;border:1px solid #2a2a2a;padding:4px 10px;border-radius:4px;text-decoration:none;}
+  .ch-logout:hover{color:#aaa;border-color:#444;}
+  .ch-profile-link{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;}
+  @media(max-width:600px){.ch-name{display:none;}.ch-brand{margin-right:12px;}.ch-tab{padding:0 10px;font-size:0.78rem;}}
+  /* kalender */
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px;}
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+  .page-title{font-family:'Big Shoulders Display',sans-serif;font-size:1.8rem;font-weight:900;}
+  .month-nav{display:flex;align-items:center;gap:12px;}
+  .month-nav button{background:#1a1a1a;border:1px solid #2a2a2a;color:#aaa;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.85rem;}
+  .month-nav button:hover{background:#2a2a2a;color:#fff;}
+  .month-label{font-family:'IBM Plex Mono',monospace;font-size:0.9rem;color:#E8E8E8;font-weight:600;min-width:120px;text-align:center;}
+  .cal-grid{background:#111;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;}
+  .cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #1e1e1e;}
+  .cal-day-lbl{text-align:center;padding:10px 0;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#444;text-transform:uppercase;letter-spacing:.06em;}
+  .cal-cells{display:grid;grid-template-columns:repeat(7,1fr);}
+  .cal-cell{min-height:80px;border-right:1px solid #1e1e1e;border-bottom:1px solid #1e1e1e;padding:8px 6px;position:relative;}
+  .cal-cell:nth-child(7n){border-right:none;}
+  .cal-cell.other-month .cal-num{color:#2a2a2a;}
+  .cal-cell.today{background:#0d1a0d;}
+  .cal-num{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#555;margin-bottom:4px;}
+  .cal-cell.today .cal-num{color:#4CAF50;font-weight:700;}
+  .cal-event{background:#1F7A34;color:#fff;border-radius:4px;font-size:0.68rem;font-weight:600;padding:2px 5px;margin-bottom:2px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4;text-decoration:none;display:block;}
+  .cal-event:hover{background:#145C27;}
+  .cal-event.tag-strava{background:#e05729;}
+  .cal-event.tag-mtb{background:#1565C0;}
+  .cal-event.tag-gravel{background:#7B1FA2;}
+  .event-list{margin-top:28px;}
+  .event-list-title{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:#555;margin-bottom:12px;}
+  .ev-row{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid #1a1a1a;}
+  .ev-date{flex-shrink:0;text-align:center;min-width:46px;}
+  .ev-date .ev-day{font-family:'Big Shoulders Display',sans-serif;font-size:1.6rem;font-weight:900;line-height:1;color:#fff;}
+  .ev-date .ev-mon{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:#4CAF50;text-transform:uppercase;font-weight:600;}
+  .ev-body .ev-title{font-size:0.9rem;font-weight:700;margin-bottom:2px;}
+  .ev-body .ev-loc{font-size:0.78rem;color:#555;}
+  .ev-tag{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:.07em;color:#444;margin-bottom:2px;display:block;}
+  .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
+</style>
+</head>
+<body>
+<%- include('_nav') %>
+<div class="wrap">
+  <div class="page-header">
+    <h1 class="page-title">Kalender</h1>
+    <div class="month-nav">
+      <button id="prevBtn">&#8592;</button>
+      <span class="month-label" id="monthLabel"></span>
+      <button id="nextBtn">&#8594;</button>
+    </div>
+  </div>
+
+  <div class="cal-grid">
+    <div class="cal-days-header">
+      <% ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(function(d){ %>
+      <div class="cal-day-lbl"><%= d %></div>
+      <% }); %>
+    </div>
+    <div class="cal-cells" id="calCells"></div>
+  </div>
+
+  <div class="event-list">
+    <div class="event-list-title">Alle Termine im Monat</div>
+    <div id="eventList"><div class="empty">Keine Termine.</div></div>
+  </div>
+</div>
+<script>
+var TERMINE = <%- JSON.stringify(termine.map(function(t){return{id:t.id,title:t.title,date:t.date,tag:t.tag,location:t.location,detail_url:t.detail_url};})) %>;
+
+var today = new Date();
+today.setHours(0,0,0,0);
+var curYear = today.getFullYear();
+var curMonth = today.getMonth();
+
+function tagClass(tag){
+  if(!tag) return '';
+  var t = tag.toLowerCase();
+  if(t==='strava') return 'tag-strava';
+  if(t.includes('mtb')) return 'tag-mtb';
+  if(t.includes('gravel')) return 'tag-gravel';
+  return '';
+}
+
+function render(){
+  var monthNames = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  document.getElementById('monthLabel').textContent = monthNames[curMonth] + ' ' + curYear;
+
+  var firstDay = new Date(curYear, curMonth, 1);
+  var lastDay  = new Date(curYear, curMonth + 1, 0);
+  var startDow = (firstDay.getDay() + 6) % 7; // Mon=0
+  var cells = '';
+  var day = new Date(firstDay);
+  day.setDate(day.getDate() - startDow);
+
+  var totalCells = Math.ceil((startDow + lastDay.getDate()) / 7) * 7;
+  for(var i = 0; i < totalCells; i++){
+    var isThisMonth = day.getMonth() === curMonth && day.getFullYear() === curYear;
+    var isToday = day.getTime() === today.getTime();
+    var cls = 'cal-cell' + (!isThisMonth?' other-month':'') + (isToday?' today':'');
+    var ymd = day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
+    var eventsOnDay = TERMINE.filter(function(t){ return t.date && t.date.substring(0,10) === ymd; });
+    var evHtml = eventsOnDay.map(function(t){
+      var href = t.detail_url || '/termin/'+t.id;
+      return '<a href="'+href+'" class="cal-event '+tagClass(t.tag)+'" title="'+escH(t.title)+'">'+escH(t.title)+'</a>';
+    }).join('');
+    cells += '<div class="'+cls+'"><div class="cal-num">'+day.getDate()+'</div>'+evHtml+'</div>';
+    day.setDate(day.getDate()+1);
+  }
+  document.getElementById('calCells').innerHTML = cells;
+
+  var monthTermine = TERMINE.filter(function(t){
+    if(!t.date) return false;
+    var d = new Date(t.date);
+    return d.getFullYear()===curYear && d.getMonth()===curMonth;
+  }).sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+
+  if(!monthTermine.length){
+    document.getElementById('eventList').innerHTML = '<div class="empty">Keine Termine in diesem Monat.</div>';
+    return;
+  }
+  document.getElementById('eventList').innerHTML = monthTermine.map(function(t){
+    var d = new Date(t.date);
+    var mon = ['JAN','FEB','MÄR','APR','MAI','JUN','JUL','AUG','SEP','OKT','NOV','DEZ'][d.getMonth()];
+    var href = t.detail_url || '/termin/'+t.id;
+    return '<a href="'+href+'" class="ev-row" style="text-decoration:none;color:inherit;display:flex;">'
+      +'<div class="ev-date"><div class="ev-day">'+d.getDate()+'</div><div class="ev-mon">'+mon+'</div></div>'
+      +'<div class="ev-body"><span class="ev-tag">'+escH(t.tag||'Vereinsrennen')+'</span><div class="ev-title">'+escH(t.title)+'</div>'+(t.location?'<div class="ev-loc">'+escH(t.location)+'</div>':'')+'</div>'
+      +'</a>';
+  }).join('');
+}
+
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+document.getElementById('prevBtn').addEventListener('click',function(){curMonth--;if(curMonth<0){curMonth=11;curYear--;}render();});
+document.getElementById('nextBtn').addEventListener('click',function(){curMonth++;if(curMonth>11){curMonth=0;curYear++;}render();});
+render();
+</script>
+</body>
+</html>

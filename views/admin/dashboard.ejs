@@ -92,6 +92,7 @@
   <button class="tab <%= activeTab==='members'?'active':'' %>"      onclick="showTab('members',this)">Beitritte</button>
   <button class="tab <%= activeTab==='clubmembers'?'active':'' %>" onclick="showTab('clubmembers',this)">Mitglieder</button>
   <button class="tab <%= activeTab==='sponsors'?'active':'' %>"     onclick="showTab('sponsors',this)">Sponsoren</button>
+  <button class="tab <%= activeTab==='challenges'?'active':'' %>"  onclick="showTab('challenges',this)">Challenges</button>
 </div>
 
 <% if (flash) { %>
@@ -614,6 +615,69 @@
     </div>
     <% }); %>
     <% if(sponsors.length===0){%><p style="color:#999;font-size:0.9rem;grid-column:1/-1;">Noch keine Sponsoren.</p><%}%>
+  </div>
+</div>
+
+<!-- ══ CHALLENGES ══ -->
+<div id="panel-challenges" class="panel <%= activeTab==='challenges'?'active':'' %>">
+  <div class="card">
+    <h2>Neue Challenge erstellen</h2>
+    <p style="font-size:0.82rem;color:#888;margin-bottom:14px;">Erstellt eine neue Challenge und deaktiviert automatisch alle anderen. Nur eine Challenge kann gleichzeitig aktiv sein.</p>
+    <form method="POST" action="/admin/challenges">
+      <div class="field"><label>Titel</label><input name="title" required placeholder="z.B. Laurentiberg Jahresbeste 2026"></div>
+      <div class="field"><label>Beschreibung (optional)</label><textarea name="description" placeholder="Kurze Info zur Challenge…"></textarea></div>
+      <div class="form-row">
+        <div class="field"><label>Strava Segment-ID <span style="font-weight:400;color:#bbb;">(z.B. 1234567)</span></label><input name="segment_id" placeholder="1234567" type="text"></div>
+        <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label>Start</label><input type="date" name="start_date"></div>
+          <div><label>Ende</label><input type="date" name="end_date"></div>
+        </div>
+      </div>
+      <button class="btn-save" type="submit">Challenge erstellen &amp; aktivieren</button>
+    </form>
+  </div>
+
+  <div class="section-divider">Alle Challenges (<%= challenges.length %>)</div>
+  <% if (!challenges.length) { %><p style="color:#999;font-size:0.9rem;">Noch keine Challenges.</p>
+  <% } else { %>
+  <table>
+    <thead><tr><th>Status</th><th>Titel</th><th>Segment-ID</th><th>Zeitraum</th><th>Aktionen</th></tr></thead>
+    <tbody>
+    <% challenges.forEach(ch => { %>
+    <tr>
+      <td><span class="badge <%= ch.active ? 'badge-member' : 'badge-new' %>"><%= ch.active ? 'Aktiv' : 'Inaktiv' %></span></td>
+      <td style="font-weight:600;"><%= ch.title %></td>
+      <td><% if (ch.segment_id) { %><a href="https://www.strava.com/segments/<%= ch.segment_id %>" target="_blank" style="color:#1565C0;">Segment <%= ch.segment_id %> ↗</a><% } else { %>–<% } %></td>
+      <td style="font-size:0.8rem;color:#666;">
+        <% if (ch.start_date) { %><%= new Date(ch.start_date).toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'}) %><% } %>
+        <% if (ch.start_date && ch.end_date) { %> – <% } %>
+        <% if (ch.end_date) { %><%= new Date(ch.end_date).toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'}) %><% } %>
+        <% if (!ch.start_date && !ch.end_date) { %>–<% } %>
+      </td>
+      <td>
+        <div class="actions">
+          <% if (!ch.active) { %>
+          <form method="POST" action="/admin/challenges/<%= ch.id %>/activate" style="display:inline;">
+            <button class="btn-edit" type="submit">Aktivieren</button>
+          </form>
+          <% } %>
+          <form method="POST" action="/admin/challenges/<%= ch.id %>/delete" onsubmit="return confirm('Challenge löschen?')" style="display:inline;">
+            <button class="btn-del" type="submit">Löschen</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    <% }); %>
+    </tbody>
+  </table>
+  <% } %>
+
+  <div class="section-divider">Segment-Cache</div>
+  <div class="card" style="padding:14px 18px;">
+    <p style="font-size:0.85rem;color:#666;margin-bottom:10px;">Leaderboard-Daten werden 6 Stunden gecacht. Leere den Cache um frische Daten von Strava zu laden.</p>
+    <form method="POST" action="/admin/strava-cache/segment/clear" style="display:inline;">
+      <button class="btn-save" type="submit" style="background:#e65100;">Segment-Cache leeren</button>
+    </form>
   </div>
 </div>
 

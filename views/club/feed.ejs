@@ -13,8 +13,8 @@
   a{color:inherit;text-decoration:none;}
   .ch{background:#111;border-bottom:1px solid #1e1e1e;padding:0 20px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:200;}
   .ch-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1rem;color:#4CAF50;letter-spacing:.06em;white-space:nowrap;margin-right:28px;}
-  .ch-tabs{display:flex;height:100%;flex:1;}
-  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;}
+  .ch-tabs{display:flex;height:100%;flex:1;overflow-x:auto;}
+  .ch-tab{display:flex;align-items:center;gap:7px;padding:0 16px;color:#666;font-size:0.85rem;font-weight:600;border-bottom:3px solid transparent;text-decoration:none;transition:color .15s;white-space:nowrap;}
   .ch-tab:hover{color:#aaa;} .ch-tab.active{color:#fff;border-bottom-color:#4CAF50;}
   .ch-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
   .ch-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0;}
@@ -50,11 +50,24 @@
   .btn-del{background:none;border:none;color:#333;font-size:0.75rem;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:4px;}
   .btn-del:hover{color:#e57373;background:#1e1010;}
   .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
+  /* birthday widget */
+  .bday-bar{background:#141414;border:1px solid #1e1e1e;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .bday-icon{font-size:1.1rem;flex-shrink:0;}
+  .bday-items{display:flex;gap:12px;flex-wrap:wrap;flex:1;}
+  .bday-item{display:flex;align-items:center;gap:6px;font-size:0.82rem;}
+  .bday-today{color:#FFD700;font-weight:700;}
+  .bday-soon{color:#888;}
+  .bday-date{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:#555;}
 </style>
 </head>
 <body>
 <%- include('_nav') %>
 <div class="feed-wrap">
+
+  <div id="bdayBar" style="display:none;" class="bday-bar">
+    <span class="bday-icon">🎂</span>
+    <div class="bday-items" id="bdayItems"></div>
+  </div>
 
   <form id="composeForm" class="compose">
     <div class="compose-top">
@@ -125,6 +138,22 @@ function loadFeed() {
   }).catch(function(){});
 }
 loadFeed();
+
+// Birthday widget
+fetch('/club/api/birthdays').then(function(r){return r.json();}).then(function(list){
+  if(!list.length) return;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var todayMD = (today.getMonth()+1)*100+today.getDate();
+  var html = list.map(function(b){
+    var bmd = b.month*100+b.day;
+    var isToday = bmd===todayMD;
+    var MONTHS = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+    var dateStr = b.day+'. '+MONTHS[b.month-1];
+    return '<div class="bday-item"><span class="'+(isToday?'bday-today':'bday-soon')+'">'+escH(b.name)+(isToday?' 🎉':'')+'</span><span class="bday-date">'+dateStr+'</span></div>';
+  }).join('');
+  document.getElementById('bdayItems').innerHTML = html;
+  document.getElementById('bdayBar').style.display = 'flex';
+}).catch(function(){});
 
 var dropZone = document.getElementById('dropZone');
 var fileInput = document.getElementById('fileInput');

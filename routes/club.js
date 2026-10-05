@@ -4,7 +4,7 @@ const multer = require('multer');
 const passport = require('../lib/passport');
 const bcrypt = require('bcryptjs');
 const { pool } = require('../lib/db');
-const { getClubActivities } = require('../lib/strava');
+const { getClubActivities, getSegmentLeaderboard } = require('../lib/strava');
 
 const uploadFeed = multer({
   storage: multer.memoryStorage(),
@@ -140,6 +140,25 @@ router.get('/api/feed', requireMember, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.get('/api/birthdays', requireMember, async (req, res, next) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT member_name, birthday FROM club_member_profiles
+       WHERE birthday IS NOT NULL
+       ORDER BY DATE_FORMAT(birthday, '%m-%d') ASC`
+    );
+    const today = new Date();
+    const todayMD = (today.getMonth() + 1) * 100 + today.getDate();
+    const upcoming = rows.map(r => {
+      const b = new Date(r.birthday);
+      const md = (b.getMonth() + 1) * 100 + b.getDate();
+      const diff = md >= todayMD ? md - todayMD : 10000 + md - todayMD;
+      return { name: r.member_name, birthday: r.birthday, diff, day: b.getDate(), month: b.getMonth() + 1 };
+    }).sort((a, b) => a.diff - b.diff).slice(0, 5);
+    res.json(upcoming);
+  } catch (err) { next(err); }
+});
+
 router.get('/', requireMember, async (req, res, next) => {
   try {
     const [[profileRows]] = await pool.query('SELECT avatar_url FROM club_member_profiles WHERE member_name=?', [req.session.memberName]);
@@ -202,6 +221,59 @@ router.post('/rsvp/:id', requireMember, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── KALENDER ── */
+router.get('/kalender', requireMember, async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM termine ORDER BY date ASC');
+    res.render('club/kalender', { ...helpers, memberName: req.session.memberName, termine: rows, page: 'kalender' });
+  } catch (err) { next(err); }
+});
+
+/* ── ROUTEN ── */
+router.get('/routen', requireMember, async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM club_routes ORDER BY created_at DESC');
+    res.render('club/routen', { ...helpers, memberName: req.session.memberName, routen: rows, page: 'routen' });
+  } catch (err) { next(err); }
+});
+
+router.post('/routen', requireMember, async (req, res, next) => {
+  const name        = (req.body.name        || '').trim().slice(0, 200);
+  const distance_km = parseFloat(req.body.distance_km) || null;
+  const elevation_m = parseInt(req.body.elevation_m)   || null;
+  const difficulty  = ['leicht','mittel','schwer'].includes(req.body.difficulty) ? req.body.difficulty : 'mittel';
+  const description = (req.body.description || '').trim() || null;
+  const link_url    = (req.body.link_url    || '').trim() || null;
+  if (!name) return res.redirect('/club/routen');
+  try {
+    await pool.query(
+      'INSERT INTO club_routes (author, name, distance_km, elevation_m, difficulty, description, link_url) VALUES (?,?,?,?,?,?,?)',
+      [req.session.memberName, name, distance_km, elevation_m, difficulty, description, link_url]
+    );
+    res.redirect('/club/routen');
+  } catch (err) { next(err); }
+});
+
+router.post('/routen/:id/delete', requireMember, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM club_routes WHERE id=? AND author=?', [req.params.id, req.session.memberName]);
+    res.redirect('/club/routen');
+  } catch (err) { next(err); }
+});
+
+/* ── CHALLENGE ── */
+router.get('/challenge', requireMember, async (req, res, next) => {
+  try {
+    const [challenges] = await pool.query('SELECT * FROM club_challenges WHERE active=1 ORDER BY created_at DESC LIMIT 1');
+    const challenge = challenges[0] || null;
+    let leaderboard = [];
+    if (challenge && challenge.segment_id) {
+      leaderboard = await getSegmentLeaderboard(challenge.segment_id);
+    }
+    res.render('club/challenge', { ...helpers, memberName: req.session.memberName, challenge, leaderboard, page: 'challenge' });
+  } catch (err) { next(err); }
+});
+
 /* ── PROFIL ── */
 router.get('/profil', requireMember, (req, res) => {
   res.redirect('/club/profil/' + encodeURIComponent(req.session.memberName));
@@ -247,14 +319,15 @@ router.post('/profil/edit', requireMember, async (req, res, next) => {
   const rawStrava  = (req.body.strava_athlete_id || '').trim();
   const stravaMatch = rawStrava.match(/athletes\/(\d+)/);
   const strava_athlete_id = stravaMatch ? stravaMatch[1] : (rawStrava.match(/^\d+$/) ? rawStrava : null);
+  const birthday = req.body.birthday || null;
   try {
     await pool.query(
-      `INSERT INTO club_member_profiles (member_name, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size, strava_athlete_id)
-       VALUES (?,?,?,?,?,?,?,?)
+      `INSERT INTO club_member_profiles (member_name, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size, strava_athlete_id, birthday)
+       VALUES (?,?,?,?,?,?,?,?,?)
        ON DUPLICATE KEY UPDATE bio=VALUES(bio), avatar_url=VALUES(avatar_url), bike_url=VALUES(bike_url),
          bike_brand=VALUES(bike_brand), bike_model=VALUES(bike_model), bike_size=VALUES(bike_size),
-         strava_athlete_id=VALUES(strava_athlete_id)`,
-      [req.session.memberName, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size, strava_athlete_id]
+         strava_athlete_id=VALUES(strava_athlete_id), birthday=VALUES(birthday)`,
+      [req.session.memberName, bio, avatar_url, bike_url, bike_brand, bike_model, bike_size, strava_athlete_id, birthday]
     );
     res.redirect('/club/profil/' + encodeURIComponent(req.session.memberName));
   } catch (err) { next(err); }

@@ -55,7 +55,7 @@ router.get('/logout', (req, res) => {
 
 router.get('/', requireAuth, async (req, res, next) => {
   try {
-    const [[news], [termine], [gallery], [members], [contentRows], [sponsors], [clubOauth], [clubMembersAuth]] = await Promise.all([
+    const [[news], [termine], [gallery], [members], [contentRows], [sponsors], [clubOauth], [clubMembersAuth], [challenges]] = await Promise.all([
       pool.query('SELECT * FROM news ORDER BY published_at DESC'),
       pool.query('SELECT * FROM termine ORDER BY date ASC'),
       pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
@@ -64,10 +64,11 @@ router.get('/', requireAuth, async (req, res, next) => {
       pool.query('SELECT * FROM sponsors ORDER BY sort_order ASC'),
       pool.query('SELECT * FROM club_oauth ORDER BY created_at DESC'),
       pool.query('SELECT id, name, email, created_at FROM club_members_auth ORDER BY created_at DESC'),
+      pool.query('SELECT * FROM club_challenges ORDER BY created_at DESC'),
     ]);
     const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
     res.render('admin/dashboard', {
-      news, termine, gallery, members, content, sponsors, clubOauth, clubMembersAuth,
+      news, termine, gallery, members, content, sponsors, clubOauth, clubMembersAuth, challenges,
       flash: req.query.msg || null,
       activeTab: req.query.tab || 'news',
     });
@@ -314,6 +315,41 @@ router.post('/page/content', requireAuth, async (req, res, next) => {
       }
     }
     res.redirect('/admin?msg=Gespeichert&tab=page');
+  } catch (err) { next(err); }
+});
+
+/* ── CHALLENGES ── */
+router.post('/challenges', requireAuth, async (req, res, next) => {
+  const { title, description, segment_id, start_date, end_date } = req.body;
+  try {
+    await pool.query('UPDATE club_challenges SET active=0');
+    await pool.query(
+      'INSERT INTO club_challenges (title, description, segment_id, start_date, end_date, active) VALUES (?,?,?,?,?,1)',
+      [title, description || null, segment_id || null, start_date || null, end_date || null]
+    );
+    res.redirect('/admin?msg=Challenge+erstellt&tab=challenges');
+  } catch (err) { next(err); }
+});
+
+router.post('/challenges/:id/delete', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM club_challenges WHERE id=?', [req.params.id]);
+    res.redirect('/admin?msg=Challenge+gelöscht&tab=challenges');
+  } catch (err) { next(err); }
+});
+
+router.post('/challenges/:id/activate', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('UPDATE club_challenges SET active=0');
+    await pool.query('UPDATE club_challenges SET active=1 WHERE id=?', [req.params.id]);
+    res.redirect('/admin?msg=Challenge+aktiviert&tab=challenges');
+  } catch (err) { next(err); }
+});
+
+router.post('/strava-cache/segment/clear', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query("DELETE FROM strava_cache WHERE `key` LIKE 'segment_%'");
+    res.redirect('/admin?msg=Segment-Cache+geleert&tab=challenges');
   } catch (err) { next(err); }
 });
 

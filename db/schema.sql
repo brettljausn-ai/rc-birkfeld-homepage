@@ -195,8 +195,32 @@ CREATE TABLE IF NOT EXISTS club_member_profiles (
   bike_url     MEDIUMTEXT,
   updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS club_routes (
+  id           INT AUTO_INCREMENT PRIMARY KEY,
+  author       VARCHAR(100) NOT NULL,
+  name         VARCHAR(200) NOT NULL,
+  distance_km  DECIMAL(6,1),
+  elevation_m  INT,
+  difficulty   ENUM('leicht','mittel','schwer') DEFAULT 'mittel',
+  description  TEXT,
+  link_url     TEXT,
+  created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS club_challenges (
+  id           INT AUTO_INCREMENT PRIMARY KEY,
+  title        VARCHAR(200) NOT NULL,
+  description  TEXT,
+  segment_id   VARCHAR(50),
+  start_date   DATE,
+  end_date     DATE,
+  active       TINYINT(1) DEFAULT 1,
+  created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_url          MEDIUMTEXT;
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_brand        VARCHAR(100);
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_model        VARCHAR(100);
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_size         VARCHAR(20);
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS strava_athlete_id VARCHAR(50);
+ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS birthday          DATE;
