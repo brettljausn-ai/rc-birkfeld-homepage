@@ -299,6 +299,20 @@
   </style>
   <% } %>
 
+  <!-- GAME -->
+  <section id="spiel" style="padding:clamp(40px,6vw,64px) 0;">
+    <div class="wrap">
+      <div style="margin-bottom:20px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--rust);text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:block;margin-bottom:8px;">Mini-Spiel</span>
+          <h2 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(1.8rem,4vw,2.4rem);line-height:1.05;color:var(--ink);">Bergabfahrt</h2>
+        </div>
+        <p style="font-size:0.82rem;color:#888;font-family:'IBM Plex Mono',monospace;padding-bottom:6px;">LEERTASTE&nbsp;/&nbsp;TIPPEN&nbsp;=&nbsp;SPRINGEN</p>
+      </div>
+      <canvas id="rcGame" style="display:block;width:100%;max-width:800px;border-radius:12px;cursor:pointer;touch-action:none;" aria-label="Bergabfahrt Spiel – Leertaste oder Tippen zum Springen"></canvas>
+    </div>
+  </section>
+
   <!-- JOIN -->
   <section id="mitglied" class="join">
     <div class="wrap">
@@ -355,6 +369,204 @@
   </section>
 
 </main>
+
+<script>
+/* ── Bergabfahrt Game ── */
+(function(){
+  var cv = document.getElementById('rcGame');
+  if (!cv) return;
+  var ctx = cv.getContext('2d');
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var W = 800, H = 240;
+  cv.width = W * DPR; cv.height = H * DPR;
+  ctx.scale(DPR, DPR);
+
+  var GND = 185, GRAV = 0.75, JUMP = -13, WR = 13;
+  var state = 'idle';
+  var score = 0, hi = +(localStorage.getItem('rcg_hi') || 0);
+  var spd, frame, bx1, bx2, bx3, obstacles, spawn;
+  var P = { x: 90, y: GND, vy: 0, ground: true };
+
+  function reset() {
+    score = 0; spd = 4.5; frame = 0;
+    bx1 = bx2 = bx3 = 0; obstacles = []; spawn = 90;
+    P.y = GND; P.vy = 0; P.ground = true; state = 'playing';
+  }
+
+  function jump() {
+    if (state !== 'playing') { reset(); P.vy = JUMP; P.ground = false; return; }
+    if (P.ground) { P.vy = JUMP; P.ground = false; }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.code !== 'Space') return;
+    var r = cv.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0) { e.preventDefault(); jump(); }
+  });
+  cv.addEventListener('click', jump);
+  cv.addEventListener('touchstart', function(e) { e.preventDefault(); jump(); }, { passive: false });
+
+  function sky() {
+    var g = ctx.createLinearGradient(0, 0, 0, GND);
+    g.addColorStop(0, '#0d1a10'); g.addColorStop(1, '#254030');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, GND);
+  }
+
+  function mtns(off, col, hs) {
+    var pw = 420; ctx.fillStyle = col;
+    var ox = off % pw;
+    for (var x = -ox - pw; x < W + pw; x += pw) {
+      ctx.beginPath();
+      ctx.moveTo(x, GND);
+      ctx.lineTo(x + pw*.13, GND - 85*hs); ctx.lineTo(x + pw*.30, GND - 120*hs);
+      ctx.lineTo(x + pw*.50, GND - 75*hs); ctx.lineTo(x + pw*.70, GND - 105*hs);
+      ctx.lineTo(x + pw*.88, GND - 55*hs); ctx.lineTo(x + pw, GND);
+      ctx.fill();
+    }
+  }
+
+  function trees(off) {
+    var sp = 55, ox = off % sp;
+    ctx.fillStyle = '#091409';
+    for (var i = -1; i < Math.ceil(W / sp) + 2; i++) {
+      var x = i * sp - ox;
+      var h = 30 + (((Math.floor(off / sp) + i) % 3 + 3) % 3) * 9;
+      ctx.beginPath();
+      ctx.moveTo(x, GND);
+      ctx.lineTo(x-9, GND-h*.42); ctx.lineTo(x-5, GND-h*.42);
+      ctx.lineTo(x-11,GND-h*.72); ctx.lineTo(x-5, GND-h*.72);
+      ctx.lineTo(x,   GND-h);
+      ctx.lineTo(x+5, GND-h*.72); ctx.lineTo(x+11,GND-h*.72);
+      ctx.lineTo(x+5, GND-h*.42); ctx.lineTo(x+9, GND-h*.42);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  function gnd(off) {
+    var g = ctx.createLinearGradient(0, GND, 0, H);
+    g.addColorStop(0, '#8a7450'); g.addColorStop(1, '#5a4830');
+    ctx.fillStyle = g; ctx.fillRect(0, GND, W, H - GND);
+    ctx.fillStyle = '#9c8560'; ctx.fillRect(0, GND, W, 3);
+    ctx.strokeStyle = 'rgba(255,255,255,.2)'; ctx.lineWidth = 2;
+    ctx.setLineDash([22, 18]); ctx.lineDashOffset = -(off * 2.8) % 40;
+    ctx.beginPath(); ctx.moveTo(0, GND+18); ctx.lineTo(W, GND+18); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function bg(b1, b2, b3) {
+    sky(); mtns(b1,'#122018',.75); mtns(b2,'#0c170e',1); trees(b3); gnd(b3);
+  }
+
+  function rock(rx, rh) {
+    ctx.save(); ctx.translate(rx, GND);
+    ctx.fillStyle = '#5c5c48'; ctx.strokeStyle = '#3a3a28'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-rh*.55, 0); ctx.lineTo(-rh*.70, -rh*.50);
+    ctx.lineTo(-rh*.25, -rh*.92); ctx.lineTo( rh*.22, -rh*1.0);
+    ctx.lineTo( rh*.65, -rh*.72); ctx.lineTo( rh*.62, 0);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.07)';
+    ctx.beginPath(); ctx.moveTo(-rh*.05,-rh*.45); ctx.lineTo(rh*.12,-rh*.88); ctx.lineTo(rh*.38,-rh*.62); ctx.fill();
+    ctx.restore();
+  }
+
+  function cyclist(px, py, af) {
+    var a = af * 0.17;
+    ctx.save(); ctx.translate(px, py);
+    ctx.fillStyle = 'rgba(0,0,0,.18)';
+    ctx.beginPath(); ctx.ellipse(0, 2, 24, 5, 0, 0, Math.PI*2); ctx.fill();
+    [-14, 14].forEach(function(wx, i) {
+      ctx.beginPath(); ctx.arc(wx,-WR,WR,0,Math.PI*2);
+      ctx.strokeStyle='#1F7A34'; ctx.lineWidth=2.5; ctx.stroke();
+      ctx.beginPath(); ctx.arc(wx,-WR,2,0,Math.PI*2); ctx.fillStyle='#1F7A34'; ctx.fill();
+      ctx.save(); ctx.translate(wx,-WR); ctx.rotate(a*(i?1:-1));
+      ctx.strokeStyle='rgba(31,122,52,.55)'; ctx.lineWidth=1;
+      for (var s=0;s<6;s++){var sa=s*Math.PI/3; ctx.beginPath(); ctx.moveTo(2*Math.cos(sa),2*Math.sin(sa)); ctx.lineTo((WR-1)*Math.cos(sa),(WR-1)*Math.sin(sa)); ctx.stroke();}
+      ctx.restore();
+    });
+    ctx.strokeStyle='#22a040'; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(-14,-WR); ctx.lineTo(-3,-32); ctx.lineTo(14,-WR); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-14,-WR); ctx.lineTo(6,-WR-4); ctx.lineTo(14,-WR); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(14,-WR); ctx.lineTo(17,-28); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(17,-28); ctx.lineTo(22,-24); ctx.lineTo(22,-18); ctx.stroke();
+    ctx.strokeStyle='#1F7A34'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(-3,-33); ctx.lineTo(9,-49); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(9,-49); ctx.lineTo(22,-24); ctx.stroke();
+    ctx.beginPath(); ctx.arc(11,-59,8,0,Math.PI*2); ctx.fillStyle='#e8e8e8'; ctx.fill();
+    ctx.beginPath(); ctx.arc(11,-62,8,Math.PI,0); ctx.fillStyle='#1F7A34'; ctx.fill();
+    var cx=1,cy=-WR-3,cr=10;
+    var p1x=cx+Math.cos(a)*cr, p1y=cy+Math.sin(a)*cr;
+    var p2x=cx+Math.cos(a+Math.PI)*cr, p2y=cy+Math.sin(a+Math.PI)*cr;
+    ctx.strokeStyle='#1F7A34'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(-3,-33); ctx.lineTo(p1x,p1y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-3,-33); ctx.lineTo(p2x,p2y); ctx.stroke();
+    ctx.strokeStyle='rgba(31,122,52,.4)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p1x,p1y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p2x,p2y); ctx.stroke();
+    ctx.restore();
+  }
+
+  function ui() {
+    ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(W-152,8,144,44);
+    ctx.fillStyle='#fff'; ctx.font='bold 15px "IBM Plex Mono",monospace';
+    ctx.textAlign='right'; ctx.fillText(String(score).padStart(5,'0'), W-14, 28);
+    ctx.fillStyle='#4CAF50'; ctx.font='10px "IBM Plex Mono",monospace';
+    ctx.fillText('HI ' + String(hi).padStart(5,'0'), W-14, 44);
+    ctx.textAlign='left';
+  }
+
+  function ovl(title, l1, l2, tc) {
+    ctx.fillStyle='rgba(0,0,0,.62)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.fillStyle=tc||'#fff'; ctx.font='900 28px "Big Shoulders Display",sans-serif';
+    ctx.fillText(title, W/2, H/2-16);
+    ctx.fillStyle='#999'; ctx.font='11px "IBM Plex Mono",monospace';
+    ctx.fillText(l1, W/2, H/2+8);
+    if(l2){ctx.fillStyle='#4CAF50'; ctx.font='bold 11px "IBM Plex Mono",monospace'; ctx.fillText(l2,W/2,H/2+28);}
+    ctx.textAlign='left';
+  }
+
+  function hit() {
+    for (var i=0;i<obstacles.length;i++){
+      var o=obstacles[i];
+      if(P.x+20>o.x-o.h*.5 && P.x-12<o.x+o.h*.5 && P.y>GND-o.h) return true;
+    }
+    return false;
+  }
+
+  function update() {
+    frame++; bx1+=spd*.12; bx2+=spd*.28; bx3+=spd;
+    P.vy+=GRAV; P.y+=P.vy;
+    if(P.y>=GND){P.y=GND;P.vy=0;P.ground=true;}
+    if(--spawn<=0){
+      obstacles.push({x:W+30, h:20+Math.random()*22});
+      spawn=Math.max(55,85-(score/25|0))+(Math.random()*50|0);
+    }
+    for(var i=obstacles.length-1;i>=0;i--){obstacles[i].x-=spd;if(obstacles[i].x<-60)obstacles.splice(i,1);}
+    if(hit()){if(score>hi){hi=score;localStorage.setItem('rcg_hi',hi);}state='dead';return;}
+    if(frame%5===0) score++;
+    spd=4.5+score*.008;
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H); bg(bx1,bx2,bx3);
+    obstacles.forEach(function(o){rock(o.x,o.h);}); cyclist(P.x,P.y,frame);
+  }
+
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(state==='playing'){update();draw();ui();}
+    else if(state==='idle'){
+      frame++;bx3+=1.5; ctx.clearRect(0,0,W,H); bg(0,0,bx3);
+      cyclist(P.x,GND,frame);
+      ovl('BERGABFAHRT','LEERTASTE · TIPPEN ZUM STARTEN',hi>0?'HIGHSCORE: '+hi:null);
+    } else {
+      draw();ui();
+      ovl('GESTÜRZT!',score+' PUNKTE  —  NOCHMAL?',score>=hi&&score>0?'🏆 NEUER HIGHSCORE!':'HIGHSCORE: '+hi,'#e05729');
+    }
+  })();
+})();
+</script>
 
 <script>
 const joinForm = document.getElementById('joinForm');
