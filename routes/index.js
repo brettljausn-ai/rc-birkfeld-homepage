@@ -128,6 +128,16 @@ router.get('/laurenzibergrennen', (req, res) => {
   res.render('laurenzibergrennen');
 });
 
+/* ── CUSTOM TERMIN URLS (detail_url) ── */
+router.get('/:slug', async (req, res, next) => {
+  try {
+    const path = '/' + req.params.slug;
+    const [rows] = await pool.query('SELECT id FROM termine WHERE detail_url = ? LIMIT 1', [path]);
+    if (rows.length) return res.redirect('/termin/' + rows[0].id);
+    next();
+  } catch (err) { next(err); }
+});
+
 router.get('/impressum', (req, res) => {
   res.render('impressum', { content: {}, termine: [] });
 });
