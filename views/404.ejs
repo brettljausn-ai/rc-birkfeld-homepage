@@ -1,0 +1,21 @@
+<%- include('partials/head', { title: 'Seite nicht gefunden – RC ASVÖ Birkfeld', description: 'Die gesuchte Seite existiert nicht.' }) %>
+<%- include('partials/nav') %>
+
+<main style="padding:clamp(60px,10vw,120px) 0;min-height:60vh;display:flex;align-items:center;">
+  <div class="wrap" style="max-width:600px;text-align:center;">
+
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:5rem;font-weight:600;color:var(--line);display:block;line-height:1;margin-bottom:24px;">404</span>
+
+    <h1 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,2.8rem);line-height:1.05;color:var(--ink);margin-bottom:16px;">Seite nicht gefunden.</h1>
+
+    <p style="font-size:1rem;color:#777;line-height:1.7;margin-bottom:40px;">Die gesuchte Seite existiert nicht oder wurde verschoben.</p>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a href="/" style="background:var(--rust);color:#fff;padding:12px 28px;border-radius:6px;font-size:0.92rem;font-weight:700;text-decoration:none;">Zur Startseite</a>
+      <a href="/berichte" style="background:none;border:1.5px solid var(--line);color:var(--ink);padding:12px 28px;border-radius:6px;font-size:0.92rem;font-weight:700;text-decoration:none;">Alle Berichte</a>
+    </div>
+
+  </div>
+</main>
+
+<%- include('partials/footer') %>
