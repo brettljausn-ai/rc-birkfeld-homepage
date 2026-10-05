@@ -225,6 +225,18 @@ ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS bike_size         VARC
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS strava_athlete_id VARCHAR(50);
 ALTER TABLE club_member_profiles ADD COLUMN IF NOT EXISTS birthday          DATE;
 
+CREATE TABLE IF NOT EXISTS club_marktplatz (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  author      VARCHAR(100) NOT NULL,
+  title       VARCHAR(200) NOT NULL,
+  description TEXT,
+  price       DECIMAL(8,2) NULL,
+  contact     VARCHAR(200),
+  image_url   MEDIUMTEXT NULL,
+  sold        TINYINT(1) DEFAULT 0,
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS club_polls (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   question    VARCHAR(300) NOT NULL,

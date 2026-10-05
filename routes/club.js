@@ -261,6 +261,44 @@ router.post('/routen/:id/delete', requireMember, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── MARKTPLATZ ── */
+router.get('/marktplatz', requireMember, async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM club_marktplatz ORDER BY sold ASC, created_at DESC');
+    res.render('club/marktplatz', { ...helpers, memberName: req.session.memberName, inserate: rows, page: 'marktplatz' });
+  } catch (err) { next(err); }
+});
+
+router.post('/marktplatz', requireMember, async (req, res, next) => {
+  const title       = (req.body.title || '').trim().slice(0, 200);
+  const description = (req.body.description || '').trim() || null;
+  const price       = parseFloat(req.body.price) || null;
+  const contact     = (req.body.contact || '').trim().slice(0, 200) || null;
+  const image_url   = req.body.image_url || null;
+  if (!title) return res.redirect('/club/marktplatz');
+  try {
+    await pool.query(
+      'INSERT INTO club_marktplatz (author, title, description, price, contact, image_url) VALUES (?,?,?,?,?,?)',
+      [req.session.memberName, title, description, price, contact, image_url]
+    );
+    res.redirect('/club/marktplatz');
+  } catch (err) { next(err); }
+});
+
+router.post('/marktplatz/:id/sold', requireMember, async (req, res, next) => {
+  try {
+    await pool.query('UPDATE club_marktplatz SET sold=1 WHERE id=? AND author=?', [req.params.id, req.session.memberName]);
+    res.redirect('/club/marktplatz');
+  } catch (err) { next(err); }
+});
+
+router.post('/marktplatz/:id/delete', requireMember, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM club_marktplatz WHERE id=? AND author=?', [req.params.id, req.session.memberName]);
+    res.redirect('/club/marktplatz');
+  } catch (err) { next(err); }
+});
+
 /* ── POLLS ── */
 router.get('/polls', requireMember, async (req, res, next) => {
   try {
