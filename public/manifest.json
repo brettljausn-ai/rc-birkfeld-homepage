@@ -1,0 +1,41 @@
+{
+  "name": "RC ASVÖ Birkfeld",
+  "short_name": "RC Birkfeld",
+  "description": "Radsportverein RC ASVÖ Birkfeld – Rennrad, MTB und Gravel im Joglland.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#4CAF50",
+  "orientation": "portrait-primary",
+  "lang": "de",
+  "categories": ["sports", "lifestyle"],
+  "icons": [
+    {
+      "src": "/images/rcbirkfeld-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/rcbirkfeld-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Clubbereich",
+      "short_name": "Club",
+      "url": "/club",
+      "icons": [{ "src": "/images/rcbirkfeld-logo.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Termine",
+      "short_name": "Termine",
+      "url": "/#termine",
+      "icons": [{ "src": "/images/rcbirkfeld-logo.png", "sizes": "96x96" }]
+    }
+  ]
+}
