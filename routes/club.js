@@ -351,8 +351,80 @@ router.get('/trainingsplan', requireMember, async (req, res, next) => {
     const [rows] = await pool.query(
       'SELECT * FROM club_trainingsplan ORDER BY week_start DESC LIMIT 8'
     );
-    res.render('club/trainingsplan', { ...helpers, memberName: req.session.memberName, plaene: rows, page: 'trainingsplan' });
+    const [myPlans] = await pool.query(
+      'SELECT * FROM club_ai_trainingsplan WHERE member_name=? ORDER BY created_at DESC LIMIT 10',
+      [req.session.memberName]
+    );
+    res.render('club/trainingsplan', { ...helpers, memberName: req.session.memberName, plaene: rows, myPlans, page: 'trainingsplan' });
   } catch (err) { next(err); }
+});
+
+router.post('/trainingsplan/ai-chat', requireMember, async (req, res) => {
+  try {
+    const { messages } = req.body;
+    if (!Array.isArray(messages) || messages.length === 0) return res.status(400).json({ error: 'No messages' });
+    const Anthropic = require('@anthropic-ai/sdk');
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const response = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1800,
+      system: `Du bist der persönliche Trainingscoach des RC ASVÖ Birkfeld, einem österreichischen Radsportverein aus dem Joglland.
+
+DEINE AUFGABE: Erstelle einen maßgeschneiderten Wochentrainingsplan für das Mitglied.
+
+GESPRÄCHSABLAUF:
+- Stelle maximal 4-5 kurze, präzise Fragen um das Profil zu verstehen
+- Frage nach: Hauptziel, Disziplin (Rennrad/MTB/Gravel/Mix), Trainingstage pro Woche, Niveau (Einsteiger/Fortgeschritten/Wettkampf), nächstes Event
+- Sobald du genug Infos hast, erstelle den Plan direkt — kein langes Vorgeplänkel
+
+WENN DU DEN PLAN PRÄSENTIERST, nutze EXAKT dieses Format (mit den Trennzeichen):
+
+---TRAININGSPLAN---
+**Titel:** [Prägnanter Plantitel]
+**Ziel:** [Kurzzusammenfassung in einem Satz]
+
+**Mo:** [Einheit oder Ruhetag]
+**Di:** [Einheit oder Ruhetag]
+**Mi:** [Einheit oder Ruhetag]
+**Do:** [Einheit oder Ruhetag]
+**Fr:** [Einheit oder Ruhetag]
+**Sa:** [Einheit — Clubausfahrt 13:00 Uhr ab Friesis Bikery einplanen]
+**So:** [Einheit oder Ruhetag]
+
+**Tipps:** [2-3 prägnante Tipps]
+---ENDE---
+
+STIL: Direkt, motivierend, knapp. Österreichisches Flair. Keine langen Erklärungen.
+SPRACHE: Deutsch`,
+      messages: messages.slice(-12)
+    });
+    res.json({ content: response.content[0].text });
+  } catch (err) {
+    console.error('AI chat error:', err.message);
+    res.status(500).json({ error: 'KI nicht erreichbar. Bitte ANTHROPIC_API_KEY prüfen.' });
+  }
+});
+
+router.post('/trainingsplan/ai-save', requireMember, async (req, res) => {
+  try {
+    const { title, goal, content } = req.body;
+    if (!title || !content) return res.status(400).json({ error: 'Fehlende Daten' });
+    await pool.query(
+      'INSERT INTO club_ai_trainingsplan (member_name, title, goal, content) VALUES (?,?,?,?)',
+      [req.session.memberName, title.substring(0, 200), (goal||'').substring(0, 500), content]
+    );
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.post('/trainingsplan/ai-delete/:id', requireMember, async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM club_ai_trainingsplan WHERE id=? AND member_name=?',
+      [req.params.id, req.session.memberName]
+    );
+    res.redirect('/club/trainingsplan');
+  } catch (err) { res.redirect('/club/trainingsplan'); }
 });
 
 /* ── CHALLENGE ── */

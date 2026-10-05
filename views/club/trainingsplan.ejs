@@ -23,10 +23,19 @@
   .ch-logout:hover{color:#aaa;border-color:#444;}
   .ch-profile-link{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;}
   @media(max-width:600px){.ch-name{display:none;}.ch-brand{margin-right:12px;}.ch-tab{padding:0 10px;font-size:0.78rem;}}
-  /* trainingsplan */
   .wrap{max-width:720px;margin:0 auto;padding:24px 16px;}
   .page-title{font-family:'Big Shoulders Display',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:4px;}
-  .page-sub{font-size:0.82rem;color:#555;margin-bottom:28px;font-family:'IBM Plex Mono',monospace;}
+  .page-sub{font-size:0.82rem;color:#555;margin-bottom:24px;font-family:'IBM Plex Mono',monospace;}
+
+  /* page tabs */
+  .ptabs{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid #1e1e1e;}
+  .ptab{padding:10px 18px;font-size:0.85rem;font-weight:600;color:#555;cursor:pointer;border-bottom:3px solid transparent;transition:color .15s;user-select:none;}
+  .ptab:hover{color:#aaa;}
+  .ptab.active{color:#fff;border-bottom-color:#4CAF50;}
+  .ptab-panel{display:none;}
+  .ptab-panel.active{display:block;}
+
+  /* team plan cards */
   .week-card{background:#141414;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:18px;}
   .week-card.current{border-color:#1F7A34;}
   .week-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #1a1a1a;gap:12px;flex-wrap:wrap;}
@@ -36,46 +45,366 @@
   .week-title{font-size:1rem;font-weight:700;color:#E8E8E8;}
   .week-dates{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:#555;}
   .week-content{padding:18px 20px;font-size:0.92rem;line-height:1.75;color:#C0C0C0;white-space:pre-wrap;word-break:break-word;}
-  .week-content.formatted ul{padding-left:20px;margin:8px 0;}
-  .week-content.formatted li{margin-bottom:4px;}
   .week-meta{padding:10px 20px;border-top:1px solid #111;font-size:0.72rem;color:#333;font-family:'IBM Plex Mono',monospace;}
   .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
   .empty svg{display:block;margin:0 auto 14px;color:#2a2a2a;}
+
+  /* AI chat */
+  .ai-intro{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:20px 22px;margin-bottom:24px;display:flex;gap:14px;align-items:flex-start;}
+  .ai-avatar{width:40px;height:40px;border-radius:50%;background:#0d2a10;border:2px solid #1F7A34;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;}
+  .ai-intro-text h3{font-size:1rem;font-weight:700;margin-bottom:4px;}
+  .ai-intro-text p{font-size:0.85rem;color:#777;line-height:1.5;}
+
+  .chat-window{background:#111;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:20px;}
+  .chat-messages{padding:18px 18px 10px;display:flex;flex-direction:column;gap:12px;min-height:180px;max-height:440px;overflow-y:auto;}
+  .msg{display:flex;gap:10px;align-items:flex-end;}
+  .msg.user{flex-direction:row-reverse;}
+  .msg-bubble{max-width:80%;padding:11px 15px;border-radius:14px;font-size:0.88rem;line-height:1.6;word-break:break-word;}
+  .msg.bot .msg-bubble{background:#1a1a1a;color:#D0D0D0;border-bottom-left-radius:4px;}
+  .msg.user .msg-bubble{background:#1F7A34;color:#fff;border-bottom-right-radius:4px;}
+  .msg-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;}
+  .msg.bot .msg-icon{background:#0d2a10;border:1px solid #1F7A34;font-size:1rem;}
+  .msg.user .msg-icon{background:#1F7A34;color:#fff;font-weight:700;font-size:0.7rem;}
+
+  .typing-indicator{display:flex;gap:4px;align-items:center;padding:10px 14px;}
+  .typing-dot{width:6px;height:6px;background:#444;border-radius:50%;animation:bounce 1.2s infinite;}
+  .typing-dot:nth-child(2){animation-delay:.2s;}
+  .typing-dot:nth-child(3){animation-delay:.4s;}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-6px);}}
+
+  .chat-input-row{display:flex;gap:10px;padding:12px 14px;border-top:1px solid #1a1a1a;background:#0d0d0d;}
+  .chat-input{flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;color:#E8E8E8;font-size:0.88rem;font-family:'Public Sans',sans-serif;resize:none;outline:none;line-height:1.4;max-height:120px;overflow-y:auto;}
+  .chat-input:focus{border-color:#1F7A34;}
+  .chat-send{background:#1F7A34;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:background .15s;white-space:nowrap;}
+  .chat-send:hover{background:#2a9a44;}
+  .chat-send:disabled{background:#1a1a1a;color:#444;cursor:not-allowed;}
+  .chat-reset{background:none;border:1px solid #2a2a2a;color:#555;border-radius:8px;padding:10px 14px;font-size:0.82rem;cursor:pointer;transition:color .15s;}
+  .chat-reset:hover{color:#aaa;border-color:#444;}
+
+  /* generated plan card */
+  .plan-card{background:#0d2a10;border:1px solid #1F7A34;border-radius:12px;padding:20px 22px;margin:16px 0;}
+  .plan-card h3{font-size:1.05rem;font-weight:700;color:#4CAF50;margin-bottom:4px;}
+  .plan-goal{font-size:0.82rem;color:#6ec67a;margin-bottom:16px;font-style:italic;}
+  .plan-day{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #132a13;font-size:0.88rem;}
+  .plan-day:last-of-type{border-bottom:none;}
+  .plan-day-label{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;font-weight:700;color:#4CAF50;min-width:32px;padding-top:2px;}
+  .plan-day-text{color:#C8E6C9;line-height:1.5;}
+  .plan-tips{margin-top:14px;padding-top:14px;border-top:1px solid #1F7A34;font-size:0.85rem;color:#8bc48f;line-height:1.6;}
+  .plan-actions{display:flex;gap:10px;margin-top:16px;}
+  .btn-save{background:#4CAF50;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:background .15s;}
+  .btn-save:hover{background:#2a9a44;}
+  .btn-save:disabled{background:#1a2a1a;color:#444;cursor:not-allowed;}
+  .btn-discard{background:none;border:1px solid #1F7A34;color:#4CAF50;border-radius:8px;padding:9px 16px;font-size:0.82rem;cursor:pointer;}
+  .btn-discard:hover{background:#132a13;}
+
+  /* saved plans */
+  .saved-section-title{font-size:0.75rem;font-weight:700;color:#333;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;}
+  .saved-plan{background:#141414;border:1px solid #1e1e1e;border-radius:10px;padding:16px 18px;margin-bottom:12px;}
+  .saved-plan-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .saved-plan-title{font-size:0.95rem;font-weight:700;}
+  .saved-plan-meta{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:#444;}
+  .saved-plan-goal{font-size:0.82rem;color:#777;margin-bottom:10px;font-style:italic;}
+  .saved-plan-content{font-size:0.85rem;color:#C0C0C0;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+  .saved-plan-content.collapsed{max-height:80px;overflow:hidden;position:relative;}
+  .saved-plan-content.collapsed::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#141414);}
+  .expand-btn{background:none;border:none;color:#4CAF50;font-size:0.8rem;cursor:pointer;padding:6px 0;font-family:'Public Sans',sans-serif;}
+  .delete-plan-form{display:inline;}
+  .btn-del-plan{background:none;border:none;color:#333;font-size:0.75rem;cursor:pointer;padding:4px 8px;border-radius:4px;}
+  .btn-del-plan:hover{color:#e05729;}
+
+  .no-key-warn{background:#1a0a00;border:1px solid #8B3A00;border-radius:10px;padding:16px 18px;color:#FFA040;font-size:0.85rem;line-height:1.6;margin-bottom:20px;}
 </style>
 </head>
 <body>
 <%- include('_nav') %>
 <div class="wrap">
   <h1 class="page-title">Trainingsplan</h1>
-  <p class="page-sub">Wochenpläne vom Trainer – was diese Woche ansteht.</p>
+  <p class="page-sub">Teamplan vom Trainer oder dein persönlicher KI-Plan.</p>
 
-  <% if (!plaene || plaene.length === 0) { %>
-  <div class="empty">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    Noch kein Trainingsplan verfügbar.<br>Der Admin wird bald einen eintragen.
+  <div class="ptabs">
+    <div class="ptab active" data-panel="team">Teamplan</div>
+    <div class="ptab" data-panel="ai">Mein KI-Plan</div>
   </div>
-  <% } else {
-    var now = new Date();
-    now.setHours(0,0,0,0);
-    plaene.forEach(function(p) {
-      var ws = new Date(p.week_start);
-      var we = new Date(ws); we.setDate(we.getDate()+6);
-      var isCurrent = now >= ws && now <= we;
-      var wsStr = ws.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit'});
-      var weStr = we.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
-  %>
-  <div class="week-card <%= isCurrent?'current':'' %>">
-    <div class="week-header">
-      <div>
-        <div class="week-title"><%= p.title %></div>
-        <div class="week-dates"><%= wsStr %> – <%= weStr %></div>
-      </div>
-      <span class="week-badge <%= isCurrent?'current':'past' %>"><%= isCurrent?'Diese Woche':'Vergangen' %></span>
+
+  <!-- TEAMPLAN -->
+  <div class="ptab-panel active" id="panel-team">
+    <% if (!plaene || plaene.length === 0) { %>
+    <div class="empty">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Noch kein Teamplan verfügbar.
     </div>
-    <div class="week-content"><%= p.content %></div>
-    <div class="week-meta">von <%= p.created_by %></div>
+    <% } else {
+      var now = new Date(); now.setHours(0,0,0,0);
+      plaene.forEach(function(p) {
+        var ws = new Date(p.week_start);
+        var we = new Date(ws); we.setDate(we.getDate()+6);
+        var isCurrent = now >= ws && now <= we;
+        var wsStr = ws.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit'});
+        var weStr = we.toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+    %>
+    <div class="week-card <%= isCurrent?'current':'' %>">
+      <div class="week-header">
+        <div>
+          <div class="week-title"><%= p.title %></div>
+          <div class="week-dates"><%= wsStr %> – <%= weStr %></div>
+        </div>
+        <span class="week-badge <%= isCurrent?'current':'past' %>"><%= isCurrent?'Diese Woche':'Vergangen' %></span>
+      </div>
+      <div class="week-content"><%= p.content %></div>
+      <div class="week-meta">von <%= p.created_by %></div>
+    </div>
+    <% }); } %>
   </div>
-  <% }); } %>
+
+  <!-- KI-PLAN -->
+  <div class="ptab-panel" id="panel-ai">
+    <div class="ai-intro">
+      <div class="ai-avatar">🤖</div>
+      <div class="ai-intro-text">
+        <h3>Dein persönlicher Trainingscoach</h3>
+        <p>Beantworte ein paar kurze Fragen – ich erstelle dir einen maßgeschneiderten Wochenplan für Rennrad, MTB oder Gravel.</p>
+      </div>
+    </div>
+
+    <div id="noKeyWarn" class="no-key-warn" style="display:none;">
+      Kein ANTHROPIC_API_KEY konfiguriert. Bitte in der Hostinger-Umgebung eintragen.
+    </div>
+
+    <div class="chat-window">
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chatInput" rows="1" placeholder="Schreib hier…"></textarea>
+        <button class="chat-reset" id="chatReset" title="Neu starten">↺</button>
+        <button class="chat-send" id="chatSend">Senden</button>
+      </div>
+    </div>
+
+    <div id="planCardContainer"></div>
+
+    <% if (myPlans && myPlans.length > 0) { %>
+    <div style="margin-top:32px;">
+      <div class="saved-section-title">Gespeicherte Pläne</div>
+      <% myPlans.forEach(function(mp, i) {
+        var d = new Date(mp.created_at).toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+      %>
+      <div class="saved-plan">
+        <div class="saved-plan-header">
+          <div class="saved-plan-title"><%= mp.title %></div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="saved-plan-meta"><%= d %></span>
+            <form class="delete-plan-form" method="POST" action="/club/trainingsplan/ai-delete/<%= mp.id %>">
+              <button class="btn-del-plan" title="Löschen">✕</button>
+            </form>
+          </div>
+        </div>
+        <% if (mp.goal) { %><div class="saved-plan-goal"><%= mp.goal %></div><% } %>
+        <div class="saved-plan-content collapsed" id="spc-<%= i %>"><%= mp.content %></div>
+        <button class="expand-btn" onclick="toggleExpand('<%= i %>')">Mehr anzeigen ▾</button>
+      </div>
+      <% }); } %>
+    </div>
+  </div>
 </div>
+
+<script>
+// Tab switching
+document.querySelectorAll('.ptab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.ptab').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.ptab-panel').forEach(function(p){p.classList.remove('active');});
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+  });
+});
+
+// Expand saved plans
+function toggleExpand(i) {
+  var el = document.getElementById('spc-' + i);
+  var btn = el.nextElementSibling;
+  if (el.classList.contains('collapsed')) {
+    el.classList.remove('collapsed');
+    btn.textContent = 'Weniger ▴';
+  } else {
+    el.classList.add('collapsed');
+    btn.textContent = 'Mehr anzeigen ▾';
+  }
+}
+
+// Chat
+var messages = [];
+var MEMBER_INITIALS = '<%= memberName.split(" ").map(function(w){return w[0];}).join("").toUpperCase().substring(0,2) %>';
+
+var chatMessages = document.getElementById('chatMessages');
+var chatInput = document.getElementById('chatInput');
+var chatSend = document.getElementById('chatSend');
+var chatReset = document.getElementById('chatReset');
+
+function appendMsg(role, text) {
+  var div = document.createElement('div');
+  div.className = 'msg ' + role;
+  var icon = document.createElement('div');
+  icon.className = 'msg-icon';
+  icon.textContent = role === 'bot' ? '🤖' : MEMBER_INITIALS;
+  var bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = text;
+  if (role === 'bot') { div.appendChild(icon); div.appendChild(bubble); }
+  else { div.appendChild(bubble); div.appendChild(icon); }
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  var div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<div class="msg-icon">🤖</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function removeTyping() {
+  var el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function extractPlan(text) {
+  var start = text.indexOf('---TRAININGSPLAN---');
+  var end = text.indexOf('---ENDE---');
+  if (start === -1 || end === -1) return null;
+  return text.substring(start + 19, end).trim();
+}
+
+function parsePlan(raw) {
+  var lines = raw.split('\n').map(function(l){return l.trim();}).filter(function(l){return l;});
+  var plan = { title: '', goal: '', days: [], tips: '' };
+  lines.forEach(function(line) {
+    var m;
+    if ((m = line.match(/^\*\*Titel:\*\*\s*(.+)/))) plan.title = m[1];
+    else if ((m = line.match(/^\*\*Ziel:\*\*\s*(.+)/))) plan.goal = m[1];
+    else if ((m = line.match(/^\*\*(Mo|Di|Mi|Do|Fr|Sa|So):\*\*\s*(.+)/))) plan.days.push({day: m[1], text: m[2]});
+    else if ((m = line.match(/^\*\*Tipps:\*\*\s*(.+)/))) plan.tips = m[1];
+  });
+  return plan;
+}
+
+function renderPlanCard(planRaw) {
+  var plan = parsePlan(planRaw);
+  var container = document.getElementById('planCardContainer');
+  container.innerHTML = '';
+  var card = document.createElement('div');
+  card.className = 'plan-card';
+  var titleEl = document.createElement('h3');
+  titleEl.textContent = plan.title || 'Dein Trainingsplan';
+  card.appendChild(titleEl);
+  if (plan.goal) {
+    var goalEl = document.createElement('div');
+    goalEl.className = 'plan-goal';
+    goalEl.textContent = plan.goal;
+    card.appendChild(goalEl);
+  }
+  plan.days.forEach(function(d) {
+    var row = document.createElement('div');
+    row.className = 'plan-day';
+    row.innerHTML = '<div class="plan-day-label">' + d.day + '</div><div class="plan-day-text">' + escHtml(d.text) + '</div>';
+    card.appendChild(row);
+  });
+  if (plan.tips) {
+    var tipsEl = document.createElement('div');
+    tipsEl.className = 'plan-tips';
+    tipsEl.textContent = '💡 ' + plan.tips;
+    card.appendChild(tipsEl);
+  }
+  var actions = document.createElement('div');
+  actions.className = 'plan-actions';
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'btn-save';
+  saveBtn.textContent = 'Plan speichern';
+  saveBtn.addEventListener('click', function() {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Wird gespeichert…';
+    fetch('/club/trainingsplan/ai-save', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ title: plan.title || 'Mein Trainingsplan', goal: plan.goal, content: planRaw })
+    }).then(function(r){return r.json();}).then(function(d) {
+      if (d.ok) { saveBtn.textContent = 'Gespeichert ✓'; setTimeout(function(){location.reload();}, 800); }
+      else { saveBtn.textContent = 'Fehler'; saveBtn.disabled = false; }
+    });
+  });
+  var discardBtn = document.createElement('button');
+  discardBtn.className = 'btn-discard';
+  discardBtn.textContent = 'Verwerfen';
+  discardBtn.addEventListener('click', function() { container.innerHTML = ''; });
+  actions.appendChild(saveBtn);
+  actions.appendChild(discardBtn);
+  card.appendChild(actions);
+  container.appendChild(card);
+  container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function sendMessage() {
+  var text = chatInput.value.trim();
+  if (!text) return;
+  chatInput.value = '';
+  chatInput.style.height = 'auto';
+  appendMsg('user', text);
+  messages.push({ role: 'user', content: text });
+  chatSend.disabled = true;
+  showTyping();
+
+  try {
+    var res = await fetch('/club/trainingsplan/ai-chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ messages: messages })
+    });
+    var data = await res.json();
+    removeTyping();
+    if (data.error) {
+      document.getElementById('noKeyWarn').style.display = 'block';
+      appendMsg('bot', 'Fehler: ' + data.error);
+    } else {
+      var reply = data.content;
+      messages.push({ role: 'assistant', content: reply });
+      var planRaw = extractPlan(reply);
+      var displayText = planRaw ? reply.substring(0, reply.indexOf('---TRAININGSPLAN---')).trim() || 'Hier ist dein persönlicher Trainingsplan:' : reply;
+      appendMsg('bot', displayText);
+      if (planRaw) renderPlanCard(planRaw);
+    }
+  } catch(e) {
+    removeTyping();
+    appendMsg('bot', 'Verbindungsfehler. Bitte nochmal versuchen.');
+  }
+  chatSend.disabled = false;
+  chatInput.focus();
+}
+
+chatSend.addEventListener('click', sendMessage);
+chatInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+chatInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+chatReset.addEventListener('click', function() {
+  messages = [];
+  chatMessages.innerHTML = '';
+  document.getElementById('planCardContainer').innerHTML = '';
+  startChat();
+});
+
+function startChat() {
+  var greeting = 'Servus <%= memberName.split(" ")[0] %>! 👋 Ich bin dein persönlicher Trainingscoach. Lass uns deinen Wochenplan erstellen.\n\nWas ist dein aktuelles Trainingsziel?';
+  messages.push({ role: 'assistant', content: greeting });
+  appendMsg('bot', greeting);
+}
+
+startChat();
+</script>
 </body>
 </html>

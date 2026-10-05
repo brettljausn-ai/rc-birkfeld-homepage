@@ -264,3 +264,12 @@ CREATE TABLE IF NOT EXISTS club_trainingsplan (
   created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_week (week_start)
 );
+
+CREATE TABLE IF NOT EXISTS club_ai_trainingsplan (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  member_name VARCHAR(100) NOT NULL,
+  title       VARCHAR(200) NOT NULL,
+  goal        TEXT,
+  content     MEDIUMTEXT NOT NULL,
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+);
