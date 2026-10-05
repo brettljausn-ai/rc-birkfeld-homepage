@@ -91,6 +91,9 @@
   var crashX, crashY, crashVx, crashVy, crashFrames;
   var coins = [], coinSpawn = 100;
   var coinCombo = 0, comboTimer = 0, comboText = null;
+  var rainProgress = 0, rainDrops = [];
+  var lightning = null, lightningTimer = 200;
+  var checkpointText = null, screenFlash = 0;
 
   /* ── Sound (Web Audio API) ── */
   var AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -152,6 +155,29 @@
     } catch(e) {}
   }
 
+  function playCheckpoint() {
+    var a=getAudio(); if(!a) return; try {
+      [[523,0],[659,0.07],[784,0.14],[1047,0.21],[1318,0.28]].forEach(function(nf){
+        var o=a.createOscillator(),g=a.createGain(); o.connect(g); g.connect(a.destination);
+        o.frequency.value=nf[0]; var t=a.currentTime+nf[1];
+        g.gain.setValueAtTime(0.14,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.28);
+        o.start(t); o.stop(t+0.28);
+      });
+    } catch(e) {}
+  }
+  function playThunder() {
+    var a=getAudio(); if(!a) return; try {
+      var len=(a.sampleRate*0.9)|0, buf=a.createBuffer(1,len,a.sampleRate), d=buf.getChannelData(0);
+      for(var i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,0.4)*0.35;
+      for(var i=0;i<(a.sampleRate*0.04)|0;i++) d[i]*=2.5;
+      var src=a.createBufferSource(),g=a.createGain(),f=a.createBiquadFilter();
+      src.buffer=buf; f.type='lowpass'; f.frequency.value=380;
+      src.connect(f); f.connect(g); g.connect(a.destination);
+      g.gain.setValueAtTime(0.55,a.currentTime); g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.9);
+      src.start();
+    } catch(e) {}
+  }
+
   function reset() {
     score = 0; spd = 4.5; frame = 0;
     bx1 = bx2 = bx3 = 0; obstacles = []; spawn = 90;
@@ -161,6 +187,9 @@
     particles = [];
     coins = []; coinSpawn = 100;
     coinCombo = 0; comboTimer = 0; comboText = null;
+    rainProgress = 0; rainDrops = [];
+    lightning = null; lightningTimer = 200;
+    checkpointText = null; screenFlash = 0;
     flipping = false; flipAngle = 0; lastJumpTime = 0;
     logoItems = []; lastMilestone = 0; milestoneText = null;
     invincible = false; invincibleFrames = 0;
@@ -309,6 +338,31 @@
     ctx.fillStyle='rgba(255,255,255,.45)';
     ctx.beginPath(); ctx.arc(-r*.28,-r*.28,r*.38,0,Math.PI*2); ctx.fill();
     ctx.restore();
+  }
+
+  function drawWeather() {
+    if(rainProgress<=0&&!lightning) return;
+    if(rainProgress>0){
+      ctx.save(); ctx.strokeStyle='rgba(160,200,240,0.65)'; ctx.lineWidth=1;
+      rainDrops.forEach(function(d){
+        ctx.globalAlpha=rainProgress*0.55;
+        ctx.beginPath(); ctx.moveTo(d.x,d.y); ctx.lineTo(d.x+2,d.y+9); ctx.stroke();
+      });
+      ctx.restore();
+    }
+    if(lightning){
+      ctx.save();
+      ctx.globalAlpha=lightning.a*0.35;
+      ctx.fillStyle='rgba(210,225,255,1)'; ctx.fillRect(0,0,W,H);
+      if(lightning.a>0.5&&lightning.pts){
+        ctx.globalAlpha=lightning.a*0.9;
+        ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.shadowColor='#aad4ff'; ctx.shadowBlur=18;
+        ctx.beginPath();
+        lightning.pts.forEach(function(p,i){i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);});
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
 
   /* ── Particles ── */
@@ -502,13 +556,42 @@
     if(frame%5===0) score++;
     spd=4.5+score*.008;
     if(score>=1000) nightProgress=Math.min(1,nightProgress+0.0008);
+    if(score>=2000) rainProgress=Math.min(1,rainProgress+0.0004);
+    if(rainProgress>0){
+      if(rainDrops.length<120){
+        var burst=Math.ceil(rainProgress*5);
+        for(var ri=0;ri<burst;ri++) rainDrops.push({x:Math.random()*W,y:-10,spd:5+Math.random()*4});
+      }
+      for(var ri=rainDrops.length-1;ri>=0;ri--){
+        rainDrops[ri].x+=1.5; rainDrops[ri].y+=rainDrops[ri].spd;
+        if(rainDrops[ri].y>H) rainDrops.splice(ri,1);
+      }
+    }
+    if(score>=3500){
+      if(--lightningTimer<=0){
+        lightningTimer=100+(Math.random()*160|0);
+        var lx=160+Math.random()*480, pts=[{x:lx,y:0}], ly=0;
+        while(ly<GND-15){ly+=18+Math.random()*18;lx+=(Math.random()-0.5)*28;pts.push({x:lx,y:Math.min(ly,GND-5)});}
+        lightning={a:1.0,pts:pts};
+        playThunder();
+      }
+    }
+    if(lightning){lightning.a-=0.1;if(lightning.a<=0)lightning=null;}
+    if(screenFlash>0) screenFlash-=0.022;
+    if(checkpointText){checkpointText.a-=0.016;if(checkpointText.a<=0)checkpointText=null;}
     if(flipping){flipAngle+=Math.PI/14;if(flipAngle>=Math.PI*2){flipping=false;flipAngle=0;}}
     var ms=Math.floor(score/500);
     if(ms>lastMilestone){
       lastMilestone=ms;
-      logoItems.push({x:W+60,y:30+Math.random()*(GND-90)});
-      milestoneText={txt:(ms*500)+' Punkte!',a:2.0};
-      playMilestone();
+      if(ms%2===0){
+        score+=50; screenFlash=0.55;
+        checkpointText={txt:'CHECKPOINT  +50',a:2.5};
+        playCheckpoint();
+      } else {
+        logoItems.push({x:W+60,y:30+Math.random()*(GND-90)});
+        milestoneText={txt:(ms*500)+' Punkte!',a:2.0};
+        playMilestone();
+      }
     }
     if(milestoneText){milestoneText.a-=0.018;if(milestoneText.a<=0)milestoneText=null;}
     for(var k=logoItems.length-1;k>=0;k--){logoItems[k].x-=spd*.5;if(logoItems[k].x<-80)logoItems.splice(k,1);}
@@ -530,12 +613,24 @@
     cyclist(P.x,P.y,frame);
     drawParticles();
     headlight();
+    drawWeather();
+    if(screenFlash>0){
+      ctx.save(); ctx.globalAlpha=screenFlash*0.5;
+      ctx.fillStyle='#4CAF50'; ctx.fillRect(0,0,W,H); ctx.restore();
+    }
     logoItems.forEach(function(item){
       if(!logoImg.complete||!logoImg.naturalWidth) return;
       ctx.save(); ctx.shadowColor='#4CAF50'; ctx.shadowBlur=22;
       ctx.drawImage(logoImg,item.x-28,item.y-28,56,56);
       ctx.restore();
     });
+    if(checkpointText&&checkpointText.a>0){
+      ctx.save(); ctx.globalAlpha=Math.min(1,checkpointText.a);
+      ctx.fillStyle='#fff'; ctx.font='900 26px "Big Shoulders Display",sans-serif';
+      ctx.textAlign='center'; ctx.shadowColor='#4CAF50'; ctx.shadowBlur=30;
+      ctx.fillText(checkpointText.txt,W/2,H/2-28);
+      ctx.restore();
+    }
     if(comboText&&comboText.a>0){
       ctx.save(); ctx.globalAlpha=Math.min(1,comboText.a);
       ctx.fillStyle=coinCombo>2?'#FF8C00':'#FFD700';
@@ -575,7 +670,7 @@
       });
       drawParticles();
       cyclist(crashX,crashY,frame);
-      headlight(); ui();
+      headlight(); drawWeather(); ui();
       if(crashFrames>105){
         state='dead';
         if(score>0&&!submitted) showForm();
