@@ -49,11 +49,31 @@
   .empty{text-align:center;color:#333;padding:60px 0;font-size:0.9rem;}
   .empty svg{display:block;margin:0 auto 14px;color:#2a2a2a;}
 
+  /* Strava connect */
+  .strava-card{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
+  .strava-logo{width:28px;height:28px;flex-shrink:0;}
+  .strava-card-text{flex:1;}
+  .strava-card-text strong{font-size:0.88rem;display:block;margin-bottom:2px;}
+  .strava-card-text span{font-size:0.78rem;color:#666;}
+  .strava-card.connected{border-color:#FC4C02;background:#110900;}
+  .strava-card.connected .strava-card-text strong{color:#FC4C02;}
+  .btn-strava-connect{background:#FC4C02;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:0.82rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;text-decoration:none;display:inline-block;}
+  .btn-strava-connect:hover{background:#e84300;}
+  .btn-strava-disconnect{background:none;border:1px solid #2a2a2a;color:#555;border-radius:6px;padding:7px 12px;font-size:0.78rem;cursor:pointer;font-family:inherit;}
+  .btn-strava-disconnect:hover{color:#aaa;}
   /* AI chat */
-  .ai-intro{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:20px 22px;margin-bottom:24px;display:flex;gap:14px;align-items:flex-start;}
+  .ai-intro{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:20px 22px;margin-bottom:16px;display:flex;gap:14px;align-items:flex-start;}
   .ai-avatar{width:40px;height:40px;border-radius:50%;background:#0d2a10;border:2px solid #1F7A34;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;}
   .ai-intro-text h3{font-size:1rem;font-weight:700;margin-bottom:4px;}
   .ai-intro-text p{font-size:0.85rem;color:#777;line-height:1.5;}
+  /* image upload in chat */
+  .chat-img-btn{background:none;border:1px solid #2a2a2a;color:#555;border-radius:8px;padding:10px 12px;cursor:pointer;font-size:1rem;line-height:1;transition:color .15s;}
+  .chat-img-btn:hover{color:#aaa;border-color:#444;}
+  .img-preview-bar{display:none;padding:8px 14px;border-top:1px solid #1a1a1a;background:#0a0a0a;align-items:center;gap:10px;}
+  .img-preview-bar img{width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #2a2a2a;}
+  .img-remove-btn{background:none;border:none;color:#555;font-size:1.1rem;cursor:pointer;padding:4px;}
+  .img-remove-btn:hover{color:#e57373;}
+  .img-preview-label{font-size:0.78rem;color:#555;flex:1;}
 
   .chat-window{background:#111;border:1px solid #1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:20px;}
   .chat-messages{padding:18px 18px 10px;display:flex;flex-direction:column;gap:12px;min-height:180px;max-height:440px;overflow-y:auto;}
@@ -158,11 +178,35 @@
 
   <!-- KI-PLAN -->
   <div class="ptab-panel" id="panel-ai">
+
+    <!-- Strava Connect -->
+    <% if (stravaConnected) { %>
+    <div class="strava-card connected">
+      <svg class="strava-logo" viewBox="0 0 24 24" fill="#FC4C02"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0 4 13.828h4.172"/></svg>
+      <div class="strava-card-text">
+        <strong>Strava verbunden — <%= stravaConnected.athlete_name %></strong>
+        <span>Deine Aktivitäten fließen automatisch in den KI-Plan ein</span>
+      </div>
+      <form method="POST" action="/club/strava/disconnect" style="display:inline;">
+        <button class="btn-strava-disconnect">Trennen</button>
+      </form>
+    </div>
+    <% } else { %>
+    <div class="strava-card">
+      <svg class="strava-logo" viewBox="0 0 24 24" fill="#555"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0 4 13.828h4.172"/></svg>
+      <div class="strava-card-text">
+        <strong>Strava verbinden</strong>
+        <span>Deine Aktivitäten geben dem Coach besseren Kontext</span>
+      </div>
+      <a href="/club/strava/connect" class="btn-strava-connect">Verbinden</a>
+    </div>
+    <% } %>
+
     <div class="ai-intro">
       <div class="ai-avatar">🤖</div>
       <div class="ai-intro-text">
         <h3>Dein persönlicher Trainingscoach</h3>
-        <p>Beantworte ein paar kurze Fragen – ich erstelle dir einen maßgeschneiderten Wochenplan für Rennrad, MTB oder Gravel.</p>
+        <p>Beantworte ein paar kurze Fragen – oder teile einen Screenshot deiner Strava-Stats. Ich erstelle dir einen maßgeschneiderten Wochenplan.</p>
       </div>
     </div>
 
@@ -172,7 +216,14 @@
 
     <div class="chat-window">
       <div class="chat-messages" id="chatMessages"></div>
+      <div class="img-preview-bar" id="imgPreviewBar">
+        <img id="imgPreviewThumb" src="" alt="">
+        <span class="img-preview-label">Foto wird mit der nächsten Nachricht gesendet</span>
+        <button class="img-remove-btn" id="imgRemoveBtn" title="Entfernen">×</button>
+      </div>
       <div class="chat-input-row">
+        <button class="chat-img-btn" id="imgUploadBtn" title="Foto / Screenshot einfügen">📎</button>
+        <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
         <textarea class="chat-input" id="chatInput" rows="1" placeholder="Schreib hier…"></textarea>
         <button class="chat-reset" id="chatReset" title="Neu starten">↺</button>
         <button class="chat-send" id="chatSend">Senden</button>
@@ -207,15 +258,23 @@
 </div>
 
 <script>
-// Tab switching
-document.querySelectorAll('.ptab').forEach(function(tab) {
-  tab.addEventListener('click', function() {
-    document.querySelectorAll('.ptab').forEach(function(t){t.classList.remove('active');});
-    document.querySelectorAll('.ptab-panel').forEach(function(p){p.classList.remove('active');});
-    tab.classList.add('active');
-    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+// Tab switching + auto-open AI tab from URL param
+(function() {
+  var params = new URLSearchParams(location.search);
+  var initTab = params.get('tab') || 'team';
+  document.querySelectorAll('.ptab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.ptab').forEach(function(t){t.classList.remove('active');});
+      document.querySelectorAll('.ptab-panel').forEach(function(p){p.classList.remove('active');});
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    });
+    if (tab.dataset.panel === initTab) tab.click();
   });
-});
+  if (params.get('strava') === 'ok') {
+    setTimeout(function(){ document.getElementById('stravaSuccessMsg') && (document.getElementById('stravaSuccessMsg').style.display='flex'); }, 100);
+  }
+})();
 
 // Expand saved plans
 function toggleExpand(i) {
@@ -230,16 +289,45 @@ function toggleExpand(i) {
   }
 }
 
-// Chat
+// ── Chat ──────────────────────────────────────────────────
 var messages = [];
+var pendingImage = null; // { base64, mediaType, dataUrl }
 var MEMBER_INITIALS = '<%= memberName.split(" ").map(function(w){return w[0];}).join("").toUpperCase().substring(0,2) %>';
 
 var chatMessages = document.getElementById('chatMessages');
-var chatInput = document.getElementById('chatInput');
-var chatSend = document.getElementById('chatSend');
-var chatReset = document.getElementById('chatReset');
+var chatInput    = document.getElementById('chatInput');
+var chatSend     = document.getElementById('chatSend');
+var chatReset    = document.getElementById('chatReset');
+var imgUploadBtn = document.getElementById('imgUploadBtn');
+var imgFileInput = document.getElementById('imgFileInput');
+var imgPreviewBar  = document.getElementById('imgPreviewBar');
+var imgPreviewThumb = document.getElementById('imgPreviewThumb');
+var imgRemoveBtn = document.getElementById('imgRemoveBtn');
 
-function appendMsg(role, text) {
+// Image upload
+imgUploadBtn.addEventListener('click', function() { imgFileInput.click(); });
+imgFileInput.addEventListener('change', function() {
+  var file = imgFileInput.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    var base64 = dataUrl.split(',')[1];
+    var mediaType = file.type || 'image/jpeg';
+    pendingImage = { base64: base64, mediaType: mediaType, dataUrl: dataUrl };
+    imgPreviewThumb.src = dataUrl;
+    imgPreviewBar.style.display = 'flex';
+    imgFileInput.value = '';
+  };
+  reader.readAsDataURL(file);
+});
+imgRemoveBtn.addEventListener('click', function() {
+  pendingImage = null;
+  imgPreviewBar.style.display = 'none';
+  imgPreviewThumb.src = '';
+});
+
+function appendMsg(role, text, imgDataUrl) {
   var div = document.createElement('div');
   div.className = 'msg ' + role;
   var icon = document.createElement('div');
@@ -247,119 +335,109 @@ function appendMsg(role, text) {
   icon.textContent = role === 'bot' ? '🤖' : MEMBER_INITIALS;
   var bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
-  bubble.textContent = text;
+  if (imgDataUrl) {
+    var img = document.createElement('img');
+    img.src = imgDataUrl;
+    img.style.cssText = 'max-width:200px;border-radius:8px;display:block;margin-bottom:6px;';
+    bubble.appendChild(img);
+  }
+  if (text) bubble.appendChild(document.createTextNode(text));
   if (role === 'bot') { div.appendChild(icon); div.appendChild(bubble); }
   else { div.appendChild(bubble); div.appendChild(icon); }
   chatMessages.appendChild(div);
   chatMessages.scrollTop = chatMessages.scrollHeight;
-  return div;
 }
 
 function showTyping() {
   var div = document.createElement('div');
-  div.className = 'msg bot';
-  div.id = 'typingIndicator';
+  div.className = 'msg bot'; div.id = 'typingIndicator';
   div.innerHTML = '<div class="msg-icon">🤖</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
   chatMessages.appendChild(div);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
-
-function removeTyping() {
-  var el = document.getElementById('typingIndicator');
-  if (el) el.remove();
-}
+function removeTyping() { var el = document.getElementById('typingIndicator'); if (el) el.remove(); }
 
 function extractPlan(text) {
-  var start = text.indexOf('---TRAININGSPLAN---');
-  var end = text.indexOf('---ENDE---');
-  if (start === -1 || end === -1) return null;
-  return text.substring(start + 19, end).trim();
+  var s = text.indexOf('---TRAININGSPLAN---'), e = text.indexOf('---ENDE---');
+  if (s === -1 || e === -1) return null;
+  return text.substring(s + 19, e).trim();
 }
 
 function parsePlan(raw) {
-  var lines = raw.split('\n').map(function(l){return l.trim();}).filter(function(l){return l;});
-  var plan = { title: '', goal: '', days: [], tips: '' };
+  var lines = raw.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  var plan = { title:'', goal:'', days:[], tips:'' };
   lines.forEach(function(line) {
     var m;
     if ((m = line.match(/^\*\*Titel:\*\*\s*(.+)/))) plan.title = m[1];
     else if ((m = line.match(/^\*\*Ziel:\*\*\s*(.+)/))) plan.goal = m[1];
-    else if ((m = line.match(/^\*\*(Mo|Di|Mi|Do|Fr|Sa|So):\*\*\s*(.+)/))) plan.days.push({day: m[1], text: m[2]});
+    else if ((m = line.match(/^\*\*(Mo|Di|Mi|Do|Fr|Sa|So):\*\*\s*(.+)/))) plan.days.push({day:m[1],text:m[2]});
     else if ((m = line.match(/^\*\*Tipps:\*\*\s*(.+)/))) plan.tips = m[1];
   });
   return plan;
 }
 
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 function renderPlanCard(planRaw) {
   var plan = parsePlan(planRaw);
   var container = document.getElementById('planCardContainer');
   container.innerHTML = '';
-  var card = document.createElement('div');
-  card.className = 'plan-card';
-  var titleEl = document.createElement('h3');
-  titleEl.textContent = plan.title || 'Dein Trainingsplan';
-  card.appendChild(titleEl);
-  if (plan.goal) {
-    var goalEl = document.createElement('div');
-    goalEl.className = 'plan-goal';
-    goalEl.textContent = plan.goal;
-    card.appendChild(goalEl);
-  }
+  var card = document.createElement('div'); card.className = 'plan-card';
+  var titleEl = document.createElement('h3'); titleEl.textContent = plan.title || 'Dein Trainingsplan'; card.appendChild(titleEl);
+  if (plan.goal) { var g = document.createElement('div'); g.className='plan-goal'; g.textContent=plan.goal; card.appendChild(g); }
   plan.days.forEach(function(d) {
-    var row = document.createElement('div');
-    row.className = 'plan-day';
-    row.innerHTML = '<div class="plan-day-label">' + d.day + '</div><div class="plan-day-text">' + escHtml(d.text) + '</div>';
+    var row = document.createElement('div'); row.className='plan-day';
+    row.innerHTML = '<div class="plan-day-label">'+d.day+'</div><div class="plan-day-text">'+escHtml(d.text)+'</div>';
     card.appendChild(row);
   });
-  if (plan.tips) {
-    var tipsEl = document.createElement('div');
-    tipsEl.className = 'plan-tips';
-    tipsEl.textContent = '💡 ' + plan.tips;
-    card.appendChild(tipsEl);
-  }
-  var actions = document.createElement('div');
-  actions.className = 'plan-actions';
-  var saveBtn = document.createElement('button');
-  saveBtn.className = 'btn-save';
-  saveBtn.textContent = 'Plan speichern';
+  if (plan.tips) { var t = document.createElement('div'); t.className='plan-tips'; t.textContent='💡 '+plan.tips; card.appendChild(t); }
+  var actions = document.createElement('div'); actions.className='plan-actions';
+  var saveBtn = document.createElement('button'); saveBtn.className='btn-save'; saveBtn.textContent='Plan speichern';
   saveBtn.addEventListener('click', function() {
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Wird gespeichert…';
+    saveBtn.disabled = true; saveBtn.textContent = 'Wird gespeichert…';
     fetch('/club/trainingsplan/ai-save', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ title: plan.title || 'Mein Trainingsplan', goal: plan.goal, content: planRaw })
-    }).then(function(r){return r.json();}).then(function(d) {
-      if (d.ok) { saveBtn.textContent = 'Gespeichert ✓'; setTimeout(function(){location.reload();}, 800); }
-      else { saveBtn.textContent = 'Fehler'; saveBtn.disabled = false; }
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({title: plan.title||'Mein Trainingsplan', goal: plan.goal, content: planRaw})
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.ok) { saveBtn.textContent='Gespeichert ✓'; setTimeout(function(){location.reload();},800); }
+      else { saveBtn.textContent='Fehler'; saveBtn.disabled=false; }
     });
   });
-  var discardBtn = document.createElement('button');
-  discardBtn.className = 'btn-discard';
-  discardBtn.textContent = 'Verwerfen';
-  discardBtn.addEventListener('click', function() { container.innerHTML = ''; });
-  actions.appendChild(saveBtn);
-  actions.appendChild(discardBtn);
-  card.appendChild(actions);
+  var discardBtn = document.createElement('button'); discardBtn.className='btn-discard'; discardBtn.textContent='Verwerfen';
+  discardBtn.addEventListener('click', function(){ container.innerHTML=''; });
+  actions.appendChild(saveBtn); actions.appendChild(discardBtn); card.appendChild(actions);
   container.appendChild(card);
-  container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  container.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-
-function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 async function sendMessage() {
   var text = chatInput.value.trim();
-  if (!text) return;
-  chatInput.value = '';
-  chatInput.style.height = 'auto';
-  appendMsg('user', text);
-  messages.push({ role: 'user', content: text });
+  var img  = pendingImage;
+  if (!text && !img) return;
+
+  chatInput.value = ''; chatInput.style.height = 'auto';
+  pendingImage = null; imgPreviewBar.style.display = 'none'; imgPreviewThumb.src = '';
+
+  // Build message content
+  var content;
+  if (img) {
+    content = [
+      { type: 'image', source: { type: 'base64', media_type: img.mediaType, data: img.base64 } },
+      { type: 'text', text: text || 'Bitte diesen Screenshot analysieren und in den Trainingsplan einbeziehen.' }
+    ];
+    appendMsg('user', text || '(Screenshot)', img.dataUrl);
+  } else {
+    content = text;
+    appendMsg('user', text);
+  }
+
+  messages.push({ role: 'user', content: content });
   chatSend.disabled = true;
   showTyping();
 
   try {
     var res = await fetch('/club/trainingsplan/ai-chat', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ messages: messages })
     });
     var data = await res.json();
@@ -371,7 +449,7 @@ async function sendMessage() {
       var reply = data.content;
       messages.push({ role: 'assistant', content: reply });
       var planRaw = extractPlan(reply);
-      var displayText = planRaw ? reply.substring(0, reply.indexOf('---TRAININGSPLAN---')).trim() || 'Hier ist dein persönlicher Trainingsplan:' : reply;
+      var displayText = planRaw ? (reply.substring(0, reply.indexOf('---TRAININGSPLAN---')).trim() || 'Hier ist dein persönlicher Trainingsplan:') : reply;
       appendMsg('bot', displayText);
       if (planRaw) renderPlanCard(planRaw);
     }
@@ -384,22 +462,22 @@ async function sendMessage() {
 }
 
 chatSend.addEventListener('click', sendMessage);
-chatInput.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-});
-chatInput.addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-});
+chatInput.addEventListener('keydown', function(e) { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
+chatInput.addEventListener('input', function() { this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,120)+'px'; });
 chatReset.addEventListener('click', function() {
-  messages = [];
-  chatMessages.innerHTML = '';
-  document.getElementById('planCardContainer').innerHTML = '';
+  messages=[]; pendingImage=null;
+  chatMessages.innerHTML='';
+  imgPreviewBar.style.display='none';
+  document.getElementById('planCardContainer').innerHTML='';
   startChat();
 });
 
+<% var firstName = memberName.split(' ')[0]; %>
+<% var stravaOk = stravaConnected ? true : false; %>
 function startChat() {
-  var greeting = 'Servus <%= memberName.split(" ")[0] %>! 👋 Ich bin dein persönlicher Trainingscoach. Lass uns deinen Wochenplan erstellen.\n\nWas ist dein aktuelles Trainingsziel?';
+  var greeting = '<%= stravaOk %>'.trim() === 'true'
+    ? 'Servus <%= firstName %>! 👋 Ich sehe deine Strava-Aktivitäten — ich nutze sie direkt für deinen Plan.\n\nWas ist dein aktuelles Trainingsziel?'
+    : 'Servus <%= firstName %>! 👋 Ich bin dein persönlicher Trainingscoach. Lass uns deinen Wochenplan erstellen.\n\nWas ist dein aktuelles Trainingsziel?';
   messages.push({ role: 'assistant', content: greeting });
   appendMsg('bot', greeting);
 }

@@ -4,7 +4,7 @@ const multer = require('multer');
 const passport = require('../lib/passport');
 const bcrypt = require('bcryptjs');
 const { pool } = require('../lib/db');
-const { getClubActivities, getSegmentLeaderboard } = require('../lib/strava');
+const { getClubActivities, getSegmentLeaderboard, refreshAthleteToken, exchangeAthleteCode, getAthleteActivities } = require('../lib/strava');
 
 const uploadFeed = multer({
   storage: multer.memoryStorage(),
@@ -348,23 +348,98 @@ router.post('/polls/:id/vote', requireMember, async (req, res, next) => {
 /* ── TRAININGSPLAN ── */
 router.get('/trainingsplan', requireMember, async (req, res, next) => {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM club_trainingsplan ORDER BY week_start DESC LIMIT 8'
-    );
+    const memberName = req.session.memberName;
+    const [rows] = await pool.query('SELECT * FROM club_trainingsplan ORDER BY week_start DESC LIMIT 8');
     const [myPlans] = await pool.query(
-      'SELECT * FROM club_ai_trainingsplan WHERE member_name=? ORDER BY created_at DESC LIMIT 10',
-      [req.session.memberName]
+      'SELECT * FROM club_ai_trainingsplan WHERE member_name=? ORDER BY created_at DESC LIMIT 10', [memberName]
     );
-    res.render('club/trainingsplan', { ...helpers, memberName: req.session.memberName, plaene: rows, myPlans, page: 'trainingsplan' });
+    const [stravaTok] = await pool.query('SELECT athlete_name FROM club_strava_tokens WHERE member_name=?', [memberName]);
+    const stravaConnected = stravaTok.length > 0 ? stravaTok[0] : null;
+    res.render('club/trainingsplan', { ...helpers, memberName, plaene: rows, myPlans, stravaConnected, page: 'trainingsplan' });
   } catch (err) { next(err); }
+});
+
+/* Strava OAuth for individual members */
+router.get('/strava/connect', requireMember, (req, res) => {
+  const base = process.env.BASE_URL || 'https://www.rc-birkfeld.at';
+  const params = new URLSearchParams({
+    client_id: process.env.STRAVA_CLIENT_ID,
+    response_type: 'code',
+    redirect_uri: `${base}/club/strava/callback`,
+    approval_prompt: 'auto',
+    scope: 'read,activity:read',
+  });
+  res.redirect(`https://www.strava.com/oauth/authorize?${params}`);
+});
+
+router.get('/strava/callback', requireMember, async (req, res) => {
+  try {
+    const { code, error } = req.query;
+    if (error || !code) return res.redirect('/club/trainingsplan?strava=error');
+    const token = await exchangeAthleteCode(code);
+    if (!token.access_token) return res.redirect('/club/trainingsplan?strava=error');
+    const athleteName = token.athlete ? `${token.athlete.firstname} ${token.athlete.lastname}`.trim() : '';
+    await pool.query(
+      `INSERT INTO club_strava_tokens (member_name, athlete_id, athlete_name, access_token, refresh_token, expires_at)
+       VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE athlete_id=VALUES(athlete_id), athlete_name=VALUES(athlete_name),
+       access_token=VALUES(access_token), refresh_token=VALUES(refresh_token), expires_at=VALUES(expires_at), updated_at=CURRENT_TIMESTAMP`,
+      [req.session.memberName, token.athlete?.id || 0, athleteName, token.access_token, token.refresh_token, token.expires_at || 0]
+    );
+    res.redirect('/club/trainingsplan?tab=ai&strava=ok');
+  } catch (err) {
+    console.error('Strava callback error:', err.message);
+    res.redirect('/club/trainingsplan?strava=error');
+  }
+});
+
+router.post('/strava/disconnect', requireMember, async (req, res) => {
+  await pool.query('DELETE FROM club_strava_tokens WHERE member_name=?', [req.session.memberName]);
+  res.redirect('/club/trainingsplan?tab=ai');
 });
 
 router.post('/trainingsplan/ai-chat', requireMember, async (req, res) => {
   try {
     const { messages } = req.body;
     if (!Array.isArray(messages) || messages.length === 0) return res.status(400).json({ error: 'No messages' });
+
+    // Build Strava context if connected
+    let stravaContext = '';
+    const [tokRows] = await pool.query('SELECT * FROM club_strava_tokens WHERE member_name=?', [req.session.memberName]);
+    if (tokRows.length > 0) {
+      let tok = tokRows[0];
+      if (tok.expires_at < Math.floor(Date.now() / 1000) + 60) {
+        const refreshed = await refreshAthleteToken(tok.refresh_token);
+        if (refreshed.access_token) {
+          await pool.query(
+            'UPDATE club_strava_tokens SET access_token=?, refresh_token=?, expires_at=? WHERE member_name=?',
+            [refreshed.access_token, refreshed.refresh_token, refreshed.expires_at, req.session.memberName]
+          );
+          tok.access_token = refreshed.access_token;
+        }
+      }
+      const activities = await getAthleteActivities(tok.access_token, 4);
+      if (activities.length > 0) {
+        const lines = activities.slice(0, 10).map(a => {
+          const d = new Date(a.start_date_local).toLocaleDateString('de-AT', {weekday:'short',day:'2-digit',month:'2-digit'});
+          const km = (a.distance / 1000).toFixed(1);
+          const hm = Math.round(a.total_elevation_gain);
+          const min = Math.round(a.moving_time / 60);
+          const h = Math.floor(min / 60), m = min % 60;
+          return `- ${d}: ${a.name}, ${km}km, ${hm}hm, ${h}h${m > 0 ? m + 'min' : ''}`;
+        }).join('\n');
+        stravaContext = `\n\nSTRAVA-AKTIVITÄTEN (letzte 4 Wochen):\n${lines}\nNutze diese Daten um den Plan auf das tatsächliche Niveau und die Belastung abzustimmen.`;
+      }
+    }
+
     const Anthropic = require('@anthropic-ai/sdk');
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    // Normalize messages — content can be string or array (with images)
+    const normalized = messages.slice(-8).map(m => ({
+      role: m.role === 'assistant' ? 'assistant' : 'user',
+      content: m.content
+    }));
+
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1800,
@@ -375,9 +450,11 @@ DEINE AUFGABE: Erstelle einen maßgeschneiderten Wochentrainingsplan für das Mi
 GESPRÄCHSABLAUF:
 - Stelle maximal 4-5 kurze, präzise Fragen um das Profil zu verstehen
 - Frage nach: Hauptziel, Disziplin (Rennrad/MTB/Gravel/Mix), Trainingstage pro Woche, Niveau (Einsteiger/Fortgeschritten/Wettkampf), nächstes Event
-- Sobald du genug Infos hast, erstelle den Plan direkt — kein langes Vorgeplänkel
+- Falls Strava-Daten vorhanden sind, nutze sie direkt — frage nicht mehr nach aktuellem Niveau
+- Falls ein Foto/Screenshot geteilt wird, analysiere es und beziehe es ein
+- Sobald du genug Infos hast, erstelle den Plan direkt
 
-WENN DU DEN PLAN PRÄSENTIERST, nutze EXAKT dieses Format (mit den Trennzeichen):
+WENN DU DEN PLAN PRÄSENTIERST, nutze EXAKT dieses Format:
 
 ---TRAININGSPLAN---
 **Titel:** [Prägnanter Plantitel]
@@ -394,9 +471,9 @@ WENN DU DEN PLAN PRÄSENTIERST, nutze EXAKT dieses Format (mit den Trennzeichen)
 **Tipps:** [2-3 prägnante Tipps]
 ---ENDE---
 
-STIL: Direkt, motivierend, knapp. Österreichisches Flair. Keine langen Erklärungen.
-SPRACHE: Deutsch`,
-      messages: messages.slice(-12)
+STIL: Direkt, motivierend, knapp. Österreichisches Flair.
+SPRACHE: Deutsch${stravaContext}`,
+      messages: normalized
     });
     res.json({ content: response.content[0].text });
   } catch (err) {

@@ -273,3 +273,13 @@ CREATE TABLE IF NOT EXISTS club_ai_trainingsplan (
   content     MEDIUMTEXT NOT NULL,
   created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS club_strava_tokens (
+  member_name   VARCHAR(100) PRIMARY KEY,
+  athlete_id    BIGINT NOT NULL,
+  athlete_name  VARCHAR(200),
+  access_token  VARCHAR(300) NOT NULL,
+  refresh_token VARCHAR(300) NOT NULL,
+  expires_at    INT NOT NULL,
+  updated_at    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
