@@ -1,4 +1,5 @@
 <%- include('partials/head', { title: 'RC ASVÖ Birkfeld' }) %>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <%- include('partials/nav') %>
 
 <main id="top">
@@ -109,7 +110,7 @@
   </section>
 
   <!-- KARTE -->
-  <section id="karte" style="background:var(--ink);padding:0;overflow:hidden;">
+  <section id="karte" style="background:var(--ink);padding:0;">
     <div class="wrap" style="padding-top:52px;padding-bottom:0;">
       <div class="section-head fade-in" style="color:var(--chalk);">
         <span class="kicker" style="color:var(--gold);">Unser Revier</span>
@@ -483,7 +484,6 @@ fetch('/api/strava-stats').then(function(r){return r.json();}).then(function(s){
 })();
 </script>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLEg=" crossorigin=""></script>
 <script>
 (function(){
