@@ -2,7 +2,7 @@
   var isPast = new Date(termin.date) < new Date();
   var pageTitle = isPast ? ('Rückblick: ' + termin.title) : termin.title;
 %>
-<%- include('partials/head', { title: pageTitle + ' – RC Birkfeld', description: termin.description || (termin.title + ' am ' + new Date(termin.date).toLocaleDateString('de-AT', {day:'2-digit',month:'long',year:'numeric'})), ogType: 'event', ogPath: '/termin/' + termin.id }) %>
+<%- include('partials/head', { title: pageTitle + ' – RC Birkfeld', description: termin.description || (termin.title + ' am ' + new Date(termin.date).toLocaleDateString('de-AT', {day:'2-digit',month:'long',year:'numeric'})), ogType: 'website', ogPath: '/termin/' + termin.id }) %>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

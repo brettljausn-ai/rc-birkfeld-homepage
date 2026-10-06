@@ -10,6 +10,7 @@
 <meta property="og:title" content="<%= title || 'RC ASVÖ Birkfeld' %>">
 <meta property="og:description" content="<%= typeof description !== 'undefined' ? description : 'Radsportverein RC ASVÖ Birkfeld – Rennrad, MTB und Gravel im Joglland, Oststeiermark.' %>">
 <meta property="og:url" content="https://www.rc-birkfeld.at<%= typeof ogPath !== 'undefined' ? ogPath : '' %>">
+<link rel="canonical" href="https://www.rc-birkfeld.at<%= typeof ogPath !== 'undefined' ? ogPath : '' %>">
 <meta property="og:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : 'https://www.rc-birkfeld.at/images/rcbirkfeld-logo.png' %>">
 <meta property="og:site_name" content="RC ASVÖ Birkfeld">
 <meta property="og:locale" content="de_AT">
@@ -26,7 +27,7 @@
 <link rel="icon" type="image/png" href="/images/rcbirkfeld-logo.png">
 <link rel="apple-touch-icon" href="/images/rcbirkfeld-logo.png">
 <link rel="stylesheet" href="/fonts/fonts.css">
-<link rel="stylesheet" href="/styles.css?v=<%= Date.now() %>">
+<link rel="stylesheet" href="/styles.css?v=<%= appVersion %>">
 <%- typeof extraHead !== 'undefined' ? extraHead : '' %>
 <script>
 if('serviceWorker' in navigator){

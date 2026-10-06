@@ -1,4 +1,4 @@
-<%- include('partials/head', { title: 'RC ASVÖ Birkfeld – Radsportverein im Joglland', description: 'Radsportverein RC ASVÖ Birkfeld – Rennrad, MTB und Gravel im Joglland, Oststeiermark. Wöchentliche Ausfahrten, Jugendteam und Rennsport seit 1993.' }) %>
+<%- include('partials/head', { title: 'RC ASVÖ Birkfeld – Radsportverein im Joglland', description: 'Radsportverein RC ASVÖ Birkfeld – Rennrad, MTB und Gravel im Joglland, Oststeiermark. Wöchentliche Ausfahrten, Jugendteam und Rennsport seit 1993.', ogPath: '/' }) %>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -180,7 +180,7 @@
             <ul><% _list.forEach(function(item){ %><li><%= item.trim() %></li><% }); %></ul>
           </div>
           <div class="tab-visual">
-            <% if(_img){ %><img src="<%= _img %>" alt="<%= content['angebote_tab'+_n+'_title']||'' %>"><div class="overlay"></div><% } %>
+            <% if(_img){ %><img src="<%= _img %>" alt="<%= content['angebote_tab'+_n+'_title']||'' %>" loading="lazy"><div class="overlay"></div><% } %>
             <span class="tag"><%= content['angebote_tab'+_n+'_tag']||'' %></span>
           </div>
         </div>
