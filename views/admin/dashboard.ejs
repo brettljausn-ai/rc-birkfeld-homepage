@@ -953,5 +953,143 @@ document.querySelectorAll('.news-drop').forEach(initNewsDropZone);
   });
 })();
 </script>
+
+<!-- ══ KI ASSISTENT ══ -->
+<style>
+.ai-fab{position:fixed;bottom:26px;right:26px;width:52px;height:52px;border-radius:50%;background:#0A0A0A;color:#4CAF50;font-size:1.25rem;border:2px solid #4CAF50;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:1000;transition:transform .15s;font-family:inherit;line-height:1;}
+.ai-fab:hover{transform:scale(1.09);}
+.ai-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:998;display:none;}
+.ai-overlay.open{display:block;}
+.ai-drawer{position:fixed;top:0;right:-440px;width:420px;max-width:calc(100vw - 16px);height:100%;background:#fff;box-shadow:-4px 0 28px rgba(0,0,0,.18);z-index:999;display:flex;flex-direction:column;transition:right .22s ease;}
+.ai-drawer.open{right:0;}
+.ai-dhead{background:#0A0A0A;color:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.ai-dhead h2{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+.ai-close{background:none;border:none;color:#aaa;font-size:1.5rem;cursor:pointer;line-height:1;padding:0;}
+.ai-close:hover{color:#fff;}
+.ai-dbody{flex:1;overflow-y:auto;padding:20px;}
+.ai-types{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.ai-t{padding:5px 13px;border-radius:20px;border:1px solid #ddd;background:#f5f5f5;font-size:0.78rem;cursor:pointer;font-family:inherit;font-weight:600;color:#555;transition:all .12s;}
+.ai-t:hover{border-color:#4CAF50;color:#1F7A34;}
+.ai-t.on{background:#0A0A0A;color:#4CAF50;border-color:#0A0A0A;}
+.ai-hint{font-size:0.73rem;color:#bbb;margin-bottom:8px;min-height:16px;font-style:italic;}
+#aiPrompt{width:100%;min-height:86px;resize:vertical;border:1px solid #ddd;border-radius:6px;padding:10px 12px;font-size:0.88rem;font-family:inherit;margin-bottom:10px;color:#111;}
+#aiPrompt:focus{outline:2px solid #4CAF50;border-color:#4CAF50;outline-offset:0;}
+.ai-gen{width:100%;background:#1F7A34;color:#fff;border:none;padding:10px;border-radius:6px;font-size:0.9rem;font-weight:700;cursor:pointer;margin-bottom:16px;font-family:inherit;transition:background .12s;}
+.ai-gen:hover{background:#145C27;}
+.ai-gen:disabled{background:#aaa;cursor:not-allowed;}
+.ai-out-lbl{font-size:0.7rem;text-transform:uppercase;letter-spacing:.07em;color:#999;font-weight:700;margin-bottom:6px;}
+#aiOutput{width:100%;min-height:150px;border:1px solid #e0e0e0;border-radius:6px;padding:10px 12px;font-size:0.87rem;font-family:inherit;background:#fafafa;resize:vertical;color:#111;}
+.ai-copy{background:#0A0A0A;color:#4CAF50;border:1px solid #333;padding:8px 16px;border-radius:5px;font-size:0.82rem;cursor:pointer;margin-top:8px;width:100%;font-family:inherit;font-weight:700;transition:background .12s;}
+.ai-copy:hover{background:#222;}
+.ai-copy.copied{background:#1F7A34;border-color:#1F7A34;color:#fff;}
+</style>
+
+<button class="ai-fab" id="aiFab" title="KI Assistent">✦</button>
+<div class="ai-overlay" id="aiOverlay"></div>
+<div class="ai-drawer" id="aiDrawer">
+  <div class="ai-dhead">
+    <h2><span style="color:#4CAF50;">✦</span> KI Textassistent</h2>
+    <button class="ai-close" id="aiClose">×</button>
+  </div>
+  <div class="ai-dbody">
+    <div class="ai-types" id="aiTypes">
+      <button class="ai-t on" data-type="bericht"  data-hint="z.B. Vereinsausfahrt auf den Gleinalm, 28 Teilnehmer, top Wetter">Bericht</button>
+      <button class="ai-t"   data-type="termin"   data-hint="z.B. MTB-Ausfahrt Samstagvormittag, alle Niveaus, Treffpunkt Vereinsheim">Termin</button>
+      <button class="ai-t"   data-type="training" data-hint="z.B. Intervalltraining Fortgeschrittene, 3×10min Zone 4">Training</button>
+      <button class="ai-t"   data-type="seite"    data-hint="z.B. Hero-Text Startseite, motivierend, Radsport Oststeiermark">Websitetext</button>
+      <button class="ai-t"   data-type="frei"     data-hint="Schreibe, was du brauchst...">Freitext</button>
+    </div>
+    <div class="ai-hint" id="aiHintText">z.B. Vereinsausfahrt auf den Gleinalm, 28 Teilnehmer, top Wetter</div>
+    <textarea id="aiPrompt" placeholder="Beschreibe, was geschrieben werden soll..."></textarea>
+    <button class="ai-gen" id="aiGenBtn">Generieren</button>
+    <div class="ai-out-lbl">Ergebnis</div>
+    <textarea id="aiOutput" readonly placeholder="Der generierte Text erscheint hier..."></textarea>
+    <button class="ai-copy" id="aiCopyBtn">Kopieren</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const fab = document.getElementById('aiFab');
+  const overlay = document.getElementById('aiOverlay');
+  const drawer = document.getElementById('aiDrawer');
+  const closeBtn = document.getElementById('aiClose');
+  const genBtn = document.getElementById('aiGenBtn');
+  const copyBtn = document.getElementById('aiCopyBtn');
+  const output = document.getElementById('aiOutput');
+  const prompt = document.getElementById('aiPrompt');
+  const hintEl = document.getElementById('aiHintText');
+
+  function openDrawer() { drawer.classList.add('open'); overlay.classList.add('open'); }
+  function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('open'); }
+
+  fab.addEventListener('click', openDrawer);
+  closeBtn.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+
+  document.getElementById('aiTypes').addEventListener('click', function(e) {
+    const btn = e.target.closest('.ai-t');
+    if (!btn) return;
+    document.querySelectorAll('.ai-t').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    hintEl.textContent = btn.dataset.hint || '';
+    prompt.placeholder = btn.dataset.hint || 'Beschreibe, was geschrieben werden soll...';
+  });
+
+  genBtn.addEventListener('click', async function() {
+    const type = document.querySelector('.ai-t.on')?.dataset.type || 'frei';
+    const text = prompt.value.trim();
+    if (!text) { prompt.focus(); return; }
+
+    genBtn.disabled = true;
+    genBtn.textContent = 'Generiere…';
+    output.value = '';
+
+    try {
+      const res = await fetch('/admin/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, prompt: text }),
+      });
+
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      let buf = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const lines = buf.split('\n');
+        buf = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if (data === '[DONE]') break;
+          try {
+            const p = JSON.parse(data);
+            if (p.t)     { output.value += p.t; output.scrollTop = output.scrollHeight; }
+            if (p.error) { output.value = 'Fehler: ' + p.error; }
+          } catch {}
+        }
+      }
+    } catch (err) {
+      output.value = 'Fehler: ' + err.message;
+    }
+
+    genBtn.disabled = false;
+    genBtn.textContent = 'Generieren';
+  });
+
+  copyBtn.addEventListener('click', function() {
+    if (!output.value) return;
+    navigator.clipboard.writeText(output.value).then(function() {
+      copyBtn.textContent = '✓ Kopiert';
+      copyBtn.classList.add('copied');
+      setTimeout(function() { copyBtn.textContent = 'Kopieren'; copyBtn.classList.remove('copied'); }, 1800);
+    });
+  });
+})();
+</script>
 </body>
 </html>

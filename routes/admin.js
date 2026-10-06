@@ -460,6 +460,48 @@ router.post('/gallery/reorder', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── KI TEXTGENERATOR ── */
+router.post('/ai/generate', requireAuth, async (req, res) => {
+  const { type, prompt } = req.body;
+  if (!prompt) return res.status(400).json({ error: 'Kein Prompt' });
+  if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'API-Key fehlt' });
+
+  const systems = {
+    bericht: 'Du bist Vereinsredakteur des RC ASVÖ Birkfeld (Radsportverein, Joglland, Oststeiermark). Schreibe lebendige, persönliche Vereinsberichte auf Deutsch. Stil: nahbar, begeisternd, informativ. 2-4 Absätze Fließtext, keine Überschriften, keine Aufzählungszeichen.',
+    termin:  'Du bist Vereinssekretär des RC ASVÖ Birkfeld. Schreibe kurze, einladende Terminbeschreibungen auf Deutsch (3-5 Sätze). Wer, was, wo, wann – klar und motivierend. Kein Datum nennen wenn keines angegeben.',
+    training:'Du bist Trainer des RC ASVÖ Birkfeld. Schreibe strukturierte Trainingsinhalte auf Deutsch. Konkret, praxisnah, mit klaren Einheiten und Intensitäten.',
+    seite:   'Du bist Texter für die Website des RC ASVÖ Birkfeld. Schreibe prägnante Website-Texte auf Deutsch. Kurz, klar, einladend – keine Füllwörter.',
+    frei:    'Du bist Assistent des RC ASVÖ Birkfeld, einem österreichischen Radsportverein. Schreibe auf Deutsch, professionell und vereinsnah.',
+  };
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  try {
+    const Anthropic = require('@anthropic-ai/sdk');
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    const stream = client.messages.stream({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 800,
+      system: systems[type] || systems.frei,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    for await (const chunk of stream) {
+      if (chunk.type === 'content_block_delta' && chunk.delta?.type === 'text_delta') {
+        res.write('data: ' + JSON.stringify({ t: chunk.delta.text }) + '\n\n');
+      }
+    }
+    res.write('data: [DONE]\n\n');
+    res.end();
+  } catch (err) {
+    res.write('data: ' + JSON.stringify({ error: err.message }) + '\n\n');
+    res.end();
+  }
+});
+
 /* ── STATS ── */
 router.get('/stats', requireAuth, async (req, res, next) => {
   try {
