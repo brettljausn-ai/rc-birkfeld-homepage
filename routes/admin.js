@@ -146,6 +146,50 @@ router.post('/termine/:id/delete', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+/* ── NEWS PHOTOS (Fotobox) ── */
+router.get('/news/:id/photos', requireAuth, async (req, res, next) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT id, caption, sort_order FROM news_photos WHERE news_id=? ORDER BY sort_order ASC',
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+router.get('/news/:id/photos/:photoId/data', requireAuth, async (req, res, next) => {
+  try {
+    const [[row]] = await pool.query('SELECT data_url FROM news_photos WHERE id=? AND news_id=?', [req.params.photoId, req.params.id]);
+    if (!row) return res.status(404).json({ error: 'Not found' });
+    res.json({ data_url: row.data_url });
+  } catch (err) { next(err); }
+});
+
+router.post('/news/:id/photos', requireAuth, uploadNews.array('photos', 20), async (req, res, next) => {
+  try {
+    if (!req.files || req.files.length === 0) return res.json({ ok: false, error: 'Kein Bild' });
+    const [[maxRow]] = await pool.query('SELECT COALESCE(MAX(sort_order),0)+1 AS next FROM news_photos WHERE news_id=?', [req.params.id]);
+    let nextOrder = maxRow.next;
+    const inserted = [];
+    for (const file of req.files) {
+      const dataUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      const [result] = await pool.query(
+        'INSERT INTO news_photos (news_id, data_url, caption, sort_order) VALUES (?,?,?,?)',
+        [req.params.id, dataUrl, null, nextOrder++]
+      );
+      inserted.push({ id: result.insertId, sort_order: nextOrder - 1 });
+    }
+    res.json({ ok: true, inserted });
+  } catch (err) { next(err); }
+});
+
+router.post('/news/:id/photos/:photoId/delete', requireAuth, async (req, res, next) => {
+  try {
+    await pool.query('DELETE FROM news_photos WHERE id=? AND news_id=?', [req.params.photoId, req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
 /* ── GALERIE ── */
 router.post('/gallery', requireAuth, upload.array('photos', 30), async (req, res, next) => {
   try {

@@ -51,6 +51,24 @@
       <% if (_isHtml) { %><%- bericht.content %><% } else { %><%= bericht.content %><% } %>
     </div>
 
+    <% if (photos && photos.length > 0) { %>
+    <div class="bericht-fotobox">
+      <div class="bericht-fotobox-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M8 5V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2"/></svg>
+        Fotos vom Event
+        <span class="bericht-fotobox-count"><%= photos.length %></span>
+      </div>
+      <div class="bericht-photo-grid" id="berichtPhotoGrid">
+        <% photos.forEach(function(p, idx) { %>
+        <div class="bericht-photo-item" onclick="bpLbOpen(<%= idx %>)" title="<%= p.caption || '' %>">
+          <img src="<%= p.data_url %>" alt="<%= p.caption || 'Foto ' + (idx+1) %>" loading="lazy">
+          <% if (p.caption) { %><div class="bericht-photo-cap"><%= p.caption %></div><% } %>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+
     <div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--line);">
       <a href="/berichte" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--rust);text-decoration:none;font-weight:600;">
         ← Zurück zu allen Berichten
@@ -59,5 +77,50 @@
 
   </div>
 </main>
+
+<% if (photos && photos.length > 0) { %>
+<div class="lb" id="bpLb" role="dialog" aria-modal="true">
+  <button class="lb-close" id="bpClose" aria-label="Schließen">×</button>
+  <button class="lb-prev" id="bpPrev" aria-label="Zurück">‹</button>
+  <img class="lb-img" id="bpImg" src="" alt="">
+  <button class="lb-next" id="bpNext" aria-label="Weiter">›</button>
+  <div class="lb-meta">
+    <div class="lb-cap" id="bpCap"></div>
+    <div class="lb-count" id="bpCount"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var photos = <%- JSON.stringify(photos.map(function(p){ return { src: p.data_url, cap: p.caption||'' }; })) %>;
+  var cur = 0;
+  var lb = document.getElementById('bpLb');
+  var img = document.getElementById('bpImg');
+  var cap = document.getElementById('bpCap');
+  var cnt = document.getElementById('bpCount');
+  function show(i){
+    cur = (i + photos.length) % photos.length;
+    img.style.opacity='0.4';
+    img.src = photos[cur].src;
+    img.onload = function(){ img.style.opacity='1'; };
+    cap.textContent = photos[cur].cap;
+    cnt.textContent = (cur+1) + ' / ' + photos.length;
+  }
+  window.bpLbOpen = function(i){ lb.classList.add('open'); show(i); document.body.style.overflow='hidden'; };
+  document.getElementById('bpClose').onclick = function(){ lb.classList.remove('open'); document.body.style.overflow=''; };
+  document.getElementById('bpPrev').onclick = function(){ show(cur-1); };
+  document.getElementById('bpNext').onclick = function(){ show(cur+1); };
+  lb.addEventListener('click', function(e){ if(e.target===lb){ lb.classList.remove('open'); document.body.style.overflow=''; } });
+  document.addEventListener('keydown', function(e){
+    if(!lb.classList.contains('open')) return;
+    if(e.key==='Escape'){ lb.classList.remove('open'); document.body.style.overflow=''; }
+    if(e.key==='ArrowLeft') show(cur-1);
+    if(e.key==='ArrowRight') show(cur+1);
+  });
+  var ts=0;
+  lb.addEventListener('touchstart',function(e){ ts=e.touches[0].clientX; },{passive:true});
+  lb.addEventListener('touchend',function(e){ var dx=e.changedTouches[0].clientX-ts; if(Math.abs(dx)>50){ show(dx<0?cur+1:cur-1); } },{passive:true});
+})();
+</script>
+<% } %>
 
 <%- include('partials/footer') %>

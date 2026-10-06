@@ -423,6 +423,15 @@
           </div>
           <div class="actions"><button class="btn-save" type="submit">Speichern</button><button class="btn-cancel" type="button" onclick="toggleEdit('news-<%= n.id %>')">Abbrechen</button></div>
         </form>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #dde8dd;">
+          <div style="font-weight:700;margin-bottom:10px;font-size:0.9rem;color:#1a6b44;">📷 Fotobox</div>
+          <div id="np-grid-<%= n.id %>" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:24px;"></div>
+          <label style="display:inline-block;cursor:pointer;background:#1a6b44;color:#fff;padding:7px 14px;border-radius:4px;font-size:0.83rem;font-weight:600;">
+            + Fotos hochladen
+            <input type="file" accept="image/jpeg,image/png,image/webp" multiple style="display:none;" onchange="npUpload(<%= n.id %>,this)">
+          </label>
+          <span id="np-status-<%= n.id %>" style="margin-left:10px;font-size:0.8rem;color:#666;"></span>
+        </div>
       </div>
     </td></tr>
     <% }); %>
@@ -855,6 +864,66 @@ function showTab(id, btn) {
 function toggleEdit(id) {
   const el = document.getElementById(id);
   el.classList.toggle('open');
+  // auto-load photos when opening a news edit form
+  var m = id.match(/^news-(\d+)$/);
+  if (m && el.classList.contains('open') && !_npLoaded[m[1]]) {
+    _npLoaded[m[1]] = true;
+    npLoad(m[1]);
+  }
+}
+
+/* ── News Photos (Fotobox) ── */
+var _npLoaded = {};
+function npLoad(newsId) {
+  fetch('/admin/news/' + newsId + '/photos')
+    .then(function(r){ return r.json(); })
+    .then(function(photos){ npRender(newsId, photos); });
+}
+function npRender(newsId, photos) {
+  var grid = document.getElementById('np-grid-' + newsId);
+  grid.innerHTML = '';
+  if (!photos.length) {
+    grid.innerHTML = '<span style="color:#999;font-size:0.82rem;">Noch keine Fotos.</span>';
+    return;
+  }
+  photos.forEach(function(p) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;width:90px;height:90px;border-radius:6px;overflow:hidden;flex-shrink:0;';
+    // load thumbnail lazily via separate fetch
+    var imgEl = document.createElement('img');
+    imgEl.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+    imgEl.alt = p.caption || '';
+    fetch('/admin/news/' + newsId + '/photos/' + p.id + '/data')
+      .then(function(r){ return r.json(); })
+      .then(function(d){ imgEl.src = d.data_url; });
+    var del = document.createElement('button');
+    del.textContent = '×';
+    del.title = 'Löschen';
+    del.style.cssText = 'position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:0.9rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;';
+    del.onclick = function() {
+      if (!confirm('Foto löschen?')) return;
+      fetch('/admin/news/' + newsId + '/photos/' + p.id + '/delete', { method: 'POST' })
+        .then(function(){ _npLoaded[newsId] = true; npLoad(newsId); });
+    };
+    wrap.appendChild(imgEl);
+    wrap.appendChild(del);
+    grid.appendChild(wrap);
+  });
+}
+function npUpload(newsId, input) {
+  if (!input.files.length) return;
+  var status = document.getElementById('np-status-' + newsId);
+  status.textContent = 'Wird hochgeladen…';
+  var fd = new FormData();
+  for (var i = 0; i < input.files.length; i++) fd.append('photos', input.files[i]);
+  fetch('/admin/news/' + newsId + '/photos', { method: 'POST', body: fd })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      status.textContent = data.ok ? (data.inserted.length + ' Foto(s) gespeichert.') : (data.error || 'Fehler');
+      if (data.ok) { _npLoaded[newsId] = true; npLoad(newsId); }
+      setTimeout(function(){ status.textContent = ''; }, 3000);
+      input.value = '';
+    });
 }
 
 /* Strava Test */

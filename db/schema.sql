@@ -322,3 +322,12 @@ CREATE TABLE IF NOT EXISTS page_views (
   count      INT NOT NULL DEFAULT 0,
   UNIQUE KEY uq_page_date (page, view_date)
 );
+
+CREATE TABLE IF NOT EXISTS news_photos (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  news_id    INT NOT NULL,
+  data_url   MEDIUMTEXT NOT NULL,
+  caption    TEXT,
+  sort_order INT DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
