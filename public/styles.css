@@ -304,6 +304,14 @@ footer a:hover{color:var(--chalk);}
 .gallery-caption{position:absolute;bottom:0;left:0;right:0;padding:20px 16px 16px;background:linear-gradient(transparent,rgba(10,10,10,0.78));color:var(--chalk);font-size:0.88rem;font-weight:600;opacity:0;transition:opacity .3s ease;}
 .gallery-item:hover .gallery-caption{opacity:1;}
 .gallery-hint{margin-top:24px;font-family:'IBM Plex Mono';font-size:0.8rem;color:#7A7A7A;}
+/* ── BERICHT BODY ── */
+.bericht-body img{max-width:100%;height:auto;border-radius:8px;margin:16px 0;display:block;}
+.bericht-body p{margin-bottom:1em;}
+.bericht-body ul,.bericht-body ol{padding-left:1.4em;margin-bottom:1em;}
+.bericht-body li{margin-bottom:.3em;}
+.bericht-body strong{font-weight:700;}
+.bericht-body em{font-style:italic;}
+.bericht-body a{color:var(--rust);text-decoration:underline;}
 /* ── LIGHTBOX ── */
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:1000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:60px 60px 24px;}
 .lb.open{display:flex;}

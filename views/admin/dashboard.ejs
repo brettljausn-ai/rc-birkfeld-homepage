@@ -1021,20 +1021,43 @@ function navToTab(name) {
 
 /* ── Quill init ── */
 (function() {
-  var toolbarOpts = [
-    ['bold', 'italic', 'underline'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    ['link', 'clean']
-  ];
-
   document.querySelectorAll('.ql-news-editor').forEach(function(wrapper) {
     var textarea = wrapper.querySelector('.ql-hidden-input');
     var editorDiv = wrapper.querySelector('.ql-editor-div');
 
     var quill = new Quill(editorDiv, {
       theme: 'snow',
-      modules: { toolbar: toolbarOpts },
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link', 'image', 'clean']
+        ]
+      },
       placeholder: 'Bericht-Text eingeben…'
+    });
+
+    /* Bild-Upload über Server statt Base64-Paste */
+    quill.getModule('toolbar').addHandler('image', function() {
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/jpeg,image/png,image/webp,image/gif';
+      input.click();
+      input.onchange = function() {
+        var file = input.files[0];
+        if (!file) return;
+        var fd = new FormData();
+        fd.append('image', file);
+        fetch('/admin/upload-news-image', { method: 'POST', body: fd })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (!data.url) return;
+            var range = quill.getSelection(true);
+            var idx = range ? range.index : quill.getLength();
+            quill.insertEmbed(idx, 'image', data.url);
+            quill.setSelection(idx + 1);
+          });
+      };
     });
 
     var content = textarea.value.trim();

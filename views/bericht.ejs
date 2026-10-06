@@ -47,7 +47,7 @@
     </h1>
 
     <% var _isHtml = bericht.content && /<[a-z][\s\S]*>/i.test(bericht.content); %>
-    <div style="font-size:1.05rem;line-height:1.8;color:var(--ink);<% if(!_isHtml){ %>white-space:pre-wrap;<% } %>word-break:break-word;">
+    <div class="bericht-body" style="font-size:1.05rem;line-height:1.8;color:var(--ink);<% if(!_isHtml){ %>white-space:pre-wrap;<% } %>word-break:break-word;">
       <% if (_isHtml) { %><%- bericht.content %><% } else { %><%= bericht.content %><% } %>
     </div>
 
