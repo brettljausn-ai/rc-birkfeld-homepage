@@ -1,3 +1,30 @@
+<style>
+.ch-hamburger{display:none;background:none;border:none;color:#aaa;cursor:pointer;padding:6px;line-height:0;flex-shrink:0;}
+.ch-hamburger:hover{color:#fff;}
+.ch-drawer-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;}
+.ch-drawer-backdrop.open{display:block;}
+.ch-drawer{position:fixed;top:0;left:-290px;width:280px;height:100%;background:#111;border-right:1px solid #1e1e1e;z-index:301;display:flex;flex-direction:column;transition:left .22s ease;overflow-y:auto;}
+.ch-drawer.open{left:0;}
+.ch-dhead{padding:14px 18px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.ch-dhead-brand{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.05rem;color:#4CAF50;letter-spacing:.06em;}
+.ch-dclose{background:none;border:none;color:#555;font-size:1.4rem;cursor:pointer;line-height:1;padding:0;}
+.ch-dclose:hover{color:#fff;}
+.ch-dnav{padding:6px 0;flex:1;}
+.ch-dlink{display:flex;align-items:center;gap:13px;padding:11px 18px;color:#666;font-size:0.88rem;font-weight:600;text-decoration:none;transition:color .1s,background .1s;border-left:3px solid transparent;}
+.ch-dlink:hover{color:#ccc;background:#161616;}
+.ch-dlink.active{color:#4CAF50;border-left-color:#4CAF50;background:#141414;}
+.ch-dlink svg{flex-shrink:0;opacity:.7;}
+.ch-dlink.active svg{opacity:1;}
+.ch-dfooter{padding:14px 18px;border-top:1px solid #1e1e1e;display:flex;flex-direction:column;gap:10px;}
+.ch-dfooter a{display:flex;align-items:center;gap:10px;color:#555;font-size:0.83rem;font-weight:600;text-decoration:none;padding:4px 0;}
+.ch-dfooter a:hover{color:#aaa;}
+@media(max-width:640px){
+  .ch-tabs{display:none !important;}
+  .ch-right .ch-logout,.ch-right .ch-profile-link .ch-name{display:none;}
+  .ch-hamburger{display:flex !important;}
+  .ch-brand{margin-right:0;}
+}
+</style>
 <div class="ch">
   <a href="/club" class="ch-brand">RC CLUB</a>
   <div class="ch-tabs">
@@ -47,6 +74,9 @@
     </a>
   </div>
   <div class="ch-right">
+    <button class="ch-hamburger" id="chHamburger" aria-label="Menü öffnen">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
     <a href="/club/profil" class="ch-profile-link" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;" title="Mein Profil">
       <div class="ch-avatar" style="background:<%= avatarColor(memberName) %>;<%= page==='profil'?'outline:2px solid #4CAF50;outline-offset:2px;':'' %>"><%= initials(memberName) %></div>
       <span class="ch-name"><%= memberName %></span>
@@ -55,3 +85,44 @@
     <a href="/club/logout" class="ch-logout">Abmelden</a>
   </div>
 </div>
+
+<!-- Drawer -->
+<div class="ch-drawer-backdrop" id="chBackdrop"></div>
+<div class="ch-drawer" id="chDrawer">
+  <div class="ch-dhead">
+    <span class="ch-dhead-brand">RC CLUB</span>
+    <button class="ch-dclose" id="chDrawerClose">×</button>
+  </div>
+  <nav class="ch-dnav">
+    <a href="/club"               class="ch-dlink <%= page==='feed'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="13" y="3" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="3" y="13" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="13" y="13" width="8" height="8" rx="1.5" fill="currentColor"/></svg>Feed</a>
+    <a href="/club/termine"       class="ch-dlink <%= page==='termine'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18" stroke="currentColor" stroke-width="2"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Termine</a>
+    <a href="/club/chat"          class="ch-dlink <%= page==='chat'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Chat</a>
+    <a href="/club/kalender"      class="ch-dlink <%= page==='kalender'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18" stroke="currentColor" stroke-width="2"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="12" cy="15" r="1" fill="currentColor"/><circle cx="16" cy="15" r="1" fill="currentColor"/></svg>Kalender</a>
+    <a href="/club/trainingsplan" class="ch-dlink <%= page==='trainingsplan'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Training</a>
+    <a href="/club/challenge"     class="ch-dlink <%= page==='challenge'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Challenge</a>
+    <a href="/club/polls"         class="ch-dlink <%= page==='polls'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Abstimmung</a>
+    <a href="/club/gruppenfahrten" class="ch-dlink <%= page==='gruppenfahrten'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="2" stroke="currentColor" stroke-width="2"/><circle cx="5" cy="19" r="2" stroke="currentColor" stroke-width="2"/><circle cx="19" cy="19" r="2" stroke="currentColor" stroke-width="2"/><path d="M12 7v4l-5 6M12 11l5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Ausfahrten</a>
+    <a href="/club/routen"        class="ch-dlink <%= page==='routen'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 17c3-3 5-5 9-5s6 2 9-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="3" cy="17" r="2" fill="currentColor"/><circle cx="21" cy="11" r="2" fill="currentColor"/></svg>Routen</a>
+    <a href="/club/marktplatz"    class="ch-dlink <%= page==='marktplatz'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/><path d="M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Marktplatz</a>
+    <a href="/club/profil"        class="ch-dlink <%= page==='profil'?'active':'' %>"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Mein Profil</a>
+  </nav>
+  <div class="ch-dfooter">
+    <a href="/">← Hauptseite</a>
+    <a href="/club/logout">Abmelden</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  var btn      = document.getElementById('chHamburger');
+  var backdrop = document.getElementById('chBackdrop');
+  var drawer   = document.getElementById('chDrawer');
+  var closeBtn = document.getElementById('chDrawerClose');
+  if (!btn) return;
+  function open()  { drawer.classList.add('open');  backdrop.classList.add('open');  document.body.style.overflow='hidden'; }
+  function close() { drawer.classList.remove('open'); backdrop.classList.remove('open'); document.body.style.overflow=''; }
+  btn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+})();
+</script>
