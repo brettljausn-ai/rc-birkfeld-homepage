@@ -412,7 +412,7 @@ function _lbShow() {
   var it = _lbItems[_lbIdx];
   var img = document.getElementById('lbImg');
   img.style.opacity = '0.4';
-  img.src = '/images/galerie/' + it.filename;
+  img.src = it.data_url || '/images/galerie/' + it.filename;
   img.alt = it.caption || '';
   img.onload = function() { img.style.opacity = '1'; };
   document.getElementById('lbCap').textContent = it.caption || '';
@@ -440,7 +440,8 @@ document.addEventListener('keydown', function(e){
 fetch('/api/galerie').then(function(r){return r.json();}).then(function(items){
   _lbItems = items;
   document.getElementById('galerieGrid').innerHTML = items.map(function(i, idx){
-    return '<div class="gallery-item" data-idx="'+idx+'" title="'+(i.caption?escH(i.caption):'Bild vergrößern')+'"><img src="/images/galerie/'+escH(i.filename)+'" alt="'+escH(i.caption||'')+'" loading="lazy">'+(i.caption?'<span class="gallery-caption">'+escH(i.caption)+'</span>':'')+'</div>';
+    var src = i.data_url || '/images/galerie/'+escH(i.filename);
+    return '<div class="gallery-item" data-idx="'+idx+'" title="'+(i.caption?escH(i.caption):'Bild vergrößern')+'"><img src="'+src+'" alt="'+escH(i.caption||'')+'" loading="lazy">'+(i.caption?'<span class="gallery-caption">'+escH(i.caption)+'</span>':'')+'</div>';
   }).join('');
   document.getElementById('galerieGrid').addEventListener('click', function(e){
     var item = e.target.closest('.gallery-item');

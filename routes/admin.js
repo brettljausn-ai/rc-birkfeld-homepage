@@ -6,8 +6,8 @@ const fs = require('fs');
 const { pool } = require('../lib/db');
 
 const upload = multer({
-  dest: path.join(__dirname, '..', 'images', 'galerie'),
-  limits: { fileSize: 10 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (/image\/(jpeg|png|webp)/.test(file.mimetype)) cb(null, true);
     else cb(new Error('Nur JPG, PNG oder WebP erlaubt'));
@@ -154,10 +154,11 @@ router.post('/gallery', requireAuth, upload.array('photos', 30), async (req, res
     const [[maxRow]] = await pool.query('SELECT COALESCE(MAX(sort_order),0)+1 AS next FROM gallery');
     let nextOrder = maxRow.next;
     for (const file of req.files) {
-      const ext = path.extname(file.originalname) || '.jpg';
-      const filename = file.filename + ext;
-      fs.renameSync(file.path, path.join(path.dirname(file.path), filename));
-      await pool.query('INSERT INTO gallery (filename, caption, sort_order) VALUES (?,?,?)', [filename, caption || null, nextOrder++]);
+      const dataUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      await pool.query(
+        'INSERT INTO gallery (filename, data_url, caption, sort_order) VALUES (?,?,?,?)',
+        [file.originalname || 'upload', dataUrl, caption || null, nextOrder++]
+      );
     }
     res.redirect('/admin?msg=' + encodeURIComponent(req.files.length + ' Foto(s) hochgeladen') + '&tab=gallery');
   } catch (err) { next(err); }
@@ -172,8 +173,8 @@ router.post('/gallery/:id/caption', requireAuth, async (req, res, next) => {
 
 router.post('/gallery/:id/delete', requireAuth, async (req, res, next) => {
   try {
-    const [[row]] = await pool.query('SELECT filename FROM gallery WHERE id = ?', [req.params.id]);
-    if (row) {
+    const [[row]] = await pool.query('SELECT filename, data_url FROM gallery WHERE id = ?', [req.params.id]);
+    if (row && !row.data_url) {
       const fp = path.join(__dirname, '..', 'images', 'galerie', row.filename);
       if (fs.existsSync(fp)) fs.unlinkSync(fp);
     }

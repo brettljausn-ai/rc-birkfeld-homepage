@@ -548,7 +548,7 @@
     <% gallery.forEach(g => { %>
     <div class="gallery-tile" draggable="true" data-id="<%= g.id %>" style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.1);cursor:grab;border:2px solid transparent;transition:box-shadow .15s,border-color .15s;">
       <div style="position:relative;">
-        <img src="/images/galerie/<%= g.filename %>" alt="" style="width:100%;height:160px;object-fit:cover;display:block;pointer-events:none;">
+        <img src="<%= g.data_url || '/images/galerie/' + g.filename %>" alt="" style="width:100%;height:160px;object-fit:cover;display:block;pointer-events:none;">
         <div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:0.68rem;font-family:monospace;padding:2px 7px;border-radius:4px;">#<%= g.id %></div>
       </div>
       <div style="padding:10px;">

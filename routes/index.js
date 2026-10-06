@@ -48,7 +48,7 @@ router.get('/api/termine', async (req, res, next) => {
 
 router.get('/api/galerie', async (req, res, next) => {
   try {
-    const [rows] = await pool.query('SELECT filename, caption FROM gallery ORDER BY sort_order ASC');
+    const [rows] = await pool.query('SELECT id, filename, data_url, caption FROM gallery ORDER BY sort_order ASC');
     res.json(rows);
   } catch (err) { next(err); }
 });
