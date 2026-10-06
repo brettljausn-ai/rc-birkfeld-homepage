@@ -356,6 +356,18 @@
 
 </main>
 
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Bild-Galerie">
+  <button class="lb-close" id="lbClose" aria-label="Schließen">×</button>
+  <button class="lb-prev" id="lbPrev" aria-label="Vorheriges Bild">‹</button>
+  <img class="lb-img" id="lbImg" src="" alt="">
+  <button class="lb-next" id="lbNext" aria-label="Nächstes Bild">›</button>
+  <div class="lb-meta">
+    <div class="lb-cap" id="lbCap"></div>
+    <div class="lb-count" id="lbCount"></div>
+  </div>
+</div>
+
 <script>
 const joinForm = document.getElementById('joinForm');
 if (joinForm) {
@@ -381,10 +393,59 @@ if (joinForm) {
 <script>
 function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+/* ── Lightbox ── */
+var _lbItems = [], _lbIdx = 0;
+
+function lbOpen(idx) {
+  _lbIdx = idx;
+  _lbShow();
+  document.getElementById('lb').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function lbClose() {
+  document.getElementById('lb').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function lbPrev() { _lbIdx = (_lbIdx - 1 + _lbItems.length) % _lbItems.length; _lbShow(); }
+function lbNext() { _lbIdx = (_lbIdx + 1) % _lbItems.length; _lbShow(); }
+function _lbShow() {
+  var it = _lbItems[_lbIdx];
+  var img = document.getElementById('lbImg');
+  img.style.opacity = '0.4';
+  img.src = '/images/galerie/' + it.filename;
+  img.alt = it.caption || '';
+  img.onload = function() { img.style.opacity = '1'; };
+  document.getElementById('lbCap').textContent = it.caption || '';
+  document.getElementById('lbCount').textContent = (_lbIdx + 1) + ' / ' + _lbItems.length;
+  var multi = _lbItems.length > 1;
+  document.getElementById('lbPrev').style.display = multi ? '' : 'none';
+  document.getElementById('lbNext').style.display = multi ? '' : 'none';
+}
+document.getElementById('lbClose').addEventListener('click', lbClose);
+document.getElementById('lbPrev').addEventListener('click', lbPrev);
+document.getElementById('lbNext').addEventListener('click', lbNext);
+document.getElementById('lb').addEventListener('click', function(e){ if(e.target===this) lbClose(); });
+document.addEventListener('keydown', function(e){
+  if(!document.getElementById('lb').classList.contains('open')) return;
+  if(e.key==='Escape') lbClose();
+  if(e.key==='ArrowLeft') lbPrev();
+  if(e.key==='ArrowRight') lbNext();
+});
+(function(){
+  var el=document.getElementById('lb'), sx=0;
+  el.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;},{passive:true});
+  el.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50){dx<0?lbNext():lbPrev();}});
+})();
+
 fetch('/api/galerie').then(function(r){return r.json();}).then(function(items){
-  document.getElementById('galerieGrid').innerHTML = items.map(function(i){
-    return '<div class="gallery-item" style="cursor:pointer;" title="'+(i.caption?escH(i.caption):'Bild vergrößern')+'"><img src="/images/galerie/'+escH(i.filename)+'" alt="'+escH(i.caption||'')+'" loading="lazy">'+(i.caption?'<span class="gallery-caption">'+escH(i.caption)+'</span>':'')+'</div>';
+  _lbItems = items;
+  document.getElementById('galerieGrid').innerHTML = items.map(function(i, idx){
+    return '<div class="gallery-item" data-idx="'+idx+'" title="'+(i.caption?escH(i.caption):'Bild vergrößern')+'"><img src="/images/galerie/'+escH(i.filename)+'" alt="'+escH(i.caption||'')+'" loading="lazy">'+(i.caption?'<span class="gallery-caption">'+escH(i.caption)+'</span>':'')+'</div>';
   }).join('');
+  document.getElementById('galerieGrid').addEventListener('click', function(e){
+    var item = e.target.closest('.gallery-item');
+    if(item) lbOpen(parseInt(item.dataset.idx));
+  });
 }).catch(function(){});
 
 fetch('/api/termine').then(function(r){return r.json();}).then(function(items){
