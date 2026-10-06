@@ -65,7 +65,21 @@
   .news-drop-preview img{width:100%;max-height:180px;object-fit:cover;border-radius:5px;display:block;}
   .news-drop-remove{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:1rem;line-height:24px;text-align:center;padding:0;}
   .news-upload-status{font-size:0.74rem;color:#888;margin-top:4px;}
+  /* ── OVERVIEW STRIP ── */
+  .overview-strip{background:#161616;padding:10px 28px;display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid #222;}
+  .ov-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border-radius:6px;cursor:pointer;transition:background .1s;min-width:100px;text-decoration:none;}
+  .ov-item:hover{background:#242424;}
+  .ov-val{font-size:1.3rem;font-weight:800;color:#4CAF50;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
+  .ov-lbl{font-size:0.65rem;text-transform:uppercase;letter-spacing:.07em;color:#555;font-weight:600;white-space:nowrap;}
+  .ov-item.ov-warn .ov-val{color:#FF5252;}
+  .ov-sep{width:1px;background:#2a2a2a;margin:6px 0;}
+  /* ── QUILL EDITOR ── */
+  .ql-news-editor .ql-toolbar.ql-snow{border-radius:5px 5px 0 0;background:#f8f8f8;border-color:#ddd;font-family:inherit;}
+  .ql-news-editor .ql-container.ql-snow{border-radius:0 0 5px 5px;border-color:#ddd;min-height:120px;}
+  .ql-news-editor .ql-editor{min-height:110px;font-size:0.9rem;font-family:system-ui,sans-serif;line-height:1.6;}
+  .ql-news-editor.ql-error .ql-container{border-color:#e53935 !important;}
 </style>
+<link rel="stylesheet" href="https://cdn.quilljs.com/1.3.7/quill.snow.css">
 </head>
 <body>
 
@@ -96,6 +110,34 @@
   <button class="tab <%= activeTab==='challenges'?'active':'' %>"  onclick="showTab('challenges',this)">Challenges</button>
   <button class="tab <%= activeTab==='trainingsplan'?'active':'' %>" onclick="showTab('trainingsplan',this)">Trainingsplan</button>
   <button class="tab <%= activeTab==='polls'?'active':'' %>"         onclick="showTab('polls',this)">Abstimmungen</button>
+</div>
+
+<%
+  var _pending = members.filter(function(m){ return m.status === 'new'; }).length;
+  var _now = new Date();
+  var _nextT = termine.filter(function(t){ return new Date(t.date) >= _now; }).sort(function(a,b){ return new Date(a.date)-new Date(b.date); })[0];
+  var _lastN = news[0];
+%>
+<div class="overview-strip">
+  <div class="ov-item <%= _pending > 0 ? 'ov-warn' : '' %>" onclick="navToTab('members')">
+    <div class="ov-val"><%= _pending %></div>
+    <div class="ov-lbl">Offene Beitritte</div>
+  </div>
+  <div class="ov-sep"></div>
+  <div class="ov-item" onclick="navToTab('termine')">
+    <div class="ov-val"><%= _nextT ? new Date(_nextT.date).toLocaleDateString('de-AT',{day:'2-digit',month:'short'}) : '–' %></div>
+    <div class="ov-lbl"><%= _nextT ? _nextT.title.substring(0,22)+(_nextT.title.length>22?'…':'') : 'Kein Termin' %></div>
+  </div>
+  <div class="ov-sep"></div>
+  <div class="ov-item" onclick="navToTab('news')">
+    <div class="ov-val" style="font-size:0.9rem;font-weight:700;"><%= _lastN ? _lastN.title.substring(0,24)+(_lastN.title.length>24?'…':'') : '–' %></div>
+    <div class="ov-lbl"><%= _lastN ? new Date(_lastN.published_at).toLocaleDateString('de-AT',{day:'2-digit',month:'short',year:'numeric'}) : 'Noch kein Bericht' %></div>
+  </div>
+  <div class="ov-sep"></div>
+  <a href="/admin/stats" class="ov-item" style="margin-left:auto;">
+    <div class="ov-val"><%= viewsToday %></div>
+    <div class="ov-lbl">Aufrufe heute</div>
+  </a>
 </div>
 
 <% if (flash) { %>
@@ -317,7 +359,13 @@
         <div class="field"><label>Titel</label><input name="title" required></div>
         <div class="field"><label>Datum</label><input type="date" name="published_at" value="<%= new Date().toISOString().split('T')[0] %>"></div>
       </div>
-      <div class="field"><label>Inhalt</label><textarea name="content" required></textarea></div>
+      <div class="field">
+        <label>Inhalt</label>
+        <div class="ql-news-editor">
+          <div class="ql-editor-div"></div>
+          <textarea name="content" class="ql-hidden-input" style="display:none"></textarea>
+        </div>
+      </div>
       <div class="field">
         <label>Bild (optional)</label>
         <div class="news-drop" id="drop-new" data-target="image_url_new">
@@ -340,7 +388,7 @@
     <tr>
       <td style="white-space:nowrap;"><%= new Date(n.published_at).toLocaleDateString('de-AT') %></td>
       <td><strong><%= n.title %></strong></td>
-      <td style="color:#666;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= n.content.substring(0,80) %></td>
+      <td style="color:#666;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= n.content.replace(/<[^>]+>/g,'').substring(0,80) %></td>
       <td><div class="actions">
         <button class="btn-edit" onclick="toggleEdit('news-<%= n.id %>')">Bearbeiten</button>
         <form method="POST" action="/admin/news/<%= n.id %>/delete" onsubmit="return confirm('Löschen?')"><button class="btn-del">Löschen</button></form>
@@ -353,7 +401,13 @@
             <div class="field"><label>Titel</label><input name="title" value="<%= n.title %>" required></div>
             <div class="field"><label>Datum</label><input type="date" name="published_at" value="<%= new Date(n.published_at).toISOString().split('T')[0] %>"></div>
           </div>
-          <div class="field"><label>Inhalt</label><textarea name="content" required><%= n.content %></textarea></div>
+          <div class="field">
+            <label>Inhalt</label>
+            <div class="ql-news-editor">
+              <div class="ql-editor-div"></div>
+              <textarea name="content" class="ql-hidden-input" style="display:none"><%= n.content %></textarea>
+            </div>
+          </div>
           <div class="field">
             <label>Bild</label>
             <div class="news-drop" id="drop-<%= n.id %>" data-target="image_url_<%= n.id %>">
@@ -950,6 +1004,63 @@ document.querySelectorAll('.news-drop').forEach(initNewsDropZone);
       s.style.display = 'inline';
       setTimeout(() => s.style.display = 'none', 2500);
     }
+  });
+})();
+</script>
+
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script>
+/* ── navToTab helper ── */
+function navToTab(name) {
+  var btns = document.querySelectorAll('.tab');
+  for (var i = 0; i < btns.length; i++) {
+    var oc = btns[i].getAttribute('onclick') || '';
+    if (oc.indexOf("'" + name + "'") > -1) { btns[i].click(); return; }
+  }
+}
+
+/* ── Quill init ── */
+(function() {
+  var toolbarOpts = [
+    ['bold', 'italic', 'underline'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link', 'clean']
+  ];
+
+  document.querySelectorAll('.ql-news-editor').forEach(function(wrapper) {
+    var textarea = wrapper.querySelector('.ql-hidden-input');
+    var editorDiv = wrapper.querySelector('.ql-editor-div');
+
+    var quill = new Quill(editorDiv, {
+      theme: 'snow',
+      modules: { toolbar: toolbarOpts },
+      placeholder: 'Bericht-Text eingeben…'
+    });
+
+    var content = textarea.value.trim();
+    if (content) {
+      if (/<[a-z][\s\S]*>/i.test(content)) {
+        quill.clipboard.dangerouslyPasteHTML(content);
+      } else {
+        quill.setText(content);
+      }
+    }
+
+    textarea.closest('form').addEventListener('submit', function(e) {
+      var text = quill.getText().trim();
+      if (!text) {
+        e.preventDefault();
+        wrapper.classList.add('ql-error');
+        editorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      wrapper.classList.remove('ql-error');
+      textarea.value = quill.root.innerHTML;
+    });
+
+    quill.on('text-change', function() {
+      wrapper.classList.remove('ql-error');
+    });
   });
 })();
 </script>

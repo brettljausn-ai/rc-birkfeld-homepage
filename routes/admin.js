@@ -55,7 +55,7 @@ router.get('/logout', (req, res) => {
 
 router.get('/', requireAuth, async (req, res, next) => {
   try {
-    const [[news], [termine], [gallery], [members], [contentRows], [sponsors], [clubOauth], [clubMembersAuth], [challenges], [trainingsplaene], [polls]] = await Promise.all([
+    const [[news], [termine], [gallery], [members], [contentRows], [sponsors], [clubOauth], [clubMembersAuth], [challenges], [trainingsplaene], [polls], [viewsRow]] = await Promise.all([
       pool.query('SELECT * FROM news ORDER BY published_at DESC'),
       pool.query('SELECT * FROM termine ORDER BY date ASC'),
       pool.query('SELECT * FROM gallery ORDER BY sort_order ASC'),
@@ -67,10 +67,12 @@ router.get('/', requireAuth, async (req, res, next) => {
       pool.query('SELECT * FROM club_challenges ORDER BY created_at DESC'),
       pool.query('SELECT * FROM club_trainingsplan ORDER BY week_start DESC LIMIT 12'),
       pool.query('SELECT * FROM club_polls ORDER BY created_at DESC LIMIT 20'),
+      pool.query('SELECT COALESCE(SUM(count),0) AS total FROM page_views WHERE view_date = CURDATE()'),
     ]);
     const content = Object.fromEntries(contentRows.map(r => [r.key, r.value]));
     res.render('admin/dashboard', {
       news, termine, gallery, members, content, sponsors, clubOauth, clubMembersAuth, challenges, trainingsplaene, polls,
+      viewsToday: viewsRow[0]?.total || 0,
       flash: req.query.msg || null,
       activeTab: req.query.tab || 'news',
     });
