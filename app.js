@@ -9,6 +9,7 @@ const { migrate } = require('./lib/migrate');
 const { trackView } = require('./lib/analytics');
 
 const app = express();
+app.set('trust proxy', 1);
 app.locals.appVersion = Date.now();
 
 app.set('view engine', 'ejs');
